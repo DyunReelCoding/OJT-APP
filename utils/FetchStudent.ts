@@ -1,4 +1,4 @@
-// lib/fetchStudent.ts
+//not used
 import { Databases } from "appwrite";
 import { Client } from "appwrite";
 
