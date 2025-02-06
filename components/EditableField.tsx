@@ -1,91 +1,84 @@
-//not used
 "use client";
 
 import { useState } from "react";
-import { Databases } from "appwrite";
-import { Client } from "appwrite";
+import { Databases, Client } from "appwrite";
+import { FaPen, FaSave, FaSpinner } from "react-icons/fa"; // Import pen, save, and spinner icons
 
-const databases = new Databases(
-  new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
-    .setProject(process.env.PROJECT_ID!)
+const client = new Client()
+  .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
+  .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
 
-);
-
-
+const databases = new Databases(client);
 
 interface EditableFieldProps {
   label: string;
-  field: string;
   value: string;
   userId: string;
-  collectionId: string;
-  databaseId: string;
+  fieldName: string;
 }
 
 const EditableField: React.FC<EditableFieldProps> = ({
-    label,
-    field,
-    value,
-    userId,
-    collectionId,
-    databaseId,
-  }) => {
-    const [editing, setEditing] = useState(false);
-    const [inputValue, setInputValue] = useState(value);
-    const [loading, setLoading] = useState(false);
-  
-    const handleUpdate = async () => {
-      if (!inputValue.trim()) return;
-      setLoading(true);
-  
-      try {
-        await databases.updateDocument(databaseId, collectionId, userId, {
-          [field]: inputValue,
-        });
-        alert(`${label} updated successfully!`);
-      } catch (error) {
-        console.error(`Error updating ${field}:`, error);
-        alert("Update failed. Please try again.");
-      } finally {
-        setEditing(false);
-        setLoading(false);
-      }
-    };
-  
-    return (
-      <p className="text-gray-400">
-        <strong>{label}:</strong>{" "}
-        {editing ? (
-          <>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="p-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-800"
-            />
-            <button
-              onClick={handleUpdate}
-              disabled={loading}
-              className="ml-2 px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md"
-            >
-              {loading ? "Saving..." : "Save"}
-            </button>
-          </>
-        ) : (
-          <>
-            {value}{" "}
-            <button
-              onClick={() => setEditing(true)}
-              className="ml-2 text-blue-400 hover:underline"
-            >
-              Edit
-            </button>
-          </>
-        )}
-      </p>
-    );
+  label,
+  value,
+  userId,
+  fieldName,
+}) => {
+  const [inputValue, setInputValue] = useState(value);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await databases.updateDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+        userId,
+        { [fieldName]: inputValue }
+      );
+      setIsEditing(false);
+    } catch (error) {
+      console.error(`Error updating ${fieldName}:`, error);
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
+  return (
+    <div className="flex items-center gap-2">
+      <strong>{label}:</strong>
+      {isEditing ? (
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          className="border border-gray-600 bg-gray-700 text-white p-1 rounded"
+        />
+      ) : (
+        <span>{value || "N/A"}</span>
+      )}
+      {isEditing ? (
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
+        >
+          {loading ? (
+            <FaSpinner className="text-sm animate-spin" /> // Show spinner when loading
+          ) : (
+            <FaSave className="text-sm" /> // Save icon
+          )}
+        </button>
+      ) : (
+        <button
+          onClick={() => setIsEditing(true)}
+          className="px-2 py-1  hover:bg-blue-600 text-white rounded flex items-center gap-1"
+        >
+          <FaPen className="text-sm" /> {/* Pen icon for editing */}
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default EditableField;

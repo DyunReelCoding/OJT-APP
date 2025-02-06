@@ -1,42 +1,36 @@
-import { Databases } from "appwrite";
-import { Client } from "appwrite";
+import { Databases, Client } from "appwrite";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import EmailForm from "@/components/EmailForm";
+import EditableField from "@/components/EditableField";
 
-// Configure Appwrite client
 const client = new Client()
-  .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!) 
-  .setProject(process.env.PROJECT_ID!); 
+  .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
+  .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
 
 const databases = new Databases(client);
 
 const fetchStudent = async (userId: string) => {
   try {
-    const response = await databases.getDocument(
-      process.env.DATABASE_ID!, 
-      process.env.PATIENT_COLLECTION_ID!, 
-      userId 
+    return await databases.getDocument(
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+      userId
     );
-    return response;
   } catch (error) {
     console.error("Error fetching student details:", error);
     return null;
   }
 };
 
-// StudentDetail Page Component (Server Component)
 const StudentDetail = async ({ params }: { params: { userId: string } }) => {
-  const { userId } = params; // Get userId from URL parameters
+  const { userId } = await params;  // Await params here
+  const student = await fetchStudent(userId);
 
-  const student = await fetchStudent(userId); // Fetch student data from Appwrite
-
-  if (!student) {
-    notFound(); // If no student found, show 404
-  }
+  if (!student) notFound();
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
-      {/* Back to Admin Button */}
       <Link href="/admin">
         <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
           ← Back to Admin
@@ -49,37 +43,37 @@ const StudentDetail = async ({ params }: { params: { userId: string } }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Personal Information</h2>
-          <p><strong>Email:</strong> {student.email}</p>
-          <p><strong>Phone:</strong> {student.phone}</p>
-          <p><strong>Gender:</strong> {student.gender}</p>
-          <p><strong>Birth Date:</strong> {student.birthDate}</p>
-          <p><strong>Age:</strong> {student.age}</p>
-          <p><strong>Address:</strong> {student.address}</p>
-          <p><strong>Occupation:</strong> {student.occupation}</p>
-          <p><strong>Emergency Contact Name:</strong> {student.emergencyContactName}</p>
-          <p><strong>Emergency Contact Number:</strong> {student.emergencyContactNumber}</p>
+          <EditableField label="Email" value={student.email} userId={userId} fieldName="email" />
+          <EditableField label="Phone" value={student.phone} userId={userId} fieldName="phone" />
+          <EditableField label="Gender" value={student.gender} userId={userId} fieldName="gender" />
+          <EditableField label="Birth Date" value={student.birthDate} userId={userId} fieldName="birthDate" />
+          <EditableField label="Age" value={student.age} userId={userId} fieldName="age" />
+          <EditableField label="Address" value={student.address} userId={userId} fieldName="address" />
+          <EditableField label="Occupation" value={student.occupation} userId={userId} fieldName="occupation" />
+          <EditableField label="Emergency Contact Name" value={student.emergencyContactName} userId={userId} fieldName="emergencyContactName" />
+          <EditableField label="Emergency Contact Number" value={student.emergencyContactNumber} userId={userId} fieldName="emergencyContactNumber" />
         </div>
 
         {/* Medical Information */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Medical Information</h2>
-          <p><strong>Blood Type:</strong> {student.bloodType}</p>
-          <p><strong>Allergies:</strong> {student.allergies}</p>
-          <p><strong>Current Medication:</strong> {student.currentMedication}</p>
-          <p><strong>Family Medical History:</strong> {student.familyMedicalHistory}</p>
-          <p><strong>Past Medical History:</strong> {student.pastMedicalHistory}</p>
-          <p><strong>Primary Physician:</strong> {student.primaryPhysician}</p>
-          <p><strong>Insurance Provider:</strong> {student.insuranceProvider}</p>
-          <p><strong>Insurance Policy Number:</strong> {student.insurancePolicyNumber}</p>
+          <EditableField label="Blood Type" value={student.bloodType} userId={userId} fieldName="bloodType" />
+          <EditableField label="Allergies" value={student.allergies} userId={userId} fieldName="allergies" />
+          <EditableField label="Current Medication" value={student.currentMedication} userId={userId} fieldName="currentMedication" />
+          <EditableField label="Family Medical History" value={student.familyMedicalHistory} userId={userId} fieldName="familyMedicalHistory" />
+          <EditableField label="Past Medical History" value={student.pastMedicalHistory} userId={userId} fieldName="pastMedicalHistory" />
+          <EditableField label="Primary Physician" value={student.primaryPhysician} userId={userId} fieldName="primaryPhysician" />
+          <EditableField label="Insurance Provider" value={student.insuranceProvider} userId={userId} fieldName="insuranceProvider" />
+          <EditableField label="Insurance Policy Number" value={student.insurancePolicyNumber} userId={userId} fieldName="insurancePolicyNumber" />
         </div>
       </div>
 
-      {/* Identification and Consent */}
+      {/* Identification */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Identification and Consent</h2>
-          <p><strong>Identification Type:</strong> {student.identificationType}</p>
-          <p><strong>Identification Number:</strong> {student.identificationNumber}</p>
+          <h2 className="text-xl font-semibold">Identification</h2>
+          <EditableField label="Identification Type" value={student.identificationType} userId={userId} fieldName="identificationType" />
+          <EditableField label="Identification Number" value={student.identificationNumber} userId={userId} fieldName="identificationNumber" />
           <p>
             <strong>Identification Document:</strong>{" "}
             <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
@@ -91,21 +85,23 @@ const StudentDetail = async ({ params }: { params: { userId: string } }) => {
         {/* Health Info */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Health Information</h2>
-          <p><strong>Year Level:</strong> {student.yearLevel}</p>
-          <p><strong>BMI Category:</strong> {student.bmiCategory}</p>
-          <p><strong>Weight:</strong> {student.weight}</p>
-          <p><strong>Height:</strong> {student.height}</p>
-          <p><strong>BMI:</strong> {student.bmi}</p>
+          <EditableField label="Year Level" value={student.yearLevel} userId={userId} fieldName="yearLevel" />
+          <EditableField label="BMI Category" value={student.bmiCategory} userId={userId} fieldName="bmiCategory" />
+          <EditableField label="Weight" value={student.weight} userId={userId} fieldName="weight" />
+          <EditableField label="Height" value={student.height} userId={userId} fieldName="height" />
+          <EditableField label="BMI" value={student.bmi} userId={userId} fieldName="bmi" />
         </div>
       </div>
 
-      {/* Additional Information */}
+      {/* Other Information */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold">Other Information</h2>
-        <p><strong>Religion:</strong> {student.religion}</p>
-        <p><strong>Program:</strong> {student.program}</p>
-        <p><strong>ID Number:</strong> {student.idNumber}</p>
+        <EditableField label="Religion" value={student.religion} userId={userId} fieldName="religion" />
+        <EditableField label="Program" value={student.program} userId={userId} fieldName="program" />
+        <EditableField label="ID Number" value={student.idNumber} userId={userId} fieldName="idNumber" />
       </div>
+
+      <EmailForm />
     </div>
   );
 };
