@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Databases, Client } from "appwrite";
-import { FaPen, FaSave, FaSpinner } from "react-icons/fa"; // Import pen, save, and spinner icons
+import { FaPen, FaSave, FaSpinner } from "react-icons/fa";
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -15,6 +15,7 @@ interface EditableFieldProps {
   value: string;
   userId: string;
   fieldName: string;
+  onUpdate: (fieldName: string, newValue: string) => void;
 }
 
 const EditableField: React.FC<EditableFieldProps> = ({
@@ -22,6 +23,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
   value,
   userId,
   fieldName,
+  onUpdate,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
@@ -36,6 +38,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
         userId,
         { [fieldName]: inputValue }
       );
+      onUpdate(fieldName, inputValue);
       setIsEditing(false);
     } catch (error) {
       console.error(`Error updating ${fieldName}:`, error);
@@ -64,17 +67,17 @@ const EditableField: React.FC<EditableFieldProps> = ({
           className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
         >
           {loading ? (
-            <FaSpinner className="text-sm animate-spin" /> // Show spinner when loading
+            <FaSpinner className="text-sm animate-spin" />
           ) : (
-            <FaSave className="text-sm" /> // Save icon
+            <FaSave className="text-sm" />
           )}
         </button>
       ) : (
         <button
           onClick={() => setIsEditing(true)}
-          className="px-2 py-1  hover:bg-blue-600 text-white rounded flex items-center gap-1"
+          className="px-2 py-1 hover:bg-blue-600 text-white rounded flex items-center gap-1"
         >
-          <FaPen className="text-sm" /> {/* Pen icon for editing */}
+          <FaPen className="text-sm" />
         </button>
       )}
     </div>

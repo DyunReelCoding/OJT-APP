@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import StatCard from "@/components/StatCard";
 import { Databases, Client } from "appwrite";
 import StudentList from "@/components/StudentList";
+import SideBar from "@/components/SideBar"; // ✅ Import Sidebar
 
 // Configure Appwrite client
 const client = new Client()
@@ -28,28 +29,31 @@ const Admin = async () => {
   const students = await fetchStudents();
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col space-y-14">
-      <header className="admin-header">
-        <p className="text-16-semibold">Admin Dashboard</p>
-      </header>
-      <main className="admin-main">
-        <section className="w-full space-y-4">
-          <h1 className="header">Welcome 👋</h1>
-          <p className="text-dark-700">Manage students' well-being</p>
-        </section>
+    <div className="flex h-screen">
+      {/* ✅ Sidebar (Now includes Back Button) */}
+      <SideBar />
 
-        <section className="admin-stat">
-          <StatCard
-            type="students"
-            count={students.length}
-            label="Number of Students"
-            icon="/assets/icons/appointments.svg"
-          />
-        </section>
+      {/* ✅ Main Content Section */}
+      <div className="flex-1 p-6">
+        <main className="admin-main">
+          <section className="w-full space-y-4">
+            <h1 className="header">Welcome 👋</h1>
+            <p className="text-dark-700">Manage students' well-being</p>
+          </section>
 
-        {/* Student List Component */}
-        <StudentList students={students} />
-      </main>
+          <section className="admin-stat">
+            <StatCard
+              type="students"
+              count={students.length}
+              label="Number of Students"
+              icon="/assets/icons/appointments.svg"
+            />
+          </section>
+
+          {/* Student List Component */}
+          <StudentList students={students} />
+        </main>
+      </div>
     </div>
   );
 };

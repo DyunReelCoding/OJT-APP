@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const EmailForm = () => {
+const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    setEmail(studentEmail); // Auto-fill email
+  }, [studentEmail]);
+
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
@@ -15,18 +20,12 @@ const EmailForm = () => {
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ to: email, subject, message }),
       });
 
       const result = await response.json();
-      if (result.success) {
-        setStatus("Email sent successfully!");
-      } else {
-        setStatus("Failed to send email.");
-      }
+      setStatus(result.success ? "Email sent successfully!" : "Failed to send email.");
     } catch (error) {
       console.error("Error:", error);
       setStatus("Error sending email.");
@@ -39,11 +38,9 @@ const EmailForm = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
-          placeholder="Recipient Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full p-2 rounded-md bg-gray-700 text-white"
+          readOnly // Prevent editing
+          className="w-full p-2 rounded-md bg-gray-700 text-white cursor-not-allowed"
         />
         <input
           type="text"

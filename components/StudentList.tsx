@@ -2,30 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ComboBox from "@/components/ComboBox"; // Import the ComboBox component
 
 const StudentList = ({ students }: { students: any[] }) => {
   const [filteredStudents, setFilteredStudents] = useState(students);
   const [searchQuery, setSearchQuery] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState(""); // Selected filter type
   const router = useRouter();
 
-  // Filter students based on search query
+  // Filter students based on search query and selected filter type
   useEffect(() => {
-    if (!searchQuery) {
-      setFilteredStudents(students);
-      return;
+    let filtered = students;
+
+    if (filterType) {
+      filtered = filtered.filter((student) =>
+        student[filterType]?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = students.filter(
+        (student) =>
+          student.name?.toLowerCase().includes(query) ||
+          student.idNumber?.toLowerCase().includes(query) ||
+          student.program?.toLowerCase().includes(query) ||
+          student.yearLevel?.toLowerCase().includes(query)
+      );
     }
 
-    const query = searchQuery.toLowerCase();
-    const filtered = students.filter(
-      (student) =>
-        student.name?.toLowerCase().includes(query) ||
-        student.idNumber?.toLowerCase().includes(query) ||
-        student.program?.toLowerCase().includes(query) ||
-        student.yearLevel?.toLowerCase().includes(query)
-    );
     setFilteredStudents(filtered);
-  }, [searchQuery, students]);
+  }, [searchQuery, filterType, students]);
 
   // Handle student click with loading state
   const handleStudentClick = (studentId: string) => {
@@ -37,10 +43,13 @@ const StudentList = ({ students }: { students: any[] }) => {
     <section className="student-list">
       <h2 className="text-2xl font-semibold mb-4 text-white">Student List</h2>
 
+      {/* Combo Box Component */}
+      <ComboBox filterType={filterType} setFilterType={setFilterType} />
+
       {/* Search Bar */}
       <input
         type="text"
-        placeholder="Search students..."
+        placeholder="Search..."
         className="w-full p-3 border border-gray-700 rounded-lg bg-gray-900 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
@@ -72,6 +81,14 @@ const StudentList = ({ students }: { students: any[] }) => {
               <p className="text-gray-400">ID Number: {student.idNumber}</p>
               <p className="text-gray-400">Program: {student.program}</p>
               <p className="text-gray-400">Year Level: {student.yearLevel}</p>
+
+              {/* Show Selected Medical Data if Filter is Applied */}
+              {filterType && student[filterType] && (
+                <p className="text-gray-400">
+                  <strong>{filterType.replace(/([A-Z])/g, " $1")}: </strong>{" "}
+                  {student[filterType]}
+                </p>
+              )}
             </div>
           ))}
         </div>
