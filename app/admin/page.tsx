@@ -30,15 +30,15 @@ const Admin = async () => {
 
   return (
     <div className="flex h-screen">
-      {/* ✅ Sidebar (Now includes Back Button) */}
+      
       <SideBar />
 
-      {/* ✅ Main Content Section */}
+      
       <div className="flex-1 p-6">
         <main className="admin-main">
           <section className="w-full space-y-4">
             <h1 className="header">Welcome 👋</h1>
-            <p className="text-dark-700">Manage students' well-being</p>
+            <p className="text-dark-700">Start the day managing students' well-being</p>
           </section>
 
           <section className="admin-stat">

@@ -20,12 +20,14 @@ import { SelectItem } from "../ui/select";
 import Image from "next/image";
 import FileUploader from "../FileUploader";
 import { useEffect } from "react";
+import SuccessMessage from "../SuccessMessage";
 
 
 
 const RegisterForm = ({user}: {user:User}) => {
   const router =  useRouter();
   const [isLoading, setIsLoding] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
@@ -83,42 +85,48 @@ const RegisterForm = ({user}: {user:User}) => {
 
   async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
     setIsLoding(true);
-    
+  
     let formData;
-
-    if(values.identificationDocument && values.identificationDocument.length > 0){
+  
+    if (values.identificationDocument && values.identificationDocument.length > 0) {
       const blobFile = new Blob([values.identificationDocument[0]], {
         type: values.identificationDocument[0].type,
-      })
-
+      });
+  
       formData = new FormData();
-      formData.append('blobFile', blobFile);
-      formData.append('fileName', values.identificationDocument[0].name)
-
+      formData.append("blobFile", blobFile);
+      formData.append("fileName", values.identificationDocument[0].name);
     }
-    try{
+  
+    try {
       const patientData = {
         ...values,
         userId: user.$id,
         birthDate: new Date(values.birthDate),
         identificationDocument: formData,
-       
-      }
+      };
+      
 
       // @ts-ignore
       const patient = await registerPatient(patientData);
-
-      if(patient) router.push(`/patients/${user.$id}/success`)
-    }catch (error) {
+  
+      if (patient) {
+        form.reset();
+        setSuccessMessage("Registration successful! You have been registered successfully.");
+      }
+    } catch (error) {
       console.log(error);
-      
-    } 
+    } finally {
+      setIsLoding(false); // Reset loading state after submission
+    }
   }
+  
 
   return (
     <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} 
     className="space-y-12 flex-1">
+      {successMessage && <SuccessMessage message={successMessage} />}
       <section className="space-y-4">
         <h1 className="header">Welcome!👋</h1>
         <p className="text-dark-700">Let us know about yourself.</p>
@@ -471,7 +479,7 @@ const RegisterForm = ({user}: {user:User}) => {
         label="I consent to privacy policy"
       />
       <SubmitButton isLoading={isLoading}> Get Started</SubmitButton>
-
+      
     </form>
   </Form>
   )

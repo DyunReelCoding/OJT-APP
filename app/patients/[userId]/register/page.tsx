@@ -2,19 +2,19 @@ import Image from "next/image";
 import RegisterForm from "@/components/forms/RegisterForm";
 import { getUser } from "@/lib/actions/patient.actions";
 import BackToHomeButton from "@/components/BackToHomeButton";
+// import * as Sentry from '@sentry/nextjs'
 
 
 const Register = async ({ params }: { params: { userId: string } }) => {
   const { userId } = await params; // Await params before accessing its properties
   const user = await getUser(userId);
   
-
-
+  // Sentry.metrics.set("user_view", user.name);
 
   return (
     <div className = "flex h-screen max-h-screen">
       
-    {/* {TODO OTP} */}
+    
 
 
    <section className="remove-scrollbar container">
