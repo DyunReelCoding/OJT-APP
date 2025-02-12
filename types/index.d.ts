@@ -6,10 +6,15 @@ declare type SearchParamProps = {
   };
   
   declare type Gender = "Male" | "Female" | "Other";
+  declare type CivilStatus = "Single" | "Married" | "Solo Parent"| "Widowed"| "Divorced";
+  declare type PersonWithDisability = "Yes" | "No";
   declare type Status = "pending" | "scheduled" | "cancelled";
   
   declare interface CreateUserParams {
-    name: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    suffix?: string;
     email: string;
     phone: string;
   }
@@ -24,6 +29,8 @@ declare type SearchParamProps = {
     age: number;
     address: string;
     occupation: string;
+    civilStatus: CivilStatus;
+    personWithDisability: PersonWithDisability;
     emergencyContactName: string;
     emergencyContactNumber: string;
     primaryPhysician: string;
@@ -37,6 +44,8 @@ declare type SearchParamProps = {
     identificationNumber: string | undefined;
     identificationDocument: FormData | undefined;
     privacyConsent: boolean;
+    treatmentConsent: boolean;
+    disclosureConsent: boolean;
   }
   
   declare type CreateAppointmentParams = {

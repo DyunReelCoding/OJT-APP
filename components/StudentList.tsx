@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ComboBox from "@/components/ComboBox"; // Import the ComboBox component
+import StudentListPrintButton from "./StudentListButton";
 
 const StudentList = ({ students }: { students: any[] }) => {
   const [filteredStudents, setFilteredStudents] = useState(students);
@@ -48,10 +49,14 @@ const StudentList = ({ students }: { students: any[] }) => {
 
   return (
     <section className="student-list w-full px-6">
+      
       <h2 className="text-2xl font-semibold mb-4 text-white text-center">Student List</h2>
 
       {/* Centered Search & ComboBox */}
       <div className="flex flex-col items-center mb-4">
+      <div className="flex justify-end mb-4">
+  <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} />
+</div>
         <div className="w-96">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
         </div>

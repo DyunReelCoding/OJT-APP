@@ -16,7 +16,7 @@ import { RadioGroup } from "@radix-ui/react-radio-group";
 import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues } from "@/constants";
 import { RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
-import { SelectItem } from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import Image from "next/image";
 import FileUploader from "../FileUploader";
 import { useEffect } from "react";
@@ -28,12 +28,18 @@ const RegisterForm = ({user}: {user:User}) => {
   const router =  useRouter();
   const [isLoading, setIsLoding] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [allergy, setAllergy] = useState("");
+  const [medication, setMedication] = useState("");
+
   
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
     defaultValues: {
       ...PatientFormDefaultValues,
-      name: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      suffix: "",
       email: "",
       phone: "",
       weight: "",
@@ -137,16 +143,48 @@ const RegisterForm = ({user}: {user:User}) => {
             <h2 className="sub-header">Personal Information</h2>
           </div>
       </section>
+      <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="firstName"
+          label="First Name"
+          placeholder="John"
+          iconSrc="/assets/icons/user.svg"
+          iconAlt="user"
+        />
 
-      <CustomFormField
-        fieldType={FormFieldType.INPUT}
-        control={form.control}
-        name="name"
-        label="Full Name"
-        placeholder="John Doe"
-        iconSrc="/assets/icons/user.svg"
-        iconAlt="user"
-      />
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="middleName"
+          label="Middle Name"
+          placeholder="Michael"
+          
+          iconAlt="user"
+        />
+
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="lastName"
+          label="Last Name"
+          placeholder="Doe"
+          
+          iconAlt="user"
+        />
+
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="suffix"
+          label="Suffix (if any)"
+          placeholder="Jr., Sr., III, etc."
+          
+          iconAlt="user"
+        />
+
+      </div>
        <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
           fieldType={FormFieldType.INPUT}
@@ -230,7 +268,34 @@ const RegisterForm = ({user}: {user:User}) => {
         placeholder="Software Engineer"
         
     />
+    
       </div>
+      <div className="flex flex-col gap-6 xl:flex-row">
+      <CustomFormField
+        fieldType={FormFieldType.SKELETON}
+        control={form.control}
+        name="civilStatus"
+        label="Civil Status"
+        renderSkeleton={(field) => (
+            <FormControl>
+                <RadioGroup
+                    className="flex flex-wrap gap-6 xl:justify-between"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                >
+                    {["Single", "Married", "Solo Parent", "Widowed", "Divorced"].map((status) => (
+                        <div key={status} className="radio-group flex items-center gap-2">
+                            <RadioGroupItem value={status} id={status} />
+                            <Label htmlFor={status} className="cursor-pointer">
+                                {status}
+                            </Label>
+                        </div>
+                    ))}
+                </RadioGroup>
+            </FormControl>
+        )}
+    />
+</div>
       <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
           fieldType={FormFieldType.INPUT}
@@ -333,30 +398,7 @@ const RegisterForm = ({user}: {user:User}) => {
             <h2 className="sub-header">Medical Information</h2>
           </div>
       </section>
-      <CustomFormField
-            fieldType={FormFieldType.SELECT}
-            control={form.control}
-            name="primaryPhysician"
-            label="Primary Physician"
-            placeholder="Select a physician"
-            >
-                {Doctors.map((doctor) => (
-                    <SelectItem key={doctor.name} 
-                    value={doctor.name}>
-                        <div className="flex cursor-pointer items-center-gap-2 items-center ">
-                            <Image
-                                src={doctor.image}
-                                width={32}
-                                height={32}
-                                alt ={doctor.name}
-                                className="rounded-full border border-dark-500 mr-2"
-                            />
-                            <p>{doctor.name}</p>
-                        </div>
 
-                    </SelectItem>
-                ))}
-        </CustomFormField>
       <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -377,23 +419,126 @@ const RegisterForm = ({user}: {user:User}) => {
       </div>
 
       <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
-            control={form.control}
-            name="allergies"
-            label="Allergies (if any)"
-            placeholder="Peanut, Penicillin, Pollen"
-                    
-          />
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
-            control={form.control}
-            name="currentMedication"
-            label="Current Medication (if any)"
-            placeholder="Ibuprofen 200mg, Paracetamol 200mg"
-          
-          />
+      <CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="allergies"
+  label="Allergies (if any)"
+  renderSkeleton={(field) => (
+    <div>
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setAllergy(value);
+            form.setValue("allergies", value === "Other" ? "" : value);
+          }}
+          defaultValue={field.value}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select Allergy" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-white border-gray-600">
+            {["Peanut", "Penicillin", "Pollen", "Dust", "Seafood", "None", "Other"].map((allergy) => (
+              <SelectItem key={allergy} value={allergy}>
+                {allergy}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+      {allergy === "Other" && (
+        <CustomFormField
+          fieldType={FormFieldType.TEXTAREA}
+          control={form.control}
+          name="allergies"
+          label="Specify Allergy"
+          placeholder="Please specify your allergy"
+          renderSkeleton={(field) => (
+            <textarea
+              className="w-full p-2 border border-gray-300 rounded-md"
+              value={field.value}
+              onChange={(e) => form.setValue("allergies", e.target.value)}
+            />
+          )}
+        />
+      )}
+    </div>
+  )}
+/>
+
+<CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="currentMedication"
+  label="Current Medication (if any)"
+  renderSkeleton={(field) => (
+    <div>
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setMedication(value);
+            form.setValue("currentMedication", value === "Other" ? "" : value);
+          }}
+          defaultValue={field.value}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select Medication" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-white border-gray-600">
+            {["Ibuprofen 200mg", "Paracetamol 200mg", "Antihistamine", "None", "Other"].map((med) => (
+              <SelectItem key={med} value={med}>
+                {med}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+      {medication === "Other" && (
+        <CustomFormField
+          fieldType={FormFieldType.TEXTAREA}
+          control={form.control}
+          name="currentMedication"
+          label="Specify Medication"
+          placeholder="Please specify your medication"
+          renderSkeleton={(field) => (
+            <textarea
+              className="w-full p-2 border border-gray-300 rounded-md"
+              value={field.value}
+              onChange={(e) => form.setValue("currentMedication", e.target.value)}
+            />
+          )}
+        />
+      )}
+    </div>
+  )}
+/>
       </div>
+      <div className="flex flex-col gap-6 xl:flex-row">
+      <CustomFormField
+    fieldType={FormFieldType.SKELETON}
+    control={form.control}
+    name="personWithDisability"
+    label="Person with Disability"
+    renderSkeleton={(field) => (
+        <FormControl>
+            <RadioGroup
+                className="flex gap-6 xl:justify-between"
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+            >
+                {["Yes", "No"].map((option) => (
+                    <div key={option} className="radio-group flex items-center gap-2">
+                        <RadioGroupItem value={option} id={option} />
+                        <Label htmlFor={option} className="cursor-pointer">
+                            {option}
+                        </Label>
+                    </div>
+                ))}
+            </RadioGroup>
+        </FormControl>
+    )}
+/>
+</div>
 
       <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormField

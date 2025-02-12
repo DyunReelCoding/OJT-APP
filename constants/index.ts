@@ -2,7 +2,9 @@ export const GenderOptions = ["male", "female", "other"];
 
 export const PatientFormDefaultValues = {
   firstName: "",
+  middleName: "",
   lastName: "",
+  suffix: "",
   idNumber: "",
   age: "",
   bloodType: "",
@@ -33,6 +35,7 @@ export const PatientFormDefaultValues = {
 };
 
 export const IdentificationTypes = [
+  "Student ID Card",
   "Birth Certificate",
   "Driver's License",
   "Medical Insurance Card/Policy",
@@ -42,7 +45,6 @@ export const IdentificationTypes = [
   "Resident Alien Card (Green Card)",
   "Social Security Card",
   "State ID Card",
-  "Student ID Card",
   "Voter ID Card",
 ];
 

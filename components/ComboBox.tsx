@@ -20,8 +20,9 @@ const ComboBox = ({ filterType, setFilterType }: ComboBoxProps) => {
       <option value="bloodType">Blood Type</option>
       <option value="religion">Religion</option>
       <option value="age">Age</option>
-      <option value="weight">Weight</option>
-      <option value="height">Height</option>
+      <option value="bmiCategory">BMI Category</option>
+      <option value="civilStatus">Civil Status</option>
+      <option value="personWithDisability">PWD</option>
     </select>
   );
 };
