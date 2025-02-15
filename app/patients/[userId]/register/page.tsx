@@ -13,9 +13,6 @@ const Register = async ({ params }: { params: { userId: string } }) => {
 
   return (
     <div className = "flex h-screen max-h-screen">
-      
-    
-
 
    <section className="remove-scrollbar container">
    <BackToHomeButton />

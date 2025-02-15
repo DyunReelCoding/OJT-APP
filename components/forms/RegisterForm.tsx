@@ -21,15 +21,25 @@ import Image from "next/image";
 import FileUploader from "../FileUploader";
 import { useEffect } from "react";
 import SuccessMessage from "../SuccessMessage";
+import { Client, Databases } from "appwrite";
 
-
+// Load environment variables
+const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!;
+const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID!;
+const COLLECTION_ID = process.env.NEXT_PUBLIC_ALLERGIES_COLLECTION_ID!;
+const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
+const MEDICATIONS_COLLECTION_ID = process.env.NEXT_PUBLIC_CURRENTMEDICATION_COLLECTION_ID!;
 
 const RegisterForm = ({user}: {user:User}) => {
   const router =  useRouter();
   const [isLoading, setIsLoding] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [allergy, setAllergy] = useState("");
-  const [medication, setMedication] = useState("");
+  
+  const [allergies, setAllergies] = useState<string[]>(["None"]);
+  const [medications, setMedications] = useState<string[]>([]);
+  const [medication, setMedication] = useState<string>("");
+
 
   
   const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -49,6 +59,35 @@ const RegisterForm = ({user}: {user:User}) => {
     },
   })
   useEffect(() => {
+    const client = new Client();
+    client.setEndpoint(ENDPOINT).setProject(PROJECT_ID);
+    const databases = new Databases(client);
+
+    // Fetch allergies from the database
+    const fetchAllergies = async () => {
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+        const allergyNames = response.documents.map((doc) => doc.name);
+        setAllergies(["None", ...allergyNames]); // Add "None" to the list
+      } catch (error) {
+        console.error("Error fetching allergies:", error);
+      }
+    };
+
+    fetchAllergies();
+    const fetchMedications = async () => {
+      try {
+        const response = await databases.listDocuments(
+          DATABASE_ID,
+          MEDICATIONS_COLLECTION_ID
+        );
+        setMedications(response.documents.map((doc) => doc.name));
+      } catch (error) {
+        console.error("Error fetching medications:", error);
+      }
+    };
+    fetchMedications();
+
     const weightStr = form.watch("weight");
     const heightStr = form.watch("height");
     const ageStr = form.watch("age");
@@ -86,7 +125,9 @@ const RegisterForm = ({user}: {user:User}) => {
       form.setValue("bmi", ""); // Reset BMI if values are invalid
       form.setValue("bmiCategory", ""); // Reset BMI category if values are invalid
     }
-  }, [form.watch("weight"), form.watch("height"), form.watch("age")]); 
+  }, [form.watch("weight"), form.watch("height"), form.watch("age")]);
+
+  
   
 
   async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
@@ -272,29 +313,30 @@ const RegisterForm = ({user}: {user:User}) => {
       </div>
       <div className="flex flex-col gap-6 xl:flex-row">
       <CustomFormField
-        fieldType={FormFieldType.SKELETON}
-        control={form.control}
-        name="civilStatus"
-        label="Civil Status"
-        renderSkeleton={(field) => (
-            <FormControl>
-                <RadioGroup
-                    className="flex flex-wrap gap-6 xl:justify-between"
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                >
-                    {["Single", "Married", "Solo Parent", "Widowed", "Divorced"].map((status) => (
-                        <div key={status} className="radio-group flex items-center gap-2">
-                            <RadioGroupItem value={status} id={status} />
-                            <Label htmlFor={status} className="cursor-pointer">
-                                {status}
-                            </Label>
-                        </div>
-                    ))}
-                </RadioGroup>
-            </FormControl>
-        )}
-    />
+    fieldType={FormFieldType.SKELETON}
+    control={form.control}
+    name="civilStatus"
+    label="Civil Status"
+    renderSkeleton={(field) => (
+        <FormControl>
+            <RadioGroup
+                className="flex flex-wrap gap-6 xl:justify-between"
+                onValueChange={field.onChange}
+                value={field.value || ""} // Ensure it resets to empty
+            >
+                {["Single", "Married", "Solo Parent", "Widowed", "Divorced"].map((status) => (
+                    <div key={status} className="radio-group flex items-center gap-2">
+                        <RadioGroupItem value={status} id={status} />
+                        <Label htmlFor={status} className="cursor-pointer">
+                            {status}
+                        </Label>
+                    </div>
+                ))}
+            </RadioGroup>
+        </FormControl>
+    )}
+/>
+
 </div>
       <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
@@ -430,7 +472,7 @@ const RegisterForm = ({user}: {user:User}) => {
         <Select
           onValueChange={(value) => {
             setAllergy(value);
-            form.setValue("allergies", value === "Other" ? "" : value);
+            form.setValue("allergies", value);
           }}
           defaultValue={field.value}
         >
@@ -438,7 +480,7 @@ const RegisterForm = ({user}: {user:User}) => {
             <SelectValue placeholder="Select Allergy" />
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-600">
-            {["Peanut", "Penicillin", "Pollen", "Dust", "Seafood", "None", "Other"].map((allergy) => (
+            {allergies.map((allergy) => (
               <SelectItem key={allergy} value={allergy}>
                 {allergy}
               </SelectItem>
@@ -446,22 +488,6 @@ const RegisterForm = ({user}: {user:User}) => {
           </SelectContent>
         </Select>
       </FormControl>
-      {allergy === "Other" && (
-        <CustomFormField
-          fieldType={FormFieldType.TEXTAREA}
-          control={form.control}
-          name="allergies"
-          label="Specify Allergy"
-          placeholder="Please specify your allergy"
-          renderSkeleton={(field) => (
-            <textarea
-              className="w-full p-2 border border-gray-300 rounded-md"
-              value={field.value}
-              onChange={(e) => form.setValue("allergies", e.target.value)}
-            />
-          )}
-        />
-      )}
     </div>
   )}
 />
@@ -477,7 +503,7 @@ const RegisterForm = ({user}: {user:User}) => {
         <Select
           onValueChange={(value) => {
             setMedication(value);
-            form.setValue("currentMedication", value === "Other" ? "" : value);
+            form.setValue("currentMedication", value);
           }}
           defaultValue={field.value}
         >
@@ -485,33 +511,22 @@ const RegisterForm = ({user}: {user:User}) => {
             <SelectValue placeholder="Select Medication" />
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-600">
-            {["Ibuprofen 200mg", "Paracetamol 200mg", "Antihistamine", "None", "Other"].map((med) => (
-              <SelectItem key={med} value={med}>
-                {med}
+            <SelectItem key="None" value="None">
+              None
+            </SelectItem>
+            {medications.map((medication) => (
+              <SelectItem key={medication} value={medication}>
+                {medication}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </FormControl>
-      {medication === "Other" && (
-        <CustomFormField
-          fieldType={FormFieldType.TEXTAREA}
-          control={form.control}
-          name="currentMedication"
-          label="Specify Medication"
-          placeholder="Please specify your medication"
-          renderSkeleton={(field) => (
-            <textarea
-              className="w-full p-2 border border-gray-300 rounded-md"
-              value={field.value}
-              onChange={(e) => form.setValue("currentMedication", e.target.value)}
-            />
-          )}
-        />
-      )}
     </div>
   )}
 />
+
+
       </div>
       <div className="flex flex-col gap-6 xl:flex-row">
       <CustomFormField
@@ -523,8 +538,14 @@ const RegisterForm = ({user}: {user:User}) => {
         <FormControl>
             <RadioGroup
                 className="flex gap-6 xl:justify-between"
-                onValueChange={field.onChange}
-                defaultValue={field.value}
+                onValueChange={(value) => {
+                    field.onChange(value);
+                    if (value === "No") {
+                        form.setValue("disabilityType", ""); // Clear selection if "No"
+                        form.setValue("disabilityDetails", ""); // Clear details
+                    }
+                }}
+                value={field.value || ""} // Ensure it resets to empty
             >
                 {["Yes", "No"].map((option) => (
                     <div key={option} className="radio-group flex items-center gap-2">
@@ -538,6 +559,46 @@ const RegisterForm = ({user}: {user:User}) => {
         </FormControl>
     )}
 />
+
+
+{/* Show disability type selection only if "Yes" is selected */}
+{form.watch("personWithDisability") === "Yes" && (
+    <CustomFormField
+        fieldType={FormFieldType.SKELETON}
+        control={form.control}
+        name="disabilityType"
+        label="Type of Disability"
+        renderSkeleton={(field) => (
+            <FormControl>
+                <RadioGroup
+                    className="flex gap-6 xl:justify-between"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                >
+                    {["Physical Disabilities", "Intellectual Disabilities", "Mental Illnesses"].map((option) => (
+                        <div key={option} className="radio-group flex items-center gap-2">
+                            <RadioGroupItem value={option} id={option} />
+                            <Label htmlFor={option} className="cursor-pointer">
+                                {option}
+                            </Label>
+                        </div>
+                    ))}
+                </RadioGroup>
+            </FormControl>
+        )}
+    />
+)}
+
+{/* Show textarea if a disability type is selected */}
+{form.watch("disabilityType") && (
+    <CustomFormField
+        fieldType={FormFieldType.TEXTAREA}
+        control={form.control}
+        name="disabilityDetails"
+        label="Specify Disability Details"
+    />
+)}
+
 </div>
 
       <div className="flex flex-col gap-6 xl:flex-row">
@@ -596,6 +657,7 @@ const RegisterForm = ({user}: {user:User}) => {
                 renderSkeleton={(field)=>(
                     <FormControl>
                       <FileUploader files = {field.value} onChange={field.onChange}/>
+                      
                     </FormControl>
                 )}
             />

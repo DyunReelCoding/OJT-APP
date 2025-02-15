@@ -5,6 +5,8 @@ export const PatientFormDefaultValues = {
   middleName: "",
   lastName: "",
   suffix: "",
+  disabilityType:"",
+  disabilityDetails:"",
   idNumber: "",
   age: "",
   bloodType: "",

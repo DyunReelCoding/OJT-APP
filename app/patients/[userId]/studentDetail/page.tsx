@@ -86,6 +86,9 @@ const StudentDetail = () => {
           <EditableField label="Primary Physician" value={student.primaryPhysician} userId={userId} fieldName="primaryPhysician" onUpdate={handleUpdate} />
           <EditableField label="Insurance Provider" value={student.insuranceProvider} userId={userId} fieldName="insuranceProvider" onUpdate={handleUpdate} />
           <EditableField label="Insurance Policy Number" value={student.insurancePolicyNumber} userId={userId} fieldName="insurancePolicyNumber" onUpdate={handleUpdate} />
+          <EditableField label="Person with Disability" value={student.personWithDisability} userId={userId} fieldName="personWithDisability" onUpdate={handleUpdate} />
+          <EditableField label="Disability Type" value={student.disabilityType} userId={userId} fieldName="disabilityType" onUpdate={handleUpdate} />
+          <EditableField label="Disability Details" value={student.disabilityDetails} userId={userId} fieldName="disabilityDetails" onUpdate={handleUpdate} />
         </div>
       </div>
 
@@ -95,6 +98,7 @@ const StudentDetail = () => {
           <h2 className="text-xl font-semibold">Identification</h2>
           <EditableField label="Identification Type" value={student.identificationType} userId={userId} fieldName="identificationType" onUpdate={handleUpdate} />
           <EditableField label="Identification Number" value={student.identificationNumber} userId={userId} fieldName="identificationNumber" onUpdate={handleUpdate} />
+          <EditableField label="Student Identification Number" value={student.idNumber} userId={userId} fieldName="idNumber" onUpdate={handleUpdate} />
           <p>
             <strong>Identification Document:</strong>{" "}
             <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">

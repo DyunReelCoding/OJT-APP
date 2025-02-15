@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Databases, Client } from "appwrite";
 import { FaPen, FaSave, FaSpinner } from "react-icons/fa";
+import SuccessMessage from "@/components/SuccessMessage"; // Import the success message component
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -28,6 +29,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
   const [inputValue, setInputValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSave = async () => {
     setLoading(true);
@@ -40,6 +42,8 @@ const EditableField: React.FC<EditableFieldProps> = ({
       );
       onUpdate(fieldName, inputValue);
       setIsEditing(false);
+      setSuccessMessage(`${label} updated successfully!`); // Set success message
+      setTimeout(() => setSuccessMessage(null), 3000); // Auto-hide after 3 seconds
     } catch (error) {
       console.error(`Error updating ${fieldName}:`, error);
     } finally {
@@ -80,6 +84,8 @@ const EditableField: React.FC<EditableFieldProps> = ({
           <FaPen className="text-sm" />
         </button>
       )}
+
+      {successMessage && <SuccessMessage message={successMessage} />}
     </div>
   );
 };

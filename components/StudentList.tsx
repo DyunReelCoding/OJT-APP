@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ComboBox from "@/components/ComboBox"; // Import the ComboBox component
 import StudentListPrintButton from "./StudentListButton";
+import { FaEnvelope } from "react-icons/fa"; // Import the email icon
+import EmailForm from "@/components/EmailForm"; // Import EmailForm component
 
 const StudentList = ({ students }: { students: any[] }) => {
   const [filteredStudents, setFilteredStudents] = useState(students);
@@ -11,6 +13,8 @@ const StudentList = ({ students }: { students: any[] }) => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [filterType, setFilterType] = useState(""); // Selected filter type
   const [currentPage, setCurrentPage] = useState(0);
+  const [emails, setEmails] = useState<string[]>([]); // To store filtered student emails
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
   const studentsPerPage = 5;
   const router = useRouter();
 
@@ -35,6 +39,10 @@ const StudentList = ({ students }: { students: any[] }) => {
 
     setFilteredStudents(filtered);
     setCurrentPage(0); // Reset pagination when filtering
+
+    // Collect emails of filtered students
+    const studentEmails = filtered.map((student) => student.email);
+    setEmails(studentEmails);
   }, [searchQuery, filterType, students]);
 
   // Paginate students
@@ -49,14 +57,13 @@ const StudentList = ({ students }: { students: any[] }) => {
 
   return (
     <section className="student-list w-full px-6">
-      
       <h2 className="text-2xl font-semibold mb-4 text-white text-center">Student List</h2>
 
       {/* Centered Search & ComboBox */}
       <div className="flex flex-col items-center mb-4">
-      <div className="flex justify-end mb-4">
-  <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} />
-</div>
+        <div className="flex justify-end mb-4">
+          <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} />
+        </div>
         <div className="w-96">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
         </div>
@@ -104,6 +111,33 @@ const StudentList = ({ students }: { students: any[] }) => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Email Button */}
+      {emails.length > 0 && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => setIsModalOpen(true)} // Open the modal on button click
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md flex items-center gap-2"
+          >
+            <FaEnvelope /> Send Email to All
+          </button>
+        </div>
+      )}
+
+      {/* Modal for sending email */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-md max-w-md w-full">
+            <EmailForm studentEmail={emails.join(",")} />
+            <button
+              onClick={() => setIsModalOpen(false)} // Close the modal
+              className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
 

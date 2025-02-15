@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react"; // Import icons
+import { Menu, X, ShieldAlert, Home } from "lucide-react"; // Import Home icon
 import BackToHomeButton from "./BackToHomeButton"; // Import Back Button
+import Link from "next/link"; // Import Link for navigation
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -21,7 +22,36 @@ const SideBar = () => {
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Back to Home Button (inside Sidebar) */}
+      {/* Sidebar Links */}
+      {isOpen && (
+        <nav className="p-4">
+          <ul className="space-y-4">
+            {/* Home Button */}
+            <li>
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
+              >
+                <Home size={20} />
+                <span>Home</span>
+              </Link>
+            </li>
+
+            {/* Allergies Button */}
+            <li>
+              <Link
+                href="/admin/allergies"
+                className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
+              >
+                <ShieldAlert size={20} />
+                <span>Allergies and Medication</span>
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
+
+      {/* Back to Home Button */}
       {isOpen && (
         <div className="p-4 mt-auto">
           <BackToHomeButton />

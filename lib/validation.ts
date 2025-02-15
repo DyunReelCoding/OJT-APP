@@ -48,6 +48,16 @@ lastName: z
   .min(2, "Last name must be at least 2 characters")
   .max(50, "Last name must be at most 50 characters")
   .regex(/^[A-Za-z\s'-]+$/, "Last name must contain only letters"),
+disabilityType: z
+  .string()
+  .max(50, "Disability Type must be at most 50 characters")
+  .regex(/^[A-Za-z\s'-]*$/, "Disability Type must contain only letters")
+  .optional(), // Optional field
+disabilityDetails: z
+  .string()
+  .max(50, "Disability Details must be at most 50 characters")
+  .regex(/^[A-Za-z\s'-]*$/, "Disability Details must contain only letters")
+  .optional(), // Optional field
 
 suffix: z
   .string()
@@ -98,6 +108,7 @@ height: z
     message: "Height must be a valid number",
   }),
 
+
 bmi: z.string().optional(),
 bmiCategory: z.string().optional(),
   birthDate: z.coerce.date(),
@@ -127,6 +138,7 @@ bmiCategory: z.string().optional(),
   .max(50, "Insurance name must be at most 50 characters")
   .optional(),
 
+
 insurancePolicyNumber: z
   .string()
   .max(50, "Policy number must be at most 50 characters")
@@ -138,7 +150,12 @@ insurancePolicyNumber: z
   pastMedicalHistory: z.string().optional(),
   identificationType: z.string().optional(),
   identificationNumber: z.string().optional(),
-  identificationDocument: z.custom<File[]>().optional(),
+  identificationDocument: z
+  .custom<File[]>()
+  .refine((files) => files && files.length > 0, {
+    message: "Scanned copy of identification document is required.",
+  }),
+
   treatmentConsent: z
     .boolean()
     .default(false)
