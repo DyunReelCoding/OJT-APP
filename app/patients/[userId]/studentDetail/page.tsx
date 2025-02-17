@@ -71,6 +71,7 @@ const StudentDetail = () => {
           <EditableField label="Person with Disability" value={student.personWithDisability} userId={userId} fieldName="personWithDisability" onUpdate={handleUpdate} />
           <EditableField label="Address" value={student.address} userId={userId} fieldName="address" onUpdate={handleUpdate} />
           <EditableField label="Occupation" value={student.occupation} userId={userId} fieldName="occupation" onUpdate={handleUpdate} />
+          <EditableField label="Office" value={student.office} userId={userId} fieldName="office" onUpdate={handleUpdate} />
           <EditableField label="Emergency Contact Name" value={student.emergencyContactName} userId={userId} fieldName="emergencyContactName" onUpdate={handleUpdate} />
           <EditableField label="Emergency Contact Number" value={student.emergencyContactNumber} userId={userId} fieldName="emergencyContactNumber" onUpdate={handleUpdate} />
         </div>

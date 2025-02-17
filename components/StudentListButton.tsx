@@ -73,7 +73,7 @@ const StudentListPrintButton = ({ filteredStudents, filterType }: StudentListPri
           onClick={handlePrint}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
-          <Printer size={20} className="mr-2" /> Print Student List
+          <Printer size={20} className="mr-2" /> Print List
         </button>
 
         {/* PDF Download Button */}

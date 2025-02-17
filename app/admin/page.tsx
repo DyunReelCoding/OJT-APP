@@ -38,14 +38,14 @@ const Admin = async () => {
         <main className="admin-main">
           <section className="w-full space-y-4">
             <h1 className="header">Welcome 👋</h1>
-            <p className="text-dark-700">Start the day managing students' well-being</p>
+            <p className="text-dark-700">Start the day managing patients' well-being</p>
           </section>
 
           <section className="admin-stat">
             <StatCard
               type="students"
               count={students.length}
-              label="Number of Students"
+              label="Number of Patients"
               icon="/assets/icons/appointments.svg"
             />
           </section>

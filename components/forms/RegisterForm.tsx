@@ -354,9 +354,9 @@ const RegisterForm = ({ user }: { user: User }) => {
         <Select
           onValueChange={(value) => {
             setSelectedOccupation(value);
-            form.setValue("occupation", value);
+            form.setValue("occupation", value); // Set the selected value in the form
           }}
-          defaultValue={field.value}
+          value={field.value || ""} // Clear the value if field.value is undefined or null
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select Occupation" />
@@ -373,6 +373,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     </div>
   )}
 />
+
 
     
       </div>
@@ -500,7 +501,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 setSelectedOffice(value);
                 form.setValue("office", value);
               }}
-              defaultValue={field.value}
+              value={field.value || ""} // Clear the value if field.value is undefined or null
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select Office Type" />
@@ -526,8 +527,6 @@ const RegisterForm = ({ user }: { user: User }) => {
     />
   </div>
 )}
-
-
 
        <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
@@ -796,7 +795,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="privacyConsent"
         label="I consent to privacy policy"
       />
-      <SubmitButton isLoading={isLoading}> Get Started</SubmitButton>
+      <SubmitButton isLoading={isLoading}> Submit</SubmitButton>
       
     </form>
   </Form>
