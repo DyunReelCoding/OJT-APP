@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Trash, Edit, CheckCircle, Search } from "lucide-react";
 import SideBar from "@/components/SideBar";
 
-// Define Occupation Type
+// Define Occupation and Office Type
 interface Occupation {
   $id: string;
   name: string;
@@ -17,6 +17,7 @@ interface Occupation {
 const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!;
 const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID!;
 const OCCUPATION_COLLECTION_ID = process.env.NEXT_PUBLIC_OCCUPATIONTYPE_COLLECTION_ID!;
+const OFFICETYPE_COLLECTION_ID = process.env.NEXT_PUBLIC_OFFICETYPE_COLLECTION_ID!;
 const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
 
 // Appwrite Client & Database
@@ -25,94 +26,98 @@ client.setEndpoint(ENDPOINT).setProject(PROJECT_ID);
 const databases = new Databases(client);
 
 const OccupationManagement = () => {
-  const [occupations, setOccupations] = useState<Occupation[]>([]);
-  const [filteredOccupations, setFilteredOccupations] = useState<Occupation[]>([]);
-  const [newOccupation, setNewOccupation] = useState("");
+  const [items, setItems] = useState<Occupation[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Occupation[]>([]);
+  const [newItem, setNewItem] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [updatedOccupation, setUpdatedOccupation] = useState("");
+  const [updatedItem, setUpdatedItem] = useState("");
+  const [isOccupation, setIsOccupation] = useState(true); // Toggle between occupation and office
 
   useEffect(() => {
-    fetchOccupations();
-  }, []);
+    fetchItems();
+  }, [isOccupation]);
 
-  // Fetch Occupations
-  const fetchOccupations = async () => {
+  // Fetch Occupation or Office Items
+  const fetchItems = async () => {
     try {
-      const response = await databases.listDocuments(DATABASE_ID, OCCUPATION_COLLECTION_ID);
-      const formattedOccupations: Occupation[] = response.documents.map((doc) => ({
+      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      const response = await databases.listDocuments(DATABASE_ID, collectionId);
+      const formattedItems: Occupation[] = response.documents.map((doc) => ({
         $id: doc.$id,
         name: doc.name,
       }));
-      setOccupations(formattedOccupations);
-      setFilteredOccupations(formattedOccupations);
+      setItems(formattedItems);
+      setFilteredItems(formattedItems);
     } catch (error) {
-      console.error("Error fetching occupations:", error);
+      console.error("Error fetching items:", error);
     }
   };
 
-  // Search Occupations
+  // Search Filter
   useEffect(() => {
     if (!searchTerm) {
-      setFilteredOccupations(occupations);
+      setFilteredItems(items);
     } else {
-      setFilteredOccupations(
-        occupations.filter((occ) =>
-          occ.name.toLowerCase().includes(searchTerm.toLowerCase())
+      setFilteredItems(
+        items.filter((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     }
-  }, [searchTerm, occupations]);
+  }, [searchTerm, items]);
 
-  // Add Occupation
-  const addOccupation = async () => {
-    if (!newOccupation) return;
+  // Add Item (Occupation/Office)
+  const addItem = async () => {
+    if (!newItem) return;
     try {
+      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       const response = await databases.createDocument(
         DATABASE_ID,
-        OCCUPATION_COLLECTION_ID,
+        collectionId,
         ID.unique(),
-        { name: newOccupation }
+        { name: newItem }
       );
-
+      
       const newEntry = { $id: response.$id, name: response.name };
-      setOccupations([...occupations, newEntry]);
-      setFilteredOccupations([...occupations, newEntry]);
-      setNewOccupation("");
+      setItems([...items, newEntry]);
+      setFilteredItems([...items, newEntry]);
+      setNewItem("");
     } catch (error) {
-      console.error("Error adding occupation:", error);
+      console.error("Error adding item:", error);
     }
   };
 
-  // Update Occupation
-  const updateOccupation = async ($id: string) => {
-    if (!updatedOccupation) return;
+  // Update Item (Occupation/Office)
+  const updateItem = async ($id: string) => {
+    if (!updatedItem) return;
     try {
-      await databases.updateDocument(DATABASE_ID, OCCUPATION_COLLECTION_ID, $id, {
-        name: updatedOccupation,
-      });
-
-      const updatedList = occupations.map((occ) =>
-        occ.$id === $id ? { ...occ, name: updatedOccupation } : occ
+      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      await databases.updateDocument(DATABASE_ID, collectionId, $id, { name: updatedItem });
+      
+      const updatedList = items.map((item) =>
+        item.$id === $id ? { ...item, name: updatedItem } : item
       );
-      setOccupations(updatedList);
-      setFilteredOccupations(updatedList);
+      setItems(updatedList);
+      setFilteredItems(updatedList);
       setEditingId(null);
-      setUpdatedOccupation("");
+      setUpdatedItem("");
     } catch (error) {
-      console.error("Error updating occupation:", error);
+      console.error("Error updating item:", error);
     }
   };
 
-  // Delete Occupation
-  const deleteOccupation = async ($id: string) => {
+  // Delete Item (Occupation/Office)
+  const deleteItem = async ($id: string) => {
     try {
-      await databases.deleteDocument(DATABASE_ID, OCCUPATION_COLLECTION_ID, $id);
-      const filteredList = occupations.filter((occ) => occ.$id !== $id);
-      setOccupations(filteredList);
-      setFilteredOccupations(filteredList);
+      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      await databases.deleteDocument(DATABASE_ID, collectionId, $id);
+      
+      const filteredList = items.filter((item) => item.$id !== $id);
+      setItems(filteredList);
+      setFilteredItems(filteredList);
     } catch (error) {
-      console.error("Error deleting occupation:", error);
+      console.error("Error deleting item:", error);
     }
   };
 
@@ -120,7 +125,17 @@ const OccupationManagement = () => {
     <div className="flex">
       <SideBar />
       <div className="flex flex-col items-center justify-center w-full min-h-screen p-6 bg-gray-900 text-white">
-        <h2 className="text-2xl font-bold mb-6">Manage Occupations</h2>
+        <div className="flex justify-between w-full max-w-lg">
+          <h2 className="text-2xl font-bold mb-6">
+            Manage {isOccupation ? "Occupations" : "Office Types"}
+          </h2>
+          <Button
+            onClick={() => setIsOccupation(!isOccupation)}
+            className="bg-blue-600 hover:bg-blue-700 px-4"
+          >
+            Switch to {isOccupation ? "Office Types" : "Occupations"}
+          </Button>
+        </div>
 
         {/* Search Input */}
         <div className="flex items-center gap-2 mb-4 w-full max-w-lg">
@@ -129,58 +144,58 @@ const OccupationManagement = () => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search occupation..."
+            placeholder={`Search ${isOccupation ? "occupation" : "office type"}...`}
           />
         </div>
 
-        {/* Add Occupation */}
+        {/* Add Item (Occupation/Office) */}
         <div className="flex gap-2">
           <Input
             type="text"
-            value={newOccupation}
-            onChange={(e) => setNewOccupation(e.target.value)}
-            placeholder="Enter occupation name"
+            value={newItem}
+            onChange={(e) => setNewItem(e.target.value)}
+            placeholder={`Enter ${isOccupation ? "occupation" : "office type"} name`}
           />
-          <Button onClick={addOccupation} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={addItem} className="bg-blue-600 hover:bg-blue-700">
             Add
           </Button>
         </div>
 
-        {/* Occupation List */}
+        {/* Item List */}
         <ul className="mt-6 w-full max-w-lg">
-          {filteredOccupations.length > 0 ? (
-            filteredOccupations.map((occ) => (
-              <li key={occ.$id} className="flex justify-between p-2 border-b border-gray-700 items-center">
-                {editingId === occ.$id ? (
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item) => (
+              <li key={item.$id} className="flex justify-between p-2 border-b border-gray-700 items-center">
+                {editingId === item.$id ? (
                   <input
                     type="text"
-                    value={updatedOccupation}
-                    onChange={(e) => setUpdatedOccupation(e.target.value)}
+                    value={updatedItem}
+                    onChange={(e) => setUpdatedItem(e.target.value)}
                     className="bg-gray-800 text-white px-2 py-1 rounded-md border border-gray-600"
                   />
                 ) : (
-                  <span className="text-lg">{occ.name}</span>
+                  <span className="text-lg">{item.name}</span>
                 )}
 
                 <div className="flex gap-2">
-                  {editingId === occ.$id ? (
-                    <Button variant="ghost" onClick={() => updateOccupation(occ.$id)} className="text-green-400 hover:text-green-500">
+                  {editingId === item.$id ? (
+                    <Button variant="ghost" onClick={() => updateItem(item.$id)} className="text-green-400 hover:text-green-500">
                       <CheckCircle size={16} />
                     </Button>
                   ) : (
-                    <Button variant="ghost" onClick={() => { setEditingId(occ.$id); setUpdatedOccupation(occ.name); }} className="text-yellow-400 hover:text-yellow-500">
+                    <Button variant="ghost" onClick={() => { setEditingId(item.$id); setUpdatedItem(item.name); }} className="text-yellow-400 hover:text-yellow-500">
                       <Edit size={16} />
                     </Button>
                   )}
 
-                  <Button variant="ghost" onClick={() => deleteOccupation(occ.$id)} className="text-red-400 hover:text-red-500">
+                  <Button variant="ghost" onClick={() => deleteItem(item.$id)} className="text-red-400 hover:text-red-500">
                     <Trash size={16} />
                   </Button>
                 </div>
               </li>
             ))
           ) : (
-            <p className="text-gray-400 text-center mt-4">No occupations found.</p>
+            <p className="text-gray-400 text-center mt-4">No items found.</p>
           )}
         </ul>
       </div>

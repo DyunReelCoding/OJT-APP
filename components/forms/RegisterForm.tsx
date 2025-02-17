@@ -30,6 +30,7 @@ const COLLECTION_ID = process.env.NEXT_PUBLIC_ALLERGIES_COLLECTION_ID!;
 const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
 const MEDICATIONS_COLLECTION_ID = process.env.NEXT_PUBLIC_CURRENTMEDICATION_COLLECTION_ID!;
 const OCCUPATION_COLLECTION_ID = process.env.NEXT_PUBLIC_OCCUPATIONTYPE_COLLECTION_ID!;
+const OFFICETYPE_COLLECTION_ID = process.env.NEXT_PUBLIC_OFFICETYPE_COLLECTION_ID!;
 
 const RegisterForm = ({ user }: { user: User }) => { 
   const router = useRouter();
@@ -41,6 +42,8 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [medication, setMedication] = useState<string>("");
   const [occupations, setOccupations] = useState<string[]>([]);
   const [selectedOccupation, setSelectedOccupation] = useState("");
+  const [officeTypes, setOfficeTypes] = useState<string[]>([]);
+  const [selectedOffice, setSelectedOffice] = useState<string>("");
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
@@ -120,15 +123,31 @@ const RegisterForm = ({ user }: { user: User }) => {
     fetchMedications();
     fetchOccupations();
 
-    // BMI Calculation Logic
-    const weightStr = form.watch("weight");
-    const heightStr = form.watch("height");
-    const ageStr = form.watch("age");
+    // Fetch office types from the database
+    const fetchOfficeTypes = async () => {
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, OFFICETYPE_COLLECTION_ID);
+        const officeList = response.documents.map((doc) => doc.name);
+        setOfficeTypes(officeList);
+      } catch (error) {
+        console.error("Error fetching office types:", error);
+      }
+    };
+  
+    fetchOfficeTypes();
 
-    const weight = Number(weightStr);
-    const height = Number(heightStr);
-    const age = Number(ageStr);
+  }, []);
 
+  // BMI Calculation Logic
+  const weightStr = form.watch("weight");
+  const heightStr = form.watch("height");
+  const ageStr = form.watch("age");
+
+  const weight = Number(weightStr);
+  const height = Number(heightStr);
+  const age = Number(ageStr);
+
+  useEffect(() => {
     if (!isNaN(weight) && !isNaN(height) && height > 0) {
       const bmiValue = weight / (height * height);
       form.setValue("bmi", bmiValue.toFixed(2));
@@ -466,16 +485,49 @@ const RegisterForm = ({ user }: { user: User }) => {
       )}
 
 {isEmployee && (
-    <div className="flex flex-col gap-6 xl:flex-row">
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="office"
-          label="Office"
-          placeholder="Enter your office name"
-        />
+  <div className="flex flex-col gap-6 xl:flex-row">
+    {/* Office dropdown */}
+    <CustomFormField
+      fieldType={FormFieldType.SKELETON}
+      control={form.control}
+      name="office"
+      label="Office"
+      renderSkeleton={(field) => (
+        <div>
+          <FormControl>
+            <Select
+              onValueChange={(value) => {
+                setSelectedOffice(value);
+                form.setValue("office", value);
+              }}
+              defaultValue={field.value}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Office Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 text-white border-gray-600">
+                {/* Check if officeTypes has data before rendering the dropdown */}
+                {officeTypes.length > 0 ? (
+                  officeTypes.map((officeType, index) => (
+                    <SelectItem key={index} value={officeType}>
+                      {officeType}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem disabled value={""}>
+                    No office types available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </FormControl>
         </div>
       )}
+    />
+  </div>
+)}
+
+
 
        <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
