@@ -12,6 +12,7 @@ export const PatientFormDefaultValues = {
   bloodType: "",
   religion: "",
   program: "",
+  office: "",
   email: "",
   phone: "",
   yearLevel: "",

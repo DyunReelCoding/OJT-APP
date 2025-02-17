@@ -29,19 +29,19 @@ const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID!;
 const COLLECTION_ID = process.env.NEXT_PUBLIC_ALLERGIES_COLLECTION_ID!;
 const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
 const MEDICATIONS_COLLECTION_ID = process.env.NEXT_PUBLIC_CURRENTMEDICATION_COLLECTION_ID!;
+const OCCUPATION_COLLECTION_ID = process.env.NEXT_PUBLIC_OCCUPATIONTYPE_COLLECTION_ID!;
 
-const RegisterForm = ({user}: {user:User}) => {
-  const router =  useRouter();
-  const [isLoading, setIsLoding] = useState(false);
+const RegisterForm = ({ user }: { user: User }) => { 
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [allergy, setAllergy] = useState("");
-  
   const [allergies, setAllergies] = useState<string[]>(["None"]);
   const [medications, setMedications] = useState<string[]>([]);
   const [medication, setMedication] = useState<string>("");
+  const [occupations, setOccupations] = useState<string[]>([]);
+  const [selectedOccupation, setSelectedOccupation] = useState("");
 
-
-  
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
     defaultValues: {
@@ -56,90 +56,116 @@ const RegisterForm = ({user}: {user:User}) => {
       height: "",
       bmi: "", 
       bmiCategory: "",
+      occupation: "",
     },
-  })
+  });
+
+  // Watch the occupation field and normalize input
+  const occupation = form.watch("occupation", "").toLowerCase().replace(/\s+$/, "");
+  const isStudent = occupation === "student";
+  const isEmployee = occupation === "employee";
+
+  // Automatically set program and yearLevel to "None" if not a student
+  useEffect(() => {
+    if (isStudent) {
+      form.setValue("program", ""); // Clear program field
+      form.setValue("yearLevel", ""); // Clear yearLevel field
+      form.setValue("office", "None"); // Set office to "None" if student
+    } else if (isEmployee) {
+      form.setValue("program", "None"); // Hide program
+      form.setValue("yearLevel", "None"); // Hide yearLevel
+      form.setValue("office", ""); // Clear office field
+    } else {
+      form.setValue("program", "None"); // Default for non-students
+      form.setValue("yearLevel", "None"); // Default for non-students
+      form.setValue("office", ""); // Clear office field
+    }
+  }, [isStudent, isEmployee, form]);
+
   useEffect(() => {
     const client = new Client();
     client.setEndpoint(ENDPOINT).setProject(PROJECT_ID);
     const databases = new Databases(client);
 
-    // Fetch allergies from the database
     const fetchAllergies = async () => {
       try {
         const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
         const allergyNames = response.documents.map((doc) => doc.name);
-        setAllergies(["None", ...allergyNames]); // Add "None" to the list
+        setAllergies(["None", ...allergyNames]);
       } catch (error) {
         console.error("Error fetching allergies:", error);
       }
     };
 
-    fetchAllergies();
     const fetchMedications = async () => {
       try {
-        const response = await databases.listDocuments(
-          DATABASE_ID,
-          MEDICATIONS_COLLECTION_ID
-        );
+        const response = await databases.listDocuments(DATABASE_ID, MEDICATIONS_COLLECTION_ID);
         setMedications(response.documents.map((doc) => doc.name));
       } catch (error) {
         console.error("Error fetching medications:", error);
       }
     };
-    fetchMedications();
 
+    const fetchOccupations = async () => {
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, OCCUPATION_COLLECTION_ID);
+        const occupationList = response.documents.map((doc) => doc.name);
+        setOccupations(occupationList);
+      } catch (error) {
+        console.error("Error fetching occupations:", error);
+      }
+    };
+    
+    fetchAllergies();
+    fetchMedications();
+    fetchOccupations();
+
+    // BMI Calculation Logic
     const weightStr = form.watch("weight");
     const heightStr = form.watch("height");
     const ageStr = form.watch("age");
-  
-    // Convert strings to numbers safely
+
     const weight = Number(weightStr);
     const height = Number(heightStr);
-    const age = Number(ageStr); // Convert age to a number
-  
+    const age = Number(ageStr);
+
     if (!isNaN(weight) && !isNaN(height) && height > 0) {
-      const bmiValue = (weight / (height * height)); // Calculate BMI as a number
-      form.setValue("bmi", bmiValue.toString()); // Set BMI as string
-  
+      const bmiValue = weight / (height * height);
+      form.setValue("bmi", bmiValue.toFixed(2));
+
       let bmiCategory = "";
-  
       if (age < 18) {
         if (bmiValue < 18.5) bmiCategory = "Underweight";
-        else if (bmiValue >= 18.5 && bmiValue < 24.9) bmiCategory = "Normal weight";
-        else if (bmiValue >= 25 && bmiValue < 29.9) bmiCategory = "Overweight";
+        else if (bmiValue < 24.9) bmiCategory = "Normal weight";
+        else if (bmiValue < 29.9) bmiCategory = "Overweight";
         else bmiCategory = "Obese";
       } else if (age >= 18 && age <= 34) {
         if (bmiValue < 18.5) bmiCategory = "Underweight";
-        else if (bmiValue >= 18.5 && bmiValue < 24.9) bmiCategory = "Normal weight";
-        else if (bmiValue >= 25 && bmiValue < 29.9) bmiCategory = "Overweight";
+        else if (bmiValue < 24.9) bmiCategory = "Normal weight";
+        else if (bmiValue < 29.9) bmiCategory = "Overweight";
         else bmiCategory = "Obese";
-      } else if (age >= 35) {
+      } else {
         if (bmiValue < 18.5) bmiCategory = "Underweight";
-        else if (bmiValue >= 18.5 && bmiValue < 24.9) bmiCategory = "Normal weight";
-        else if (bmiValue >= 25 && bmiValue < 30) bmiCategory = "Overweight";
+        else if (bmiValue < 24.9) bmiCategory = "Normal weight";
+        else if (bmiValue < 30) bmiCategory = "Overweight";
         else bmiCategory = "Obese";
       }
-  
-      form.setValue("bmiCategory", bmiCategory); // Set BMI category field
+
+      form.setValue("bmiCategory", bmiCategory);
     } else {
-      form.setValue("bmi", ""); // Reset BMI if values are invalid
-      form.setValue("bmiCategory", ""); // Reset BMI category if values are invalid
+      form.setValue("bmi", "");
+      form.setValue("bmiCategory", "");
     }
   }, [form.watch("weight"), form.watch("height"), form.watch("age")]);
 
-  
-  
-
   async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
-    setIsLoding(true);
+    setIsLoading(true);
   
     let formData;
-  
-    if (values.identificationDocument && values.identificationDocument.length > 0) {
+    if (values.identificationDocument?.length > 0) {
       const blobFile = new Blob([values.identificationDocument[0]], {
         type: values.identificationDocument[0].type,
       });
-  
       formData = new FormData();
       formData.append("blobFile", blobFile);
       formData.append("fileName", values.identificationDocument[0].name);
@@ -152,11 +178,9 @@ const RegisterForm = ({user}: {user:User}) => {
         birthDate: new Date(values.birthDate),
         identificationDocument: formData,
       };
-      
 
       // @ts-ignore
       const patient = await registerPatient(patientData);
-  
       if (patient) {
         form.reset();
         setSuccessMessage("Registration successful! You have been registered successfully.");
@@ -164,10 +188,9 @@ const RegisterForm = ({user}: {user:User}) => {
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoding(false); // Reset loading state after submission
+      setIsLoading(false);
     }
   }
-  
 
   return (
     <Form {...form}>
@@ -301,14 +324,37 @@ const RegisterForm = ({user}: {user:User}) => {
                 placeholder="Ampayon, Butuan City"
                 
             />
-        <CustomFormField
-        fieldType={FormFieldType.INPUT}
-        control={form.control}
-        name="occupation"
-        label="Occupation"
-        placeholder="Software Engineer"
-        
-    />
+       <CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="occupation"
+  label="Occupation"
+  renderSkeleton={(field) => (
+    <div>
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setSelectedOccupation(value);
+            form.setValue("occupation", value);
+          }}
+          defaultValue={field.value}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select Occupation" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-white border-gray-600">
+            {occupations.map((occupation) => (
+              <SelectItem key={occupation} value={occupation}>
+                {occupation}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+    </div>
+  )}
+/>
+
     
       </div>
       <div className="flex flex-col gap-6 xl:flex-row">
@@ -400,24 +446,37 @@ const RegisterForm = ({user}: {user:User}) => {
 
 </div>
 
-     <div className="flex flex-col gap-6 xl:flex-row">
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="program"
-          label="Program"
-          placeholder="Bachelor of Science in Information Technology"
-          
-        />
-        <CustomFormField
+{isStudent && (
+        <div className="flex flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="program"
+            label="Program"
+            placeholder="Bachelor of Science in Information Technology"
+          />
+          <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="yearLevel"
             label="Year Level"
             placeholder="4"
-            
-      />
-     </div>
+          />
+        </div>
+      )}
+
+{isEmployee && (
+    <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="office"
+          label="Office"
+          placeholder="Enter your office name"
+        />
+        </div>
+      )}
+
        <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
                 fieldType={FormFieldType.INPUT}

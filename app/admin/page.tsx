@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import StatCard from "@/components/StatCard";
 import { Databases, Client } from "appwrite";
 import StudentList from "@/components/StudentList";
-import SideBar from "@/components/SideBar"; // ✅ Import Sidebar
+import SideBar from "@/components/SideBar"; 
 
 // Configure Appwrite client
 const client = new Client()

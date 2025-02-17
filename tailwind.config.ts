@@ -21,6 +21,11 @@ const config = {
     },
     extend: {
       colors: {
+        white: "#FFFFFF",
+        black: "#000000",
+        gray: {
+          700: "#4A4A4A", // Adjust gray for readability
+        },
         green: {
           500: "#24AE7C",
           600: "#0D2A1F",

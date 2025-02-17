@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, ShieldAlert, Home } from "lucide-react"; // Import Home icon
+import { Menu, X, ShieldAlert, Home, Briefcase } from "lucide-react"; // Import Briefcase icon
 import BackToHomeButton from "./BackToHomeButton"; // Import Back Button
 import Link from "next/link"; // Import Link for navigation
 
@@ -45,6 +45,17 @@ const SideBar = () => {
               >
                 <ShieldAlert size={20} />
                 <span>Allergies and Medication</span>
+              </Link>
+            </li>
+
+            {/* Occupations Button */}
+            <li>
+              <Link
+                href="/admin/occupation"
+                className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
+              >
+                <Briefcase size={20} />
+                <span>Occupations</span>
               </Link>
             </li>
           </ul>

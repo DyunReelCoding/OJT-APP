@@ -76,6 +76,9 @@ suffix: z
     .string()
     .min(1, "Age must be at least 1 character")
     .max(5, "Age must be at most 5 characters"),
+  office: z
+    .string()
+    .max(100, "Office must be at most 5 characters"),
     
   bloodType: z
     .string()
