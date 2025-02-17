@@ -119,7 +119,7 @@ const StudentList = ({ students }: { students: any[] }) => {
                 ) : (
                   <>
                     <th className="py-3 px-6">Office</th>
-                    <th className="py-3 px-6">Year Level</th>
+                
                   </>
                 )}
                 {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
@@ -147,7 +147,7 @@ const StudentList = ({ students }: { students: any[] }) => {
                   ) : (
                     <>
                       <td className="py-3 px-6">{student.office}</td>
-                      <td className="py-3 px-6">{student.yearLevel}</td>
+                     
                     </>
                   )}
                   {filterType && <td className="py-3 px-6">{student[filterType] || "N/A"}</td>}
