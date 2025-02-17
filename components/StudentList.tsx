@@ -15,6 +15,7 @@ const StudentList = ({ students }: { students: any[] }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [emails, setEmails] = useState<string[]>([]); // To store filtered student emails
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
+  const [view, setView] = useState("student"); // View toggle state (student or employee)
   const studentsPerPage = 5;
   const router = useRouter();
 
@@ -22,17 +23,24 @@ const StudentList = ({ students }: { students: any[] }) => {
   useEffect(() => {
     let filtered = students;
 
+    if (view === "student") {
+      filtered = students.filter(student => student.occupation === "Student");
+    } else if (view === "employee") {
+      filtered = students.filter(student => student.occupation === "employee");
+    }
+
     if (filterType) {
       filtered = filtered.filter((student) =>
         student[filterType]?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     } else if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = students.filter(
+      filtered = filtered.filter(
         (student) =>
           student.name?.toLowerCase().includes(query) ||
           student.idNumber?.toLowerCase().includes(query) ||
           student.program?.toLowerCase().includes(query) ||
+          student.office?.toLowerCase().includes(query) ||
           student.yearLevel?.toLowerCase().includes(query)
       );
     }
@@ -43,7 +51,7 @@ const StudentList = ({ students }: { students: any[] }) => {
     // Collect emails of filtered students
     const studentEmails = filtered.map((student) => student.email);
     setEmails(studentEmails);
-  }, [searchQuery, filterType, students]);
+  }, [searchQuery, filterType, students, view]);
 
   // Paginate students
   const startIndex = currentPage * studentsPerPage;
@@ -57,12 +65,34 @@ const StudentList = ({ students }: { students: any[] }) => {
 
   return (
     <section className="student-list w-full px-6">
-      <h2 className="text-2xl font-semibold mb-4 text-white text-center">Student List</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-white text-center">
+        {view === "student" ? "Student List" : "Employee List"}
+      </h2>
+
+      {/* View Toggle */}
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => setView("student")}
+          className={`px-4 py-2 mx-2 ${view === "student" ? "bg-blue-500" : "bg-gray-700"} text-white rounded-lg`}
+        >
+          Student View
+        </button>
+        <button
+          onClick={() => setView("employee")}
+          className={`px-4 py-2 mx-2 ${view === "employee" ? "bg-blue-500" : "bg-gray-700"} text-white rounded-lg`}
+        >
+          Employee View
+        </button>
+      </div>
 
       {/* Centered Search & ComboBox */}
       <div className="flex flex-col items-center mb-4">
         <div className="flex justify-end mb-4">
-          <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} />
+        <StudentListPrintButton
+        filteredStudents={filteredStudents}
+        filterType={filterType}
+        view={view} // Pass the 'view' prop to the StudentListPrintButton
+      />
         </div>
         <div className="w-96">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
@@ -77,7 +107,7 @@ const StudentList = ({ students }: { students: any[] }) => {
       </div>
 
       {filteredStudents.length === 0 ? (
-        <p className="text-gray-400 text-center">No students found.</p>
+        <p className="text-gray-400 text-center">No {view}s found.</p>
       ) : (
         <div className="w-full overflow-x-auto">
           <table className="w-full bg-gray-800 text-white rounded-lg shadow-lg">
@@ -85,8 +115,17 @@ const StudentList = ({ students }: { students: any[] }) => {
               <tr className="bg-gray-700 text-left text-sm uppercase">
                 <th className="py-3 px-6">Name</th>
                 <th className="py-3 px-6">ID Number</th>
-                <th className="py-3 px-6">Program</th>
-                <th className="py-3 px-6">Year Level</th>
+                {view === "student" ? (
+                  <>
+                    <th className="py-3 px-6">Program</th>
+                    <th className="py-3 px-6">Year Level</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="py-3 px-6">Office</th>
+                
+                  </>
+                )}
                 {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
               </tr>
             </thead>
@@ -104,8 +143,17 @@ const StudentList = ({ students }: { students: any[] }) => {
                     </button>
                   </td>
                   <td className="py-3 px-6">{student.idNumber}</td>
-                  <td className="py-3 px-6">{student.program}</td>
-                  <td className="py-3 px-6">{student.yearLevel}</td>
+                  {view === "student" ? (
+                    <>
+                      <td className="py-3 px-6">{student.program}</td>
+                      <td className="py-3 px-6">{student.yearLevel}</td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="py-3 px-6">{student.office}</td>
+                     
+                    </>
+                  )}
                   {filterType && <td className="py-3 px-6">{student[filterType] || "N/A"}</td>}
                 </tr>
               ))}

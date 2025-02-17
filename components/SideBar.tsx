@@ -55,7 +55,7 @@ const SideBar = () => {
                 className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
               >
                 <Briefcase size={20} />
-                <span>Occupations</span>
+                <span>Occupations and Office Types</span>
               </Link>
             </li>
           </ul>
