@@ -8,9 +8,10 @@ import autoTable from "jspdf-autotable"; // ✅ Import autoTable
 type StudentListPrintButtonProps = {
   filteredStudents: any[];
   filterType: string;
+  view: string; // Add 'view' prop to distinguish between student and employee view
 };
 
-const StudentListPrintButton = ({ filteredStudents, filterType }: StudentListPrintButtonProps) => {
+const StudentListPrintButton = ({ filteredStudents, filterType, view }: StudentListPrintButtonProps) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
@@ -37,13 +38,23 @@ const StudentListPrintButton = ({ filteredStudents, filterType }: StudentListPri
     }
 
     // Table Data
-    const tableColumn = ["Name", "ID Number", "Program", "Year Level"];
+    const tableColumn = ["Name", "ID Number"];
+    if (view === "student") {
+      tableColumn.push("Program", "Year Level"); // Add Program and Year Level for student view
+    } else if (view === "employee") {
+      tableColumn.push("Office"); // Add Office for employee view
+    }
     if (filterType) {
       tableColumn.push(filterType.replace(/([A-Z])/g, " $1"));
     }
 
     const tableRows = filteredStudents.map((student) => {
-      const row = [student.name, student.idNumber, student.program, student.yearLevel];
+      const row = [student.name, student.idNumber];
+      if (view === "student") {
+        row.push(student.program, student.yearLevel);
+      } else if (view === "employee") {
+        row.push(student.office); // For employee view
+      }
       if (filterType) {
         row.push(student[filterType] || "N/A");
       }
@@ -73,7 +84,7 @@ const StudentListPrintButton = ({ filteredStudents, filterType }: StudentListPri
           onClick={handlePrint}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
-          <Printer size={20} className="mr-2" /> Print List
+          <Printer size={20} className="mr-2" /> Print Student List
         </button>
 
         {/* PDF Download Button */}
@@ -101,8 +112,16 @@ const StudentListPrintButton = ({ filteredStudents, filterType }: StudentListPri
             <tr className="bg-gray-300">
               <th className="py-2 px-4 border">Name</th>
               <th className="py-2 px-4 border">ID Number</th>
-              <th className="py-2 px-4 border">Program</th>
-              <th className="py-2 px-4 border">Year Level</th>
+              {view === "student" ? (
+                <>
+                  <th className="py-2 px-4 border">Program</th>
+                  <th className="py-2 px-4 border">Year Level</th>
+                </>
+              ) : (
+                <>
+                  <th className="py-2 px-4 border">Office</th>
+                </>
+              )}
               {filterType && <th className="py-2 px-4 border">{filterType.replace(/([A-Z])/g, " $1")}</th>}
             </tr>
           </thead>
@@ -111,8 +130,16 @@ const StudentListPrintButton = ({ filteredStudents, filterType }: StudentListPri
               <tr key={student.$id}>
                 <td className="py-2 px-4 border">{student.name}</td>
                 <td className="py-2 px-4 border">{student.idNumber}</td>
-                <td className="py-2 px-4 border">{student.program}</td>
-                <td className="py-2 px-4 border">{student.yearLevel}</td>
+                {view === "student" ? (
+                  <>
+                    <td className="py-2 px-4 border">{student.program}</td>
+                    <td className="py-2 px-4 border">{student.yearLevel}</td>
+                  </>
+                ) : (
+                  <>
+                    <td className="py-2 px-4 border">{student.office}</td>
+                  </>
+                )}
                 {filterType && <td className="py-2 px-4 border">{student[filterType] || "N/A"}</td>}
               </tr>
             ))}

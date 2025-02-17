@@ -88,7 +88,11 @@ const StudentList = ({ students }: { students: any[] }) => {
       {/* Centered Search & ComboBox */}
       <div className="flex flex-col items-center mb-4">
         <div className="flex justify-end mb-4">
-          <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} />
+        <StudentListPrintButton
+        filteredStudents={filteredStudents}
+        filterType={filterType}
+        view={view} // Pass the 'view' prop to the StudentListPrintButton
+      />
         </div>
         <div className="w-96">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
