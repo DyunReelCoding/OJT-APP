@@ -1,12 +1,47 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, ShieldAlert, Home, Briefcase } from "lucide-react"; // Import Briefcase icon
+import { Menu, X, ShieldAlert, Home, Briefcase, Users, Calendar, Pill, Stethoscope } from "lucide-react"; // Import Briefcase icon
 import BackToHomeButton from "./BackToHomeButton"; // Import Back Button
 import Link from "next/link"; // Import Link for navigation
+import { usePathname } from "next/navigation";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const pathname = usePathname();
+
+  const navLinks = [
+    {
+      label: "Dashboard",
+      href: "/admin",
+      icon: <Users className="w-5 h-5" />
+    },
+    {
+      label: "Calendar",
+      href: "/admin/calendar",
+      icon: <Calendar className="w-5 h-5" />
+    },
+    {
+      label: "Appointments",
+      href: "/admin/appointments",
+      icon: <Calendar className="w-5 h-5" />
+    },
+    {
+      label: "Medicines",
+      href: "/admin/medicines",
+      icon: <Stethoscope className="w-5 h-5" />
+    },
+    {
+      label: "Allergies",
+      href: "/admin/allergies",
+      icon: <Pill className="w-5 h-5" />
+    },
+    {
+      label: "Occupation",
+      href: "/admin/occupation",
+      icon: <Briefcase className="w-5 h-5" />
+    }
+  ];
 
   return (
     <div
@@ -26,38 +61,19 @@ const SideBar = () => {
       {isOpen && (
         <nav className="p-4">
           <ul className="space-y-4">
-            {/* Home Button */}
-            <li>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
-              >
-                <Home size={20} />
-                <span>Home</span>
-              </Link>
-            </li>
-
-            {/* Allergies Button */}
-            <li>
-              <Link
-                href="/admin/allergies"
-                className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
-              >
-                <ShieldAlert size={20} />
-                <span>Allergies and Medication</span>
-              </Link>
-            </li>
-
-            {/* Occupations Button */}
-            <li>
-              <Link
-                href="/admin/occupation"
-                className="flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded"
-              >
-                <Briefcase size={20} />
-                <span>Occupations and Office Types</span>
-              </Link>
-            </li>
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded ${
+                    pathname === link.href ? "bg-gray-700" : ""
+                  }`}
+                >
+                  {link.icon}
+                  <span>{link.label}</span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       )}
