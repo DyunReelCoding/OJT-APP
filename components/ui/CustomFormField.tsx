@@ -39,25 +39,28 @@ interface CustomProps {
     children?: React.ReactNode;
     renderSkeleton?: (field: any) => React.ReactNode;
     fieldType: FormFieldType;
+    backgroundColor?: string;
+    radioOptionBackground?: string;
 }
 
 const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
-  const {fieldType, iconSrc, iconAlt, placeholder,showTimeSelect,dateFormat,renderSkeleton} = props;
+  const {fieldType, iconSrc, iconAlt, placeholder,showTimeSelect,dateFormat,renderSkeleton, backgroundColor = 'bg-gray-50', radioOptionBackground = 'bg-gray-100'} = props;
 
  switch (fieldType){
   case FormFieldType.INPUT:
     return (
-      <div className="flex rounded-md border-dark-500 bg-dark-400">
+      <div className={`flex rounded-md border ${backgroundColor} text-black`}>
         {iconSrc && (
           <Image 
            src={iconSrc}
            height={24}
            width="24"
            alt={iconAlt || 'icon' }
-           className = 'ml-2'
+           className = "ml-2"
           />
 
         )}
+        
         <FormControl>
           <Input
           placeholder={placeholder}
@@ -73,33 +76,37 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
   case FormFieldType.TEXTAREA:
     return (
       <FormControl>
-        <Textarea 
-        placeholder={placeholder}
-        {...field}
-        className="shad-textArea"
-        disabled={props.disabled}
-        />
+        <div className={`${backgroundColor} rounded-md text-black`}>
+          <Textarea 
+          placeholder={placeholder}
+          {...field}
+          className="shad-textArea"
+          disabled={props.disabled}
+          />
+        </div>
+        
 
       </FormControl>
     )
   case FormFieldType.PHONE_INPUT:
     return (
       <FormControl>
-        <PhoneInput
-        defaultCountry="PH"
-        placeholder={placeholder}
-        international
-        withCountryCallingCode
-        value={field.value as E164Number | undefined}  
-        onChange={field.onChange}
-        className="input-phone"
-        
-        />
+        <div className={`text-black ${backgroundColor}`}>
+          <PhoneInput
+            defaultCountry="PH"
+            placeholder={placeholder}
+            international
+            withCountryCallingCode
+            value={field.value as E164Number | undefined}  
+            onChange={field.onChange}
+            className="input-phone"
+          />
+        </div>
       </FormControl>
     )
   case FormFieldType.DATE_PICKER:
     return(
-      <div className="flex rounded-md border border-dark-500 bg-dark-400">
+      <div className={`flex rounded-md border ${backgroundColor} text-black`}>
         <Image
           src="/assets/icons/calendar.svg"
           height={24}
@@ -120,7 +127,8 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
     ) 
     case FormFieldType.SELECT:
       return (
-        <FormControl>
+        <div className={`${backgroundColor} rounded-md border-dark-400`}>
+          <FormControl>
           <Select onValueChange={field.onChange}
           defaultValue={field.value}>
             <FormControl>
@@ -135,19 +143,25 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
             
           </Select>
         </FormControl>
+        </div>
+        
       )
   case FormFieldType.SKELETON:
     return(
-      renderSkeleton ? renderSkeleton
-      (field):null
+      <div>
+        {renderSkeleton ? renderSkeleton(field) : null}
+      </div>
     )
     case FormFieldType.CHECKBOX:
-      return (<FormControl>
+      return (
+        <div className={`${backgroundColor}`}>
+          <FormControl>
         <div className="flex items-center gap-4">
           <Checkbox 
           id={props.name}
           checked={field.value}
           onCheckedChange={field.onChange}
+          className="border-gray-500"
           />
 
           <label htmlFor={props.name} className="checkbox-label">
@@ -155,7 +169,9 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
 
           </label>
         </div>
-      </FormControl>)
+      </FormControl>
+        </div>
+      )
   default:
     break; 
  }

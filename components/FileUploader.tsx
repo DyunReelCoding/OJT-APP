@@ -25,7 +25,7 @@ const FileUploader = ({files, onChange}:
       {files && files?.length > 0 ? (
         <Image src={convertFileToUrl(files[0])}
         width={1000} height={1000}
-        alt="uploaded image" className="max-h-[400px] overflow-hidden oject-cover"
+        alt="uploaded image" className="max-h-[400px] overflow-hidden object-cover"
         />
       ) : (
         <>
@@ -38,7 +38,7 @@ const FileUploader = ({files, onChange}:
         <div className="file-upload_label ">
             <p className="text-14-regular">
                 <span
-                className="text-green-500">Click to upload
+                className="text-green-400">Click to upload
 
                 </span> or drag and drop
             </p>

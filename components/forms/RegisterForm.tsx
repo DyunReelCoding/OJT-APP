@@ -217,13 +217,13 @@ const RegisterForm = ({ user }: { user: User }) => {
     className="space-y-12 flex-1">
       {successMessage && <SuccessMessage message={successMessage} />}
       <section className="space-y-4">
-        <h1 className="header">Welcome!👋</h1>
-        <p className="text-dark-700">Let us know about yourself.</p>
+        <h1 className="header text-green-400">Welcome!👋</h1>
+        <p className="text-dark-600">Let us know about yourself.</p>
       </section>
 
       <section className="space-y-6">
           <div className="mb-9 space-y-1">
-            <h2 className="sub-header">Personal Information</h2>
+            <h2 className="sub-header text-blue-700">Personal Information</h2> 
           </div>
       </section>
       <div className="flex flex-col gap-6 xl:flex-row">
@@ -235,7 +235,10 @@ const RegisterForm = ({ user }: { user: User }) => {
           placeholder="John"
           iconSrc="/assets/icons/user.svg"
           iconAlt="user"
+          backgroundColor="bg-gray-50"
         />
+          
+        
 
         <CustomFormField
           fieldType={FormFieldType.INPUT}
@@ -243,7 +246,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           name="middleName"
           label="Middle Name"
           placeholder="Michael"
-          
+          backgroundColor="bg-gray-50"
           iconAlt="user"
         />
 
@@ -253,7 +256,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           name="lastName"
           label="Last Name"
           placeholder="Doe"
-          
+          backgroundColor="bg-gray-50"
           iconAlt="user"
         />
 
@@ -263,7 +266,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           name="suffix"
           label="Suffix (if any)"
           placeholder="Jr., Sr., III, etc."
-          
+          backgroundColor="bg-gray-50"
           iconAlt="user"
         />
 
@@ -275,6 +278,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           name="idNumber"
           label="ID number"
           placeholder="211-01338"
+          backgroundColor="bg-gray-50"
           
         />
         <CustomFormField
@@ -283,6 +287,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="age"
             label="Age"
             placeholder="21"
+            backgroundColor="bg-gray-50"
             
       />
      </div>
@@ -295,7 +300,8 @@ const RegisterForm = ({ user }: { user: User }) => {
             label="Email"
             placeholder="JohnDoe@gmail.com"
             iconSrc="/assets/icons/email.svg"
-            iconAlt="email  "
+            iconAlt="email"
+            backgroundColor="bg-gray-50"
         />
         <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
@@ -311,15 +317,17 @@ const RegisterForm = ({ user }: { user: User }) => {
                 control={form.control}
                 name="birthDate"
                 label="Date of Birth"
+                backgroundColor="bg-gray-50"
             />
         <CustomFormField
                 fieldType={FormFieldType.SKELETON}
                 control={form.control}
                 name="gender"
                 label="Gender"
+                backgroundColor="bg-gray-50"
                 renderSkeleton={(field)=>(
                     <FormControl>
-                        <RadioGroup className="flex flex-11 gap-6 xl:justify-between" 
+                        <RadioGroup className="flex flex-11 gap-6 xl:justify-between text-black" 
                         onValueChange={field.onChange}
                         defaultValue={field.value}>
                             {GenderOptions.map((option) => (
@@ -349,7 +357,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   name="occupation"
   label="Occupation"
   renderSkeleton={(field) => (
-    <div>
+    <div className="text-black">
       <FormControl>
         <Select
           onValueChange={(value) => {
@@ -358,7 +366,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           }}
           value={field.value || ""} // Clear the value if field.value is undefined or null
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Occupation" />
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-600">
@@ -386,7 +394,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     renderSkeleton={(field) => (
         <FormControl>
             <RadioGroup
-                className="flex flex-wrap gap-6 xl:justify-between"
+                className="flex flex-wrap gap-6 xl:justify-between text-black"
                 onValueChange={field.onChange}
                 value={field.value || ""} // Ensure it resets to empty
             >
@@ -547,7 +555,7 @@ const RegisterForm = ({ user }: { user: User }) => {
 
       <section className="space-y-6">
           <div className="mb-9 space-y-1">
-            <h2 className="sub-header">Medical Information</h2>
+            <h2 className="sub-header text-blue-700">Medical Information</h2>
           </div>
       </section>
 
@@ -577,7 +585,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   name="allergies"
   label="Allergies (if any)"
   renderSkeleton={(field) => (
-    <div>
+    <div className="text-black">
       <FormControl>
         <Select
           onValueChange={(value) => {
@@ -586,7 +594,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           }}
           defaultValue={field.value}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Allergy" />
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-600">
@@ -608,7 +616,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   name="currentMedication"
   label="Current Medication (if any)"
   renderSkeleton={(field) => (
-    <div>
+    <div className="text-black">
       <FormControl>
         <Select
           onValueChange={(value) => {
@@ -617,7 +625,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           }}
           defaultValue={field.value}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Medication" />
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-600">
@@ -658,7 +666,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 value={field.value || ""} // Ensure it resets to empty
             >
                 {["Yes", "No"].map((option) => (
-                    <div key={option} className="radio-group flex items-center gap-2">
+                    <div key={option} className="radio-group flex items-center gap-2 text-black">
                         <RadioGroupItem value={option} id={option} />
                         <Label htmlFor={option} className="cursor-pointer">
                             {option}
@@ -686,7 +694,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                     defaultValue={field.value}
                 >
                     {["Physical Disabilities", "Intellectual Disabilities", "Mental Illnesses"].map((option) => (
-                        <div key={option} className="radio-group flex items-center gap-2">
+                        <div key={option} className="radio-group flex items-center gap-2 text-black">
                             <RadioGroupItem value={option} id={option} />
                             <Label htmlFor={option} className="cursor-pointer">
                                 {option}
@@ -732,7 +740,7 @@ const RegisterForm = ({ user }: { user: User }) => {
 
       <section className="space-y-6">
           <div className="mb-9 space-y-1">
-            <h2 className="sub-header">Identification and Verification</h2>
+            <h2 className="sub-header text-blue-700">Identification and Verification</h2>
           </div>
       </section>
        
@@ -773,28 +781,35 @@ const RegisterForm = ({ user }: { user: User }) => {
             />
        <section className="space-y-6">
           <div className="mb-9 space-y-1">
-            <h2 className="sub-header">Consent and Privacy</h2>
+            <h2 className="sub-header text-blue-700">Consent and Privacy</h2>
           </div>
       </section>
 
+      <div className="text-black space-y-9">
       <CustomFormField
         fieldType={FormFieldType.CHECKBOX}
         control={form.control}
         name="treatmentConsent"
         label="I consent to treatment"
+        backgroundColor="none"
       />
+      
+      
         <CustomFormField
         fieldType={FormFieldType.CHECKBOX}
         control={form.control}
         name="disclosureConsent"
         label="I consent to disclosure of information"
+        backgroundColor="none"
       />
         <CustomFormField
         fieldType={FormFieldType.CHECKBOX}
         control={form.control}
         name="privacyConsent"
         label="I consent to privacy policy"
+        backgroundColor="none"
       />
+      </div>
       <SubmitButton isLoading={isLoading}> Submit</SubmitButton>
       
     </form>

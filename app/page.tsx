@@ -1,5 +1,6 @@
 import PatientForms from "@/components/forms/PatientForms"
 import PasskeyModal from "@/components/PasskeyModal";
+import { ThemeProvider } from "@/components/theme-provider";
 import Image from "next/image"
 import Link from "next/link"
 
@@ -7,11 +8,11 @@ export default async function Home({ searchParams}: SearchParamProps) {
   const params = await searchParams;
   const isAdmin = params.admin === 'true';
  return (
-  <div className = "flex h-screen max-h-screen">
+  <div className = "flex h-screen max-h-screen bg-white text-blue-700">
     {isAdmin && <PasskeyModal/>}
 
 
-   <section className="remove-scrollbar container my-auto"> 
+   <section className="remove-scrollbar container my-auto bg-white"> 
     <div className="sub-container max-w-[496px]">
       {/* <Image
         src="/assets/icons/logo-full.svg"

@@ -1,7 +1,9 @@
+
 import Image from "next/image";
 import RegisterForm from "@/components/forms/RegisterForm";
 import { getUser } from "@/lib/actions/patient.actions";
 import BackToHomeButton from "@/components/BackToHomeButton";
+
 // import * as Sentry from '@sentry/nextjs'
 
 
@@ -12,11 +14,10 @@ const Register = async ({ params }: { params: { userId: string } }) => {
   // Sentry.metrics.set("user_view", user.name);
 
   return (
-    <div className = "flex h-screen max-h-screen">
+    <div className = "flex h-screen max-h-screen bg-white text-blue-700">
 
    <section className="remove-scrollbar container">
    <BackToHomeButton />
-   
     <div className="sub-container max-w-[860px] flex-1 flex-col py-10">
       
       {/* <Image
