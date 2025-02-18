@@ -96,7 +96,7 @@
 
   /* ==== FORM */
   .radio-group {
-    @apply flex h-full flex-1 items-center gap-2 rounded-md border border-dashed border-dark-500 bg-dark-400 p-3;
+    @apply flex h-full flex-1 items-center gap-2 rounded-md border bg-gray-50 p-3;
   }
 
   .checkbox-label {
@@ -105,7 +105,7 @@
 
   /* ==== File Upload */
   .file-upload {
-    @apply text-12-regular flex cursor-pointer  flex-col items-center justify-center gap-3 rounded-md border border-dashed border-dark-500 bg-dark-400 p-5;
+    @apply text-12-regular flex cursor-pointer  flex-col items-center justify-center gap-3 rounded-md border border-dashed border-dark-600 bg-gray-50 p-5;
   }
 
   .file-upload_label {
@@ -199,15 +199,15 @@
   }
 
   .shad-input {
-    @apply bg-dark-400 placeholder:text-dark-600 border-dark-500 h-11 focus-visible:ring-0 focus-visible:ring-offset-0 !important;
+    @apply bg-transparent placeholder:text-dark-600 h-11 focus-visible:ring-0 focus-visible:ring-offset-0 !important;
   }
 
   .shad-input-icon {
-    @apply bg-dark-400 placeholder:text-dark-600 border-dark-500 h-11 focus-visible:ring-0 focus-visible:ring-offset-0 !important;
+    @apply placeholder:text-dark-600 h-11 focus-visible:ring-0 focus-visible:ring-offset-0 !important;
   }
 
   .shad-textArea {
-    @apply bg-dark-400 placeholder:text-dark-600 border-dark-500 focus-visible:ring-0 focus-visible:ring-offset-0 !important;
+    @apply bg-transparent placeholder:text-dark-600 focus-visible:ring-0 focus-visible:ring-offset-0 !important;
   }
 
   .shad-combobox-item {
@@ -219,11 +219,11 @@
   }
 
   .shad-select-trigger {
-    @apply bg-dark-400  placeholder:text-dark-600 border-dark-500 h-11 focus:ring-0 focus:ring-offset-0 !important;
+    @apply bg-transparent text-black placeholder:text-dark-600 border h-11 focus:ring-0 focus:ring-offset-0 !important;
   }
 
   .shad-select-content {
-    @apply bg-dark-400 border-dark-500 !important;
+    @apply border border-dark-500 bg-white text-black !important;
   }
 
   .shad-dialog {
@@ -268,12 +268,47 @@
 
   /* =====  REACT PHONE NUMBER INPUT OVERRIDES */
   .input-phone {
-    @apply mt-2 h-11 rounded-md px-3 text-sm border bg-dark-400 placeholder:text-dark-600 border-dark-500 !important;
+    @apply mt-2 h-11 rounded-md px-3 text-sm border bg-transparent !important;
   }
 
   /* =====  REACT DATE PICKER OVERRIDES */
   .date-picker {
-    @apply overflow-hidden border-transparent w-full placeholder:text-dark-600  h-11 text-14-medium rounded-md px-3 outline-none !important;
+    @apply overflow-hidden border border-dark-500 w-full placeholder:text-dark-600 h-11 text-14-medium rounded-md px-3 outline-none !important;
+  }
+
+  /* Add these radio group overrides */
+  .radio-group [data-state="checked"] {
+    @apply border-dark-400 !important;
+  }
+
+  .radio-group [data-state="unchecked"] {
+    @apply border-dark-500 !important;
+  }
+
+  /* Style for the inner circle when checked */
+  .radio-group [data-state="checked"]::before {
+    @apply bg-white !important;
+  }
+
+  /* Add these rules to handle input autofill background */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: #000000 !important;
+    transition: background-color 5000s ease-in-out 0s;
+    box-shadow: inset 0 0 20px 20px transparent !important;
+  }
+
+  /* For Firefox */
+  input:autofill {
+    background: transparent !important;
+  }
+
+  /* Additional rule for Edge/IE */
+  input:-internal-autofill-selected {
+    background-color: transparent !important;
   }
 }
 
@@ -312,7 +347,7 @@
 }
 
 .react-datepicker__input-container input {
-  background-color: #1a1d21 !important;
+  background-color: transparent !important;
   width: 100%;
   outline: none;
 }
@@ -340,11 +375,16 @@
 .PhoneInputInput {
   outline: none;
   margin-left: 4px;
-  background: #1a1d21;
+  background: transparent !important;
   font-size: 14px;
   font-weight: 500;
 }
 
 .PhoneInputInput::placeholder {
   color: #1a1d21;
+}
+
+/* Update the country select background */
+.PhoneInputCountry {
+  background: transparent !important;
 }

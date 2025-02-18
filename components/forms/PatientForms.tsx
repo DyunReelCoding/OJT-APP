@@ -62,7 +62,7 @@ const PatientForms = () => {
   
       const user = await createUser(userData); // Now correctly matches CreateUserParams
   
-      if (user) router.push(`/patients/${user.$id}/register`);
+      if (user) router.push(`/patients/${user.$id}/register`); 
     } catch (error) {
       console.log(error);
     } finally {
@@ -75,7 +75,7 @@ const PatientForms = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
-          <h1 className="header">Hi There!👋</h1>
+          <h1 className="header text-green-400">Hi There!👋</h1>
           <p className="text-dark-700">Schedule your First Appointment</p>
         </section>
 
