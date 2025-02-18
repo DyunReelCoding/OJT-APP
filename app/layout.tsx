@@ -29,18 +29,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={cn('min-h-screen bg-dark-300 font-sans antialiased', fontSans.variable)} 
+        className={cn('min-h-screen bg-dark-300 font-sans antialiased', fontSans.variable)}
         suppressHydrationWarning
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          storageKey="theme"
         >
-        <ThemeProvider  
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            storageKey="theme"
-          >
-            {children}
+          {children}
         </ThemeProvider>
-
       </body>
     </html>
   );

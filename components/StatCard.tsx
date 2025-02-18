@@ -2,13 +2,13 @@ import clsx from "clsx";
 import React from "react";
 
 interface StatCardProps {
-  type: "students" | "updateStudent" | "deleteStudent";
+  type: "patients" | "students" | "employees";
   count: number;
   label: string;
   icon: string;
 }
 
-const StatCard = ({ count = 0, label, icon, type }: StatCardProps) => {
+const StatCard = ({ count = 0, label, icon }: StatCardProps) => {
   return (
     <div className="flex justify-center items-center w-full">
       <div
