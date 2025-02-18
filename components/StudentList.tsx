@@ -23,11 +23,13 @@ const StudentList = ({ students }: { students: any[] }) => {
   useEffect(() => {
     let filtered = students;
 
-    if (view === "student") {
-      filtered = students.filter(student => student.occupation === "Student");
-    } else if (view === "employee") {
-      filtered = students.filter(student => student.occupation === "employee");
-    }
+    const normalizeOccupation = (occupation: string) => occupation.toLowerCase().replace(/s$/, "");
+
+if (view === "student") {
+  filtered = students.filter(student => normalizeOccupation(student.occupation) === "student");
+} else if (view === "employee") {
+  filtered = students.filter(student => normalizeOccupation(student.occupation) === "employee");
+}
 
     if (filterType) {
       filtered = filtered.filter((student) =>
