@@ -203,6 +203,13 @@ const RegisterForm = ({ user }: { user: User }) => {
       if (patient) {
         form.reset();
         setSuccessMessage("Registration successful! You have been registered successfully.");
+        
+        // Check if the user is a student and redirect accordingly
+        if (values.occupation.toLowerCase() === "student") {
+          router.push(`/patients/${patient.$id}/student`);
+        } else {
+          router.push('/'); // Default redirect for non-students
+        }
       }
     } catch (error) {
       console.log(error);
