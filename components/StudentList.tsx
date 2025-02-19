@@ -62,7 +62,7 @@ if (view === "student") {
   // Handle student click with loading state
   const handleStudentClick = (studentId: string) => {
     setLoadingId(studentId); // Set loading state
-    router.push(`/patients/${studentId}/studentDetail`);
+    router.push(`/patients/${studentId}/studentDetailAdmin`);
   };
 
   return (

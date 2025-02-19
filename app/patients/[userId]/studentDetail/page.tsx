@@ -5,9 +5,8 @@ import { useParams } from "next/navigation";
 import { Databases, Client } from "appwrite";
 import { notFound } from "next/navigation";
 import BackButton from "@/components/BackButton";
-import EditableField from "@/components/EditableField";
-import EmailForm from "@/components/EmailForm";
 import PrintButton from "@/components/PrintButton";
+import BackToStudentButton from "@/components/BackToStudentButton";
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -44,62 +43,52 @@ const StudentDetail = () => {
 
   if (loading) return <div className="text-white text-center">Loading...</div>;
 
-  const handleUpdate = (fieldName: string, newValue: string) => {
-    setStudent((prev: any) => ({
-      ...prev,
-      [fieldName]: newValue,
-    }));
-  };
-
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
-      <BackButton />
+      <BackToStudentButton userId={userId} />
+
       <PrintButton student={student} />
       <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>
 
-      {/* Personal Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Personal Information</h2>
-          <EditableField label="Email" value={student.email} userId={userId} fieldName="email" onUpdate={handleUpdate} />
-          <EditableField label="Phone" value={student.phone} userId={userId} fieldName="phone" onUpdate={handleUpdate} />
-          <EditableField label="Gender" value={student.gender} userId={userId} fieldName="gender" onUpdate={handleUpdate} />
-          <EditableField label="Birth Date" value={student.birthDate} userId={userId} fieldName="birthDate" onUpdate={handleUpdate} />
-          <EditableField label="Age" value={student.age} userId={userId} fieldName="age" onUpdate={handleUpdate} />
-          <EditableField label="Suffix" value={student.suffix} userId={userId} fieldName="suffix" onUpdate={handleUpdate} />
-          <EditableField label="Civil Status" value={student.civilStatus} userId={userId} fieldName="civilStatus" onUpdate={handleUpdate} />
-          <EditableField label="Person with Disability" value={student.personWithDisability} userId={userId} fieldName="personWithDisability" onUpdate={handleUpdate} />
-          <EditableField label="Address" value={student.address} userId={userId} fieldName="address" onUpdate={handleUpdate} />
-          <EditableField label="Occupation" value={student.occupation} userId={userId} fieldName="occupation" onUpdate={handleUpdate} />
-          <EditableField label="Office" value={student.office} userId={userId} fieldName="office" onUpdate={handleUpdate} />
-          <EditableField label="Emergency Contact Name" value={student.emergencyContactName} userId={userId} fieldName="emergencyContactName" onUpdate={handleUpdate} />
-          <EditableField label="Emergency Contact Number" value={student.emergencyContactNumber} userId={userId} fieldName="emergencyContactNumber" onUpdate={handleUpdate} />
+          <p><strong>Email:</strong> {student.email}</p>
+          <p><strong>Phone:</strong> {student.phone}</p>
+          <p><strong>Gender:</strong> {student.gender}</p>
+          <p><strong>Birth Date:</strong> {student.birthDate}</p>
+          <p><strong>Age:</strong> {student.age}</p>
+          <p><strong>Suffix:</strong> {student.suffix}</p>
+          <p><strong>Civil Status:</strong> {student.civilStatus}</p>
+          <p><strong>Person with Disability:</strong> {student.personWithDisability}</p>
+          <p><strong>Address:</strong> {student.address}</p>
+          <p><strong>Occupation:</strong> {student.occupation}</p>
+          <p><strong>Office:</strong> {student.office}</p>
+          <p><strong>Emergency Contact Name:</strong> {student.emergencyContactName}</p>
+          <p><strong>Emergency Contact Number:</strong> {student.emergencyContactNumber}</p>
         </div>
 
-        {/* Medical Information */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Medical Information</h2>
-          <EditableField label="Blood Type" value={student.bloodType} userId={userId} fieldName="bloodType" onUpdate={handleUpdate} />
-          <EditableField label="Allergies" value={student.allergies} userId={userId} fieldName="allergies" onUpdate={handleUpdate} />
-          <EditableField label="Current Medication" value={student.currentMedication} userId={userId} fieldName="currentMedication" onUpdate={handleUpdate} />
-          <EditableField label="Family Medical History" value={student.familyMedicalHistory} userId={userId} fieldName="familyMedicalHistory" onUpdate={handleUpdate} />
-          <EditableField label="Past Medical History" value={student.pastMedicalHistory} userId={userId} fieldName="pastMedicalHistory" onUpdate={handleUpdate} />
-          <EditableField label="Primary Physician" value={student.primaryPhysician} userId={userId} fieldName="primaryPhysician" onUpdate={handleUpdate} />
-          <EditableField label="Insurance Provider" value={student.insuranceProvider} userId={userId} fieldName="insuranceProvider" onUpdate={handleUpdate} />
-          <EditableField label="Insurance Policy Number" value={student.insurancePolicyNumber} userId={userId} fieldName="insurancePolicyNumber" onUpdate={handleUpdate} />
-          <EditableField label="Person with Disability" value={student.personWithDisability} userId={userId} fieldName="personWithDisability" onUpdate={handleUpdate} />
-          <EditableField label="Disability Type" value={student.disabilityType} userId={userId} fieldName="disabilityType" onUpdate={handleUpdate} />
-          <EditableField label="Disability Details" value={student.disabilityDetails} userId={userId} fieldName="disabilityDetails" onUpdate={handleUpdate} />
+          <p><strong>Blood Type:</strong> {student.bloodType}</p>
+          <p><strong>Allergies:</strong> {student.allergies}</p>
+          <p><strong>Current Medication:</strong> {student.currentMedication}</p>
+          <p><strong>Family Medical History:</strong> {student.familyMedicalHistory}</p>
+          <p><strong>Past Medical History:</strong> {student.pastMedicalHistory}</p>
+          <p><strong>Primary Physician:</strong> {student.primaryPhysician}</p>
+          <p><strong>Insurance Provider:</strong> {student.insuranceProvider}</p>
+          <p><strong>Insurance Policy Number:</strong> {student.insurancePolicyNumber}</p>
+          <p><strong>Disability Type:</strong> {student.disabilityType}</p>
+          <p><strong>Disability Details:</strong> {student.disabilityDetails}</p>
         </div>
       </div>
 
-      {/* Identification */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Identification</h2>
-          <EditableField label="Identification Type" value={student.identificationType} userId={userId} fieldName="identificationType" onUpdate={handleUpdate} />
-          <EditableField label="Identification Number" value={student.identificationNumber} userId={userId} fieldName="identificationNumber" onUpdate={handleUpdate} />
-          <EditableField label="Student Identification Number" value={student.idNumber} userId={userId} fieldName="idNumber" onUpdate={handleUpdate} />
+          <p><strong>Identification Type:</strong> {student.identificationType}</p>
+          <p><strong>Identification Number:</strong> {student.identificationNumber}</p>
+          <p><strong>Student Identification Number:</strong> {student.idNumber}</p>
           <p>
             <strong>Identification Document:</strong>{" "}
             <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
@@ -108,18 +97,15 @@ const StudentDetail = () => {
           </p>
         </div>
 
-        {/* Health Info */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Health Information</h2>
-          <EditableField label="Year Level" value={student.yearLevel} userId={userId} fieldName="yearLevel" onUpdate={handleUpdate} />
-          <EditableField label="BMI Category" value={student.bmiCategory} userId={userId} fieldName="bmiCategory" onUpdate={handleUpdate} />
-          <EditableField label="Weight" value={student.weight} userId={userId} fieldName="weight" onUpdate={handleUpdate} />
-          <EditableField label="Height" value={student.height} userId={userId} fieldName="height" onUpdate={handleUpdate} />
-          <EditableField label="BMI" value={student.bmi} userId={userId} fieldName="bmi" onUpdate={handleUpdate} />
+          <p><strong>Year Level:</strong> {student.yearLevel}</p>
+          <p><strong>BMI Category:</strong> {student.bmiCategory}</p>
+          <p><strong>Weight:</strong> {student.weight}</p>
+          <p><strong>Height:</strong> {student.height}</p>
+          <p><strong>BMI:</strong> {student.bmi}</p>
         </div>
       </div>
-
-      <EmailForm studentEmail={student.email} />
     </div>
   );
 };
