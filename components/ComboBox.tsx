@@ -8,7 +8,7 @@ interface ComboBoxProps {
 const ComboBox = ({ filterType, setFilterType }: ComboBoxProps) => {
   return (
     <select
-      className="w-full p-3 border border-gray-700 rounded-lg bg-gray-900 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+      className="w-full p-3 border border-gray-700 rounded-lg bg-blue-700 text-white shadow-sm focus:outline-none focus:none focus:ring-none mb-4"
       value={filterType}
       onChange={(e) => setFilterType(e.target.value)}
     >

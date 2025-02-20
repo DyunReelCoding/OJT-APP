@@ -13,7 +13,7 @@ const StatCard = ({ count = 0, label, icon }: StatCardProps) => {
     <div className="flex justify-center items-center w-full">
       <div
         className={clsx(
-          "p-6 rounded-xl shadow-lg flex flex-col justify-between items-center bg-gradient-to-r from-white/10 to-gray-900 text-white w-96 h-32"
+          "p-6 rounded-xl shadow-lg flex flex-col justify-between items-center bg-gradient-to-r from-blue-200 to-blue-700 text-white w-96 h-32"
         )}
       >
         <div className="flex items-center gap-4">

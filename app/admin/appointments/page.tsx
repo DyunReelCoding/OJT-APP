@@ -55,12 +55,12 @@ const AppointmentsPage = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-50">
       <SideBar />
       <div className="flex-1 p-6">
         <main className="admin-main">
           <section className="w-full space-y-4">
-            <h1 className="header">Appointments</h1>
+            <h1 className="header text-blue-700">Appointments</h1>
             <p className="text-dark-700">Manage patient appointments</p>
           </section>
 
@@ -68,12 +68,12 @@ const AppointmentsPage = () => {
             <table className="w-full border-collapse shad-table">
               <thead>
                 <tr className="shad-table-row-header">
-                  <th className="p-4 text-left">Patient Name</th>
-                  <th className="p-4 text-left">Date</th>
-                  <th className="p-4 text-left">Time</th>
-                  <th className="p-4 text-left">Reason</th>
-                  <th className="p-4 text-left">Status</th>
-                  <th className="p-4 text-left">Actions</th>
+                  <th className="p-4 text-left text-blue-700">Patient Name</th>
+                  <th className="p-4 text-left text-blue-700">Date</th>
+                  <th className="p-4 text-left text-blue-700">Time</th>
+                  <th className="p-4 text-left text-blue-700">Reason</th>
+                  <th className="p-4 text-left text-blue-700">Status</th>
+                  <th className="p-4 text-left text-blue-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
