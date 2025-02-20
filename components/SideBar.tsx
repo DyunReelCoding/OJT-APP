@@ -47,12 +47,12 @@ const SideBar = () => {
     <div
       className={`fixed left-0 top-0 h-full transition-all duration-300 ${
         isOpen ? "w-64" : "w-16"
-      } bg-gray-800 shadow-lg border-r border-gray-700 flex flex-col`}
+      } bg-gray-100 shadow-lg border-r border-gray-700 flex flex-col`}
     >
       {/* Sidebar Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="m-4 flex items-center gap-2 text-white"
+        className="m-4 flex items-center gap-2 text-blue-700"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -65,8 +65,8 @@ const SideBar = () => {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`flex items-center gap-2 text-white hover:bg-gray-700 px-4 py-2 rounded ${
-                    pathname === link.href ? "bg-gray-700" : ""
+                  className={`flex items-center gap-2 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded ${
+                    pathname === link.href ? "bg-blue-100" : ""
                   }`}
                 >
                   {link.icon}
