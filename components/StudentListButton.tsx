@@ -90,7 +90,7 @@ const StudentListPrintButton = ({ filteredStudents, filterType, view }: StudentL
         {/* PDF Download Button */}
         <button
           onClick={handleDownloadPDF}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-red-700 transition"
         >
           <FileText size={20} className="mr-2" /> Download PDF
         </button>

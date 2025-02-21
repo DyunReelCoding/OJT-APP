@@ -137,14 +137,14 @@ const ManagementPage = () => {
   return (
     <div className="flex">
       <SideBar />
-      <div className="flex flex-col items-center justify-center w-full min-h-screen p-6 bg-gray-900 text-white">
+      <div className="flex flex-col items-center justify-center w-full min-h-screen p-6 bg-gray-50 text-white">
         <div className="flex justify-between w-full max-w-lg">
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-2xl font-bold mb-6 text-blue-700">
             Manage {isAllergies ? "Allergies" : "Current Medications"}
           </h2>
           <Button
             onClick={() => setIsAllergies(!isAllergies)}
-            className="bg-blue-600 hover:bg-blue-700 px-4"
+            className="bg-blue-700 hover:bg-blue-900 px-4"
           >
             Switch to {isAllergies ? "Medications" : "Allergies"}
           </Button>
@@ -157,13 +157,14 @@ const ManagementPage = () => {
           </div>
         )}
 
-        <div className="flex items-center gap-2 mb-4 w-full max-w-lg">
+        <div className="flex items-center gap-2 mb-4 w-full max-w-lg text-black focus:outline-none">
           <Search size={20} className="text-gray-400" />
           <Input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`Search ${isAllergies ? "allergy" : "medication"}...`}
+            className="bg-white border-2 border-blue-700 focus:outline-none"
           />
         </div>
 
@@ -173,8 +174,9 @@ const ManagementPage = () => {
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
             placeholder={`Enter ${isAllergies ? "allergy" : "medication"} name`}
+            className="bg-white border-blue-700 text-black focus:outline-none"
           />
-          <Button onClick={addItem} className="bg-blue-600 hover:bg-blue-700 px-4">
+          <Button onClick={addItem} className="bg-blue-700 hover:bg-blue-700 px-4">
             Add
           </Button>
         </div>
@@ -182,16 +184,16 @@ const ManagementPage = () => {
         <ul className="mt-6 w-full max-w-lg">
   {filteredItems.length > 0 ? (
     filteredItems.map((item) => (
-      <li key={item.$id} className="flex justify-between p-2 border-b border-gray-700 items-center">
+      <li key={item.$id} className="flex justify-between p-2 border-b border-blue-700 items-center">
         {editingId === item.$id ? (
           <input
           type="text"
           value={updatedItem}
           onChange={(e) => setUpdatedItem(e.target.value)}
-          className="bg-gray-800 text-white px-2 py-1 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-blue-200 text-black px-2 py-1 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         ) : (
-          <span className="text-lg">{item.name}</span>
+          <span className="text-lg text-black">{item.name}</span>
         )}
 
         <div className="flex gap-2">

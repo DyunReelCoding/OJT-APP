@@ -67,7 +67,7 @@ const CalendarPage = () => {
       days.push(
         <div 
           key={`empty-${i}`} 
-          className="border border-dark-400/20 bg-dark-300/50 p-4 min-h-[100px]"
+          className="border border-blue-700 bg-blue-100 p-4 min-h-[100px]"
         />
       );
     }
@@ -85,10 +85,10 @@ const CalendarPage = () => {
         <div 
           key={day}
           onClick={() => setSelectedDate(dateString)}
-          className={`border border-dark-400/20 bg-dark-300/50 p-4 min-h-[100px] cursor-pointer transition-colors
-            ${isSelected ? 'bg-dark-400/70' : 'hover:bg-dark-400/30'}`}
+          className={`border border-blue-700 bg-white p-4 min-h-[100px] cursor-pointer transition-colors
+            ${isSelected ? 'bg-blue-700 text-white' : 'hover:bg-blue-200'}`}
         >
-          <span className="text-sm text-dark-700">{day}</span>
+          <span className="text-sm text-dark-200">{day}</span>
           {dayActivities.length > 0 && (
             <div className="mt-2">
               <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
@@ -102,29 +102,29 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-dark-200">
+    <div className="flex h-screen bg-gray-50">
       <SideBar />
       <div className="flex-1 p-6 overflow-hidden">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-xl font-bold text-light-200">Calendar of Activities</h1>
+            <h1 className="text-xl font-bold text-blue-700">Calendar of Activities</h1>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={previousMonth}>
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 text-blue-700" />
               </Button>
-              <h2 className="text-lg font-medium text-light-200 min-w-[200px] text-center">
+              <h2 className="text-lg font-medium text-blue-700 min-w-[200px] text-center">
                 {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
               </h2>
               <Button variant="ghost" size="icon" onClick={nextMonth}>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-blue-700" />
               </Button>
             </div>
           </div>
 
-          <div className="rounded-lg overflow-hidden border border-dark-400/20">
-            <div className="grid grid-cols-7 bg-dark-400/50">
+          <div className="rounded-lg overflow-hidden border border-blue-700">
+            <div className="grid grid-cols-7 bg-blue-700">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="p-4 text-center text-sm font-medium text-dark-600">
+                <div key={day} className="p-4 text-center text-sm font-medium text-white">
                   {day}
                 </div>
               ))}
@@ -135,7 +135,7 @@ const CalendarPage = () => {
           </div>
 
           {selectedDate && (
-            <div className="mt-6 p-4 rounded-lg bg-dark-400/50 border border-dark-400/20">
+            <div className="mt-6 p-4 rounded-lg bg-white border border-blue-700">
               <h3 className="text-sm font-medium text-dark-600">
                 Activities for {selectedDate}
               </h3>

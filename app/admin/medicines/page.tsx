@@ -78,12 +78,12 @@ const MedicinesPage = () => {
   }, [searchTerm, medicines]);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-50">
       <SideBar />
       <div className="flex-1 p-6">
         <main className="admin-main">
           <section className="w-full space-y-4">
-            <h1 className="header">Medicines Inventory</h1>
+            <h1 className="header text-blue-700">Medicines Inventory</h1>
             <p className="text-dark-700">Manage medicine stock and inventory</p>
           </section>
 
@@ -94,7 +94,7 @@ const MedicinesPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search medicines..."
-              className="bg-dark-400 border-dark-500"
+              className="bg-white border-2 border-blue-700 text-black focus:outline-none"
             />
           </div>
 
@@ -102,14 +102,14 @@ const MedicinesPage = () => {
             <table className="w-full border-collapse shad-table">
               <thead>
                 <tr className="shad-table-row-header">
-                  <th className="p-4 text-left">Medicine Name</th>
-                  <th className="p-4 text-left">Brand</th>
-                  <th className="p-4 text-left">Category</th>
-                  <th className="p-4 text-left">Stock</th>
-                  <th className="p-4 text-left">Location</th>
-                  <th className="p-4 text-left">Expiry Date</th>
-                  <th className="p-4 text-left">Status</th>
-                  <th className="p-4 text-left">Actions</th>
+                  <th className="p-4 text-left text-blue-700">Medicine Name</th>
+                  <th className="p-4 text-left text-blue-700">Brand</th>
+                  <th className="p-4 text-left text-blue-700">Category</th>
+                  <th className="p-4 text-left text-blue-700">Stock</th>
+                  <th className="p-4 text-left text-blue-700">Location</th>
+                  <th className="p-4 text-left text-blue-700">Expiry Date</th>
+                  <th className="p-4 text-left text-blue-700">Status</th>
+                  <th className="p-4 text-left text-blue-700">Actions</th>
                 </tr>
               </thead>
               <tbody>

@@ -67,7 +67,7 @@ if (view === "student") {
 
   return (
     <section className="student-list w-full px-6">
-      <h2 className="text-2xl font-semibold mb-4 text-white text-center">
+      <h2 className="text-2xl font-semibold mb-4 text-blue-700 text-center">
         {view === "student" ? "Student List" : "Employee List"}
       </h2>
 
@@ -75,13 +75,13 @@ if (view === "student") {
       <div className="flex justify-center mb-4">
         <button
           onClick={() => setView("student")}
-          className={`px-4 py-2 mx-2 ${view === "student" ? "bg-blue-500" : "bg-gray-700"} text-white rounded-lg`}
+          className={`px-4 py-2 mx-2 ${view === "student" ? "bg-blue-700" : "bg-gray-200 text-black"} rounded-lg`}
         >
           Student View
         </button>
         <button
           onClick={() => setView("employee")}
-          className={`px-4 py-2 mx-2 ${view === "employee" ? "bg-blue-500" : "bg-gray-700"} text-white rounded-lg`}
+          className={`px-4 py-2 mx-2 ${view === "employee" ? "bg-blue-700" : "bg-gray-200 text-black" } rounded-lg`}
         >
           Employee View
         </button>
@@ -102,7 +102,7 @@ if (view === "student") {
         <input
           type="text"
           placeholder="Search..."
-          className="w-96 p-3 border border-gray-700 rounded-lg bg-gray-900 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+          className="w-96 p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm focus:outline-none mt-2"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -111,10 +111,10 @@ if (view === "student") {
       {filteredStudents.length === 0 ? (
         <p className="text-gray-400 text-center">No {view}s found.</p>
       ) : (
-        <div className="w-full overflow-x-auto">
-          <table className="w-full bg-gray-800 text-white rounded-lg shadow-lg">
+        <div className="w-full overflow-x-auto rounded-lg border-2 border-blue-700">
+          <table className="w-full text-white shadow-lg">
             <thead>
-              <tr className="bg-gray-700 text-left text-sm uppercase">
+              <tr className="bg-blue-700 text-left text-sm uppercase">
                 <th className="py-3 px-6">Name</th>
                 <th className="py-3 px-6">ID Number</th>
                 {view === "student" ? (
@@ -133,11 +133,11 @@ if (view === "student") {
             </thead>
             <tbody>
               {paginatedStudents.map((student: any) => (
-                <tr key={student.$id} className="border-b border-gray-700 hover:bg-gray-700 transition">
+                <tr key={student.$id} className="bg-white text-black border-b border-gray-700 hover:bg-blue-400 hover:text-white transition">
                   <td className="py-3 px-6">
                     <button
                       onClick={() => handleStudentClick(student.$id)}
-                      className="text-blue-400 hover:text-blue-500 transition"
+                      className="text-blue-700 hover:text-white transition"
                       disabled={loadingId !== null}
                     >
                       {student.name}
@@ -201,7 +201,7 @@ if (view === "student") {
           ← Prev
         </button>
         <button
-          className="px-4 py-2 mx-2 bg-gray-700 text-white rounded disabled:opacity-50"
+          className="px-4 py-2 mx-2 bg-green-400 text-white rounded disabled:opacity-50"
           onClick={() => setCurrentPage((prev) => (startIndex + studentsPerPage < filteredStudents.length ? prev + 1 : prev))}
           disabled={startIndex + studentsPerPage >= filteredStudents.length}
         >
