@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Menu, X, User, Home, FileText, Calendar } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FiArrowLeft } from 'react-icons/fi'; // Import the back arrow icon
 
 const StudentSideBar = ({ userId }: { userId: string }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -22,6 +23,11 @@ const StudentSideBar = ({ userId }: { userId: string }) => {
       label: "Appointments",
       href: `/patients/${userId}/appointments`,
       icon: <Calendar className="w-5 h-5" />
+    },
+    {
+      label: "Go Back Home",
+      href: `/`,
+      icon: <FiArrowLeft className="w-5 h-5" /> // Use the back arrow icon here
     }
   ];
 
