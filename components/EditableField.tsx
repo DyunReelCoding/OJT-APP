@@ -12,7 +12,7 @@ const client = new Client()
 const databases = new Databases(client);
 
 interface EditableFieldProps {
-  label: string;
+  label?: string;
   value: string;
   userId: string;
   fieldName: string;

@@ -33,10 +33,19 @@ const OccupationManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [updatedItem, setUpdatedItem] = useState("");
   const [isOccupation, setIsOccupation] = useState(true); // Toggle between occupation and office
+  const [message, setMessage] = useState<string | null>(null); // Status messages
 
   useEffect(() => {
     fetchItems();
   }, [isOccupation]);
+
+  // Auto-clear messages after 3 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   // Fetch Occupation or Office Items
   const fetchItems = async () => {
@@ -51,50 +60,47 @@ const OccupationManagement = () => {
       setFilteredItems(formattedItems);
     } catch (error) {
       console.error("Error fetching items:", error);
+      setMessage("Failed to fetch items.");
     }
   };
 
   // Search Filter
   useEffect(() => {
-    if (!searchTerm) {
-      setFilteredItems(items);
-    } else {
-      setFilteredItems(
-        items.filter((item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    }
+    setFilteredItems(
+      !searchTerm
+        ? items
+        : items.filter((item) =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+    );
   }, [searchTerm, items]);
 
-  // Add Item (Occupation/Office)
+  // Add Item
   const addItem = async () => {
-    if (!newItem) return;
+    if (!newItem.trim()) return setMessage("Please enter a valid name.");
     try {
       const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
-      const response = await databases.createDocument(
-        DATABASE_ID,
-        collectionId,
-        ID.unique(),
-        { name: newItem }
-      );
-      
+      const response = await databases.createDocument(DATABASE_ID, collectionId, ID.unique(), { name: newItem });
+
       const newEntry = { $id: response.$id, name: response.name };
-      setItems([...items, newEntry]);
-      setFilteredItems([...items, newEntry]);
+      const updatedItems = [...items, newEntry];
+      setItems(updatedItems);
+      setFilteredItems(updatedItems);
       setNewItem("");
+      setMessage(`${isOccupation ? "Occupation" : "Office type"} added successfully.`);
     } catch (error) {
       console.error("Error adding item:", error);
+      setMessage("Failed to add item.");
     }
   };
 
-  // Update Item (Occupation/Office)
+  // Update Item
   const updateItem = async ($id: string) => {
-    if (!updatedItem) return;
+    if (!updatedItem.trim()) return setMessage("Please enter a valid name.");
     try {
       const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       await databases.updateDocument(DATABASE_ID, collectionId, $id, { name: updatedItem });
-      
+
       const updatedList = items.map((item) =>
         item.$id === $id ? { ...item, name: updatedItem } : item
       );
@@ -102,22 +108,26 @@ const OccupationManagement = () => {
       setFilteredItems(updatedList);
       setEditingId(null);
       setUpdatedItem("");
+      setMessage(`${isOccupation ? "Occupation" : "Office type"} updated successfully.`);
     } catch (error) {
       console.error("Error updating item:", error);
+      setMessage("Failed to update item.");
     }
   };
 
-  // Delete Item (Occupation/Office)
+  // Delete Item
   const deleteItem = async ($id: string) => {
     try {
       const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       await databases.deleteDocument(DATABASE_ID, collectionId, $id);
-      
+
       const filteredList = items.filter((item) => item.$id !== $id);
       setItems(filteredList);
       setFilteredItems(filteredList);
+      setMessage(`${isOccupation ? "Occupation" : "Office type"} deleted successfully.`);
     } catch (error) {
       console.error("Error deleting item:", error);
+      setMessage("Failed to delete item.");
     }
   };
 
@@ -137,6 +147,13 @@ const OccupationManagement = () => {
           </Button>
         </div>
 
+        {/* Status Message */}
+        {message && (
+          <div className="mb-4 text-sm text-white bg-green-500 px-4 py-2 rounded-md">
+            {message}
+          </div>
+        )}
+
         {/* Search Input */}
         <div className="flex items-center gap-2 mb-4 w-full max-w-lg">
           <Search size={20} className="text-gray-400" />
@@ -149,7 +166,7 @@ const OccupationManagement = () => {
           />
         </div>
 
-        {/* Add Item (Occupation/Office) */}
+        {/* Add Item */}
         <div className="flex gap-2">
           <Input
             type="text"

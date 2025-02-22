@@ -31,12 +31,9 @@ const PatientForms = () => {
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      suffix: "",
+     
       email: "",
-      phone: "",
+      
     },
   });
 
@@ -109,12 +106,9 @@ const PatientForms = () => {
             <p className="text-dark-700">Schedule your First Appointment</p>
           </section>
 
-          <CustomFormField fieldType={FormFieldType.INPUT} control={form.control} name="firstName" label="First Name" placeholder="John" iconSrc="/assets/icons/user.svg" iconAlt="user" />
-          <CustomFormField fieldType={FormFieldType.INPUT} control={form.control} name="middleName" label="Middle Name" placeholder="Michael" iconSrc="/assets/icons/user.svg" iconAlt="user" />
-          <CustomFormField fieldType={FormFieldType.INPUT} control={form.control} name="lastName" label="Last Name" placeholder="Doe" iconSrc="/assets/icons/user.svg" iconAlt="user" />
-          <CustomFormField fieldType={FormFieldType.INPUT} control={form.control} name="suffix" label="Suffix (Optional)" placeholder="Jr., Sr., III" iconSrc="/assets/icons/user.svg" iconAlt="user" />
+        
           <CustomFormField fieldType={FormFieldType.INPUT} control={form.control} name="email" label="Email" placeholder="JohnDoe@gmail.com" iconSrc="/assets/icons/email.svg" iconAlt="email" />
-          <CustomFormField fieldType={FormFieldType.PHONE_INPUT} control={form.control} name="phone" label="Phone Number" placeholder="09123456789" />
+        
 
           <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
         </form>

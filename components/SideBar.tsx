@@ -32,13 +32,18 @@ const SideBar = () => {
       icon: <Stethoscope className="w-5 h-5" />
     },
     {
-      label: "Allergies",
+      label: "Allergies and Current Medications",
       href: "/admin/allergies",
       icon: <Pill className="w-5 h-5" />
     },
     {
-      label: "Occupation",
+      label: "Occupation and Office Types",
       href: "/admin/occupation",
+      icon: <Briefcase className="w-5 h-5" />
+    },
+    {
+      label: "Program Types",
+      href: "/admin/program",
       icon: <Briefcase className="w-5 h-5" />
     }
   ];
