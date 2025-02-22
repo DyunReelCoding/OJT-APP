@@ -22,11 +22,6 @@ const SideBar = () => {
       icon: <Calendar className="w-5 h-5" />
     },
     {
-      label: "Appointments",
-      href: "/admin/appointments",
-      icon: <Calendar className="w-5 h-5" />
-    },
-    {
       label: "Medicines",
       href: "/admin/medicines",
       icon: <Stethoscope className="w-5 h-5" />

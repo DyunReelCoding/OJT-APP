@@ -1,164 +1,105 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Client, Databases } from "appwrite";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Doctors } from "@/constants";
-import { Client, Databases, ID } from "appwrite";
 
-const AppointmentSchema = z.object({
-  patientName: z.string().min(1, "Patient name is required"),
-  doctor: z.string().min(1, "Doctor selection is required"),
-  date: z.string().min(1, "Date is required"),
-  time: z.string().min(1, "Time is required"),
-  reason: z.string().min(1, "Reason for visit is required"),
-  notes: z.string().optional(),
-});
+interface AppointmentFormProps {
+  userId: string;
+}
 
-const AppointmentForm = ({ userId }: { userId: string }) => {
-  const [isLoading, setIsLoading] = useState(false);
+const AppointmentForm = ({ userId }: AppointmentFormProps) => {
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [reason, setReason] = useState("");
+  const [patientName, setPatientName] = useState("");
 
-  const form = useForm<z.infer<typeof AppointmentSchema>>({
-    resolver: zodResolver(AppointmentSchema),
-    defaultValues: {
-      patientName: "",
-      doctor: "",
-      date: "",
-      time: "",
-      reason: "",
-      notes: "",
-    },
-  });
+  const client = new Client()
+    .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
+  
+  const databases = new Databases(client);
 
-  const onSubmit = async (values: z.infer<typeof AppointmentSchema>) => {
-    setIsLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     try {
-      const client = new Client()
-        .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
-        .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-      
-      const databases = new Databases(client);
-      
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
-        ID.unique(),
+        "67b96b0800349392bb1c", // Updated to match APPOINTMENT_COLLECTION_ID from .env
+        "unique()",
         {
-          ...values,
-          userId,
+          patientName,
+          date,
+          time,
+          reason,
           status: "Scheduled",
+          userid: userId
         }
       );
 
-      form.reset();
-      // Show success message or redirect
+      // Reset form
+      setPatientName("");
+      setDate("");
+      setTime("");
+      setReason("");
+
+      alert("Appointment scheduled successfully!");
     } catch (error) {
-      console.error("Error creating appointment:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error scheduling appointment:", error);
+      alert("Failed to schedule appointment. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Patient Name *</label>
-          <Input
-            {...form.register("patientName")}
-            placeholder="Enter patient name"
-            className="w-full"
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Patient Name</label>
+          <input
+            type="text"
+            value={patientName}
+            onChange={(e) => setPatientName(e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+            required
           />
-          {form.formState.errors.patientName && (
-            <p className="text-red-500 text-sm">{form.formState.errors.patientName.message}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Select Doctor *</label>
-          <Select onValueChange={(value) => form.setValue("doctor", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a doctor" />
-            </SelectTrigger>
-            <SelectContent>
-              {Doctors.map((doctor) => (
-                <SelectItem key={doctor.value} value={doctor.value}>
-                  {doctor.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {form.formState.errors.doctor && (
-            <p className="text-red-500 text-sm">{form.formState.errors.doctor.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Date *</label>
-          <Input
-            {...form.register("date")}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Date</label>
+          <input
             type="date"
-            className="w-full"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+            required
           />
-          {form.formState.errors.date && (
-            <p className="text-red-500 text-sm">{form.formState.errors.date.message}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Time *</label>
-          <Input
-            {...form.register("time")}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Time</label>
+          <input
             type="time"
-            className="w-full"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+            required
           />
-          {form.formState.errors.time && (
-            <p className="text-red-500 text-sm">{form.formState.errors.time.message}</p>
-          )}
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Reason for Visit *</label>
-        <Input
-          {...form.register("reason")}
-          placeholder="Enter reason for visit"
-          className="w-full"
-        />
-        {form.formState.errors.reason && (
-          <p className="text-red-500 text-sm">{form.formState.errors.reason.message}</p>
-        )}
-      </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Reason for Visit</label>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+            rows={4}
+            required
+          />
+        </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Additional Notes</label>
-        <Textarea
-          {...form.register("notes")}
-          placeholder="Enter any additional notes"
-          className="w-full"
-        />
-      </div>
-
-      <div className="flex justify-end gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => form.reset()}
-          disabled={isLoading}
-        >
-          CANCEL
-        </Button>
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          SEND
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          Schedule Appointment
         </Button>
       </div>
     </form>

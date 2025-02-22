@@ -204,11 +204,14 @@ const RegisterForm = ({ user }: { user: User }) => {
         form.reset();
         setSuccessMessage("Registration successful! You have been registered successfully.");
         
-        // Check if the user is a student and redirect accordingly
-        if (values.occupation.toLowerCase() === "student") {
+        // Check occupation and redirect accordingly
+        const occupation = values.occupation.toLowerCase();
+        if (occupation === "student") {
           router.push(`/patients/${patient.$id}/student`);
+        } else if (occupation === "employee") {
+          router.push(`/patients/${patient.$id}/employee`);
         } else {
-          router.push('/'); // Default redirect for non-students
+          router.push('/'); // Default redirect
         }
       }
     } catch (error) {
