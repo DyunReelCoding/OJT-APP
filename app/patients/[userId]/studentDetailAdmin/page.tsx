@@ -82,7 +82,7 @@ const StudentDetail = () => {
                 <td className="p-3 font-medium w-1/3">{label}</td>
                 <td className="p-3">
                   <EditableField
-                    
+                    label={label}
                     value={student[field]}
                     userId={userId}
                     fieldName={field}
@@ -117,7 +117,7 @@ const StudentDetail = () => {
                 <td className="p-3 font-medium w-1/3">{label}</td>
                 <td className="p-3">
                   <EditableField
-                    
+                    label={label}
                     value={student[field]}
                     userId={userId}
                     fieldName={field}
@@ -145,7 +145,7 @@ const StudentDetail = () => {
                 <td className="p-3 font-medium w-1/3">{label}</td>
                 <td className="p-3">
                   <EditableField
-                    
+                    label={label}
                     value={student[field]}
                     userId={userId}
                     fieldName={field}
@@ -183,7 +183,7 @@ const StudentDetail = () => {
                 <td className="p-3 font-medium w-1/3">{label}</td>
                 <td className="p-3">
                   <EditableField
-                   
+                    label={label}
                     value={student[field]}
                     userId={userId}
                     fieldName={field}
