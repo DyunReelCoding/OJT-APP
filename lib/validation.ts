@@ -71,7 +71,7 @@ suffix: z
   yearLevel: z
   .string()
   .min(1, "Year level must be at least 1 characters")
-  .max(1, "Year level must be at most 1 characters"),
+  .max(50, "Year level must be at most 1 characters"),
 
 weight: z
   .string()
