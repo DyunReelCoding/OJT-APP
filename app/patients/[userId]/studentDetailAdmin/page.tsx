@@ -16,8 +16,8 @@ const client = new Client()
 const databases = new Databases(client);
 
 const StudentDetail = () => {
-  const params = useParams(); 
-  const userId = params.userId as string; 
+  const params = useParams();
+  const userId = params.userId as string;
 
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -58,65 +58,142 @@ const StudentDetail = () => {
       <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>
 
       {/* Personal Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Personal Information</h2>
-          <EditableField label="Email" value={student.email} userId={userId} fieldName="email" onUpdate={handleUpdate} />
-          <EditableField label="Phone" value={student.phone} userId={userId} fieldName="phone" onUpdate={handleUpdate} />
-          <EditableField label="Gender" value={student.gender} userId={userId} fieldName="gender" onUpdate={handleUpdate} />
-          <EditableField label="Birth Date" value={student.birthDate} userId={userId} fieldName="birthDate" onUpdate={handleUpdate} />
-          <EditableField label="Age" value={student.age} userId={userId} fieldName="age" onUpdate={handleUpdate} />
-          <EditableField label="Suffix" value={student.suffix} userId={userId} fieldName="suffix" onUpdate={handleUpdate} />
-          <EditableField label="Civil Status" value={student.civilStatus} userId={userId} fieldName="civilStatus" onUpdate={handleUpdate} />
-          <EditableField label="Person with Disability" value={student.personWithDisability} userId={userId} fieldName="personWithDisability" onUpdate={handleUpdate} />
-          <EditableField label="Address" value={student.address} userId={userId} fieldName="address" onUpdate={handleUpdate} />
-          <EditableField label="Occupation" value={student.occupation} userId={userId} fieldName="occupation" onUpdate={handleUpdate} />
-          <EditableField label="Office" value={student.office} userId={userId} fieldName="office" onUpdate={handleUpdate} />
-          <EditableField label="Emergency Contact Name" value={student.emergencyContactName} userId={userId} fieldName="emergencyContactName" onUpdate={handleUpdate} />
-          <EditableField label="Emergency Contact Number" value={student.emergencyContactNumber} userId={userId} fieldName="emergencyContactNumber" onUpdate={handleUpdate} />
-        </div>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold">Personal Information</h2>
+        <hr className="border-gray-700 my-3" />
+        <table className="w-full border-collapse">
+          <tbody>
+            {[
+              ["Email", "email"],
+              ["Phone", "phone"],
+              ["Gender", "gender"],
+              ["Birth Date", "birthDate"],
+              ["Age", "age"],
+              ["Suffix", "suffix"],
+              ["Civil Status", "civilStatus"],
+              ["Person with Disability", "personWithDisability"],
+              ["Address", "address"],
+              ["Occupation", "occupation"],
+              ["Office", "office"],
+              ["Emergency Contact Name", "emergencyContactName"],
+              ["Emergency Contact Number", "emergencyContactNumber"],
+            ].map(([label, field]) => (
+              <tr key={field} className="border-b border-gray-700 last:border-none">
+                <td className="p-3 font-medium w-1/3">{label}</td>
+                <td className="p-3">
+                  <EditableField
+                    label={label}
+                    value={student[field]}
+                    userId={userId}
+                    fieldName={field}
+                    onUpdate={handleUpdate}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Medical Information */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Medical Information</h2>
-          <EditableField label="Blood Type" value={student.bloodType} userId={userId} fieldName="bloodType" onUpdate={handleUpdate} />
-          <EditableField label="Allergies" value={student.allergies} userId={userId} fieldName="allergies" onUpdate={handleUpdate} />
-          <EditableField label="Current Medication" value={student.currentMedication} userId={userId} fieldName="currentMedication" onUpdate={handleUpdate} />
-          <EditableField label="Family Medical History" value={student.familyMedicalHistory} userId={userId} fieldName="familyMedicalHistory" onUpdate={handleUpdate} />
-          <EditableField label="Past Medical History" value={student.pastMedicalHistory} userId={userId} fieldName="pastMedicalHistory" onUpdate={handleUpdate} />
-          <EditableField label="Primary Physician" value={student.primaryPhysician} userId={userId} fieldName="primaryPhysician" onUpdate={handleUpdate} />
-          <EditableField label="Insurance Provider" value={student.insuranceProvider} userId={userId} fieldName="insuranceProvider" onUpdate={handleUpdate} />
-          <EditableField label="Insurance Policy Number" value={student.insurancePolicyNumber} userId={userId} fieldName="insurancePolicyNumber" onUpdate={handleUpdate} />
-          <EditableField label="Person with Disability" value={student.personWithDisability} userId={userId} fieldName="personWithDisability" onUpdate={handleUpdate} />
-          <EditableField label="Disability Type" value={student.disabilityType} userId={userId} fieldName="disabilityType" onUpdate={handleUpdate} />
-          <EditableField label="Disability Details" value={student.disabilityDetails} userId={userId} fieldName="disabilityDetails" onUpdate={handleUpdate} />
-        </div>
+      {/* Medical Information */}
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold">Medical Information</h2>
+        <hr className="border-gray-700 my-3" />
+        <table className="w-full border-collapse">
+          <tbody>
+            {[
+              ["Blood Type", "bloodType"],
+              ["Allergies", "allergies"],
+              ["Current Medication", "currentMedication"],
+              ["Family Medical History", "familyMedicalHistory"],
+              ["Past Medical History", "pastMedicalHistory"],
+              ["Primary Physician", "primaryPhysician"],
+              ["Insurance Provider", "insuranceProvider"],
+              ["Insurance Policy Number", "insurancePolicyNumber"],
+              ["Disability Type", "disabilityType"],
+              ["Disability Details", "disabilityDetails"],
+            ].map(([label, field]) => (
+              <tr key={field} className="border-b border-gray-700 last:border-none">
+                <td className="p-3 font-medium w-1/3">{label}</td>
+                <td className="p-3">
+                  <EditableField
+                    label={label}
+                    value={student[field]}
+                    userId={userId}
+                    fieldName={field}
+                    onUpdate={handleUpdate}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Identification */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Identification</h2>
-          <EditableField label="Identification Type" value={student.identificationType} userId={userId} fieldName="identificationType" onUpdate={handleUpdate} />
-          <EditableField label="Identification Number" value={student.identificationNumber} userId={userId} fieldName="identificationNumber" onUpdate={handleUpdate} />
-          <EditableField label="Student Identification Number" value={student.idNumber} userId={userId} fieldName="idNumber" onUpdate={handleUpdate} />
-          <p>
-            <strong>Identification Document:</strong>{" "}
-            <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
-              View Document
-            </a>
-          </p>
-        </div>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold">Identification</h2>
+        <hr className="border-gray-700 my-3" />
+        <table className="w-full border-collapse">
+          <tbody>
+            {[
+              ["Identification Type", "identificationType"],
+              ["Identification Number", "identificationNumber"],
+              ["School ID Number", "idNumber"],
+            ].map(([label, field]) => (
+              <tr key={field} className="border-b border-gray-700 last:border-none">
+                <td className="p-3 font-medium w-1/3">{label}</td>
+                <td className="p-3">
+                  <EditableField
+                    label={label}
+                    value={student[field]}
+                    userId={userId}
+                    fieldName={field}
+                    onUpdate={handleUpdate}
+                  />
+                </td>
+              </tr>
+            ))}
+            <tr className="border-b border-gray-700 last:border-none">
+              <td className="p-3 font-medium w-1/3">Identification Document</td>
+              <td className="p-3">
+                <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
+                  View Document
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        {/* Health Info */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Health Information</h2>
-          <EditableField label="Year Level" value={student.yearLevel} userId={userId} fieldName="yearLevel" onUpdate={handleUpdate} />
-          <EditableField label="BMI Category" value={student.bmiCategory} userId={userId} fieldName="bmiCategory" onUpdate={handleUpdate} />
-          <EditableField label="Weight" value={student.weight} userId={userId} fieldName="weight" onUpdate={handleUpdate} />
-          <EditableField label="Height" value={student.height} userId={userId} fieldName="height" onUpdate={handleUpdate} />
-          <EditableField label="BMI" value={student.bmi} userId={userId} fieldName="bmi" onUpdate={handleUpdate} />
-        </div>
+      {/* Health Information */}
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold">Health Information</h2>
+        <hr className="border-gray-700 my-3" />
+        <table className="w-full border-collapse">
+          <tbody>
+            {[
+              ["Year Level", "yearLevel"],
+              ["BMI Category", "bmiCategory"],
+              ["Weight", "weight"],
+              ["Height", "height"],
+              ["BMI", "bmi"],
+            ].map(([label, field]) => (
+              <tr key={field} className="border-b border-gray-700 last:border-none">
+                <td className="p-3 font-medium w-1/3">{label}</td>
+                <td className="p-3">
+                  <EditableField
+                    label={label}
+                    value={student[field]}
+                    userId={userId}
+                    fieldName={field}
+                    onUpdate={handleUpdate}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <EmailForm studentEmail={student.email} />

@@ -31,6 +31,7 @@ const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
 const MEDICATIONS_COLLECTION_ID = process.env.NEXT_PUBLIC_CURRENTMEDICATION_COLLECTION_ID!;
 const OCCUPATION_COLLECTION_ID = process.env.NEXT_PUBLIC_OCCUPATIONTYPE_COLLECTION_ID!;
 const OFFICETYPE_COLLECTION_ID = process.env.NEXT_PUBLIC_OFFICETYPE_COLLECTION_ID!;
+const PROGRAMTYPES_COLLECTION_ID = process.env.NEXT_PUBLIC_PROGRAMTYPES_COLLECTION_ID!;
 
 const RegisterForm = ({ user }: { user: User }) => { 
   const router = useRouter();
@@ -44,6 +45,9 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [selectedOccupation, setSelectedOccupation] = useState("");
   const [officeTypes, setOfficeTypes] = useState<string[]>([]);
   const [selectedOffice, setSelectedOffice] = useState<string>("");
+  const [programTypes, setProgramTypes] = useState<string[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<string>("");
+
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
@@ -118,10 +122,23 @@ const RegisterForm = ({ user }: { user: User }) => {
         console.error("Error fetching occupations:", error);
       }
     };
+
+    const fetchProgramTypes = async () => {
+      try {
+        const response = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_PROGRAMTYPES_COLLECTION_ID!
+        );
+        setProgramTypes(response.documents.map((doc) => doc.name));
+      } catch (error) {
+        console.error("Error fetching program types:", error);
+      }
+    };
     
     fetchAllergies();
     fetchMedications();
     fetchOccupations();
+    fetchProgramTypes();
 
     // Fetch office types from the database
     const fetchOfficeTypes = async () => {
@@ -137,6 +154,8 @@ const RegisterForm = ({ user }: { user: User }) => {
     fetchOfficeTypes();
 
   }, []);
+
+  
 
   // BMI Calculation Logic
   const weightStr = form.watch("weight");
@@ -487,12 +506,36 @@ const RegisterForm = ({ user }: { user: User }) => {
 {isStudent && (
         <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="program"
-            label="Program"
-            placeholder="Bachelor of Science in Information Technology"
-          />
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="program"
+  label="Program"
+  renderSkeleton={(field) => (
+    <div className="text-black">
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setSelectedProgram(value);
+            form.setValue("program", value); // Set the selected value in the form
+          }}
+          value={field.value || ""} // Clear the value if field.value is undefined or null
+        >
+          <SelectTrigger className="w-full bg-gray-50">
+            <SelectValue placeholder="Select Program" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-white border-gray-600">
+            {programTypes.map((program) => (
+              <SelectItem key={program} value={program}>
+                {program}
+              </SelectItem>
+            ))}
+          </SelectContent>  
+        </Select>
+      </FormControl>
+    </div>
+  )}
+/>
+
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}

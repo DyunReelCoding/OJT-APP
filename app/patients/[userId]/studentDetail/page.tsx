@@ -46,66 +46,66 @@ const StudentDetail = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
       <BackToStudentButton userId={userId} />
-
       <PrintButton student={student} />
+      
       <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Personal Information</h2>
-          <p><strong>Email:</strong> {student.email}</p>
-          <p><strong>Phone:</strong> {student.phone}</p>
-          <p><strong>Gender:</strong> {student.gender}</p>
-          <p><strong>Birth Date:</strong> {student.birthDate}</p>
-          <p><strong>Age:</strong> {student.age}</p>
-          <p><strong>Suffix:</strong> {student.suffix}</p>
-          <p><strong>Civil Status:</strong> {student.civilStatus}</p>
-          <p><strong>Person with Disability:</strong> {student.personWithDisability}</p>
-          <p><strong>Address:</strong> {student.address}</p>
-          <p><strong>Occupation:</strong> {student.occupation}</p>
-          <p><strong>Office:</strong> {student.office}</p>
-          <p><strong>Emergency Contact Name:</strong> {student.emergencyContactName}</p>
-          <p><strong>Emergency Contact Number:</strong> {student.emergencyContactNumber}</p>
+      {[  
+        { title: "Personal Information", data: [
+          ["Email", student.email],
+          ["Phone", student.phone],
+          ["Gender", student.gender],
+          ["Birth Date", student.birthDate],
+          ["Age", student.age],
+          ["Suffix", student.suffix],
+          ["Civil Status", student.civilStatus],
+          ["Person with Disability", student.personWithDisability],
+          ["Address", student.address],
+          ["Occupation", student.occupation],
+          ["Office", student.office],
+          ["Emergency Contact Name", student.emergencyContactName],
+          ["Emergency Contact Number", student.emergencyContactNumber]
+        ] },
+        { title: "Medical Information", data: [
+          ["Blood Type", student.bloodType],
+          ["Allergies", student.allergies],
+          ["Current Medication", student.currentMedication],
+          ["Family Medical History", student.familyMedicalHistory],
+          ["Past Medical History", student.pastMedicalHistory],
+          ["Primary Physician", student.primaryPhysician],
+          ["Insurance Provider", student.insuranceProvider],
+          ["Insurance Policy Number", student.insurancePolicyNumber],
+          ["Disability Type", student.disabilityType],
+          ["Disability Details", student.disabilityDetails]
+        ] },
+        { title: "Identification", data: [
+          ["Identification Type", student.identificationType],
+          ["Identification Number", student.identificationNumber],
+          ["Student Identification Number", student.idNumber],
+          ["Identification Document", <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">View Document</a>]
+        ] },
+        { title: "Health Information", data: [
+          ["Year Level", student.yearLevel],
+          ["BMI Category", student.bmiCategory],
+          ["Weight", student.weight],
+          ["Height", student.height],
+          ["BMI", student.bmi]
+        ] }
+      ].map((section, index) => (
+        <div key={index} className="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">{section.title}</h2>
+          <table className="w-full border-collapse border border-gray-700">
+            <tbody>
+              {section.data.map(([label, value]) => (
+                <tr key={label} className="border border-gray-700">
+                  <td className="p-2 font-semibold w-1/2 bg-gray-700">{label}</td>
+                  <td className="p-2">{value || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Medical Information</h2>
-          <p><strong>Blood Type:</strong> {student.bloodType}</p>
-          <p><strong>Allergies:</strong> {student.allergies}</p>
-          <p><strong>Current Medication:</strong> {student.currentMedication}</p>
-          <p><strong>Family Medical History:</strong> {student.familyMedicalHistory}</p>
-          <p><strong>Past Medical History:</strong> {student.pastMedicalHistory}</p>
-          <p><strong>Primary Physician:</strong> {student.primaryPhysician}</p>
-          <p><strong>Insurance Provider:</strong> {student.insuranceProvider}</p>
-          <p><strong>Insurance Policy Number:</strong> {student.insurancePolicyNumber}</p>
-          <p><strong>Disability Type:</strong> {student.disabilityType}</p>
-          <p><strong>Disability Details:</strong> {student.disabilityDetails}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Identification</h2>
-          <p><strong>Identification Type:</strong> {student.identificationType}</p>
-          <p><strong>Identification Number:</strong> {student.identificationNumber}</p>
-          <p><strong>Student Identification Number:</strong> {student.idNumber}</p>
-          <p>
-            <strong>Identification Document:</strong>{" "}
-            <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
-              View Document
-            </a>
-          </p>
-        </div>
-
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">Health Information</h2>
-          <p><strong>Year Level:</strong> {student.yearLevel}</p>
-          <p><strong>BMI Category:</strong> {student.bmiCategory}</p>
-          <p><strong>Weight:</strong> {student.weight}</p>
-          <p><strong>Height:</strong> {student.height}</p>
-          <p><strong>BMI:</strong> {student.bmi}</p>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
