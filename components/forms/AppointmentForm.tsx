@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Client, Databases } from "appwrite";
+import { Client, Databases, ID } from "appwrite";
 import { Button } from "@/components/ui/button";
 
 interface AppointmentFormProps {
@@ -23,22 +23,23 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const appointmentData = {
+      patientName,
+      date,
+      time,
+      reason,
+      status: "Scheduled",
+      userid: userId
+    };
+
     try {
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c", // Updated to match APPOINTMENT_COLLECTION_ID from .env
-        "unique()",
-        {
-          patientName,
-          date,
-          time,
-          reason,
-          status: "Scheduled",
-          userid: userId
-        }
+        "67b96b0800349392bb1c",
+        ID.unique(),
+        appointmentData
       );
 
-      // Reset form
       setPatientName("");
       setDate("");
       setTime("");
@@ -98,7 +99,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
           />
         </div>
 
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+        <Button type="submit" className="w-full">
           Schedule Appointment
         </Button>
       </div>

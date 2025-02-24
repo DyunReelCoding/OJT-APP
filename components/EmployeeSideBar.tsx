@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, User, Home, FileText, Calendar, Pill } from "lucide-react";
+import { Menu, X, User, Home, FileText, Calendar } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiArrowLeft } from 'react-icons/fi';
@@ -20,19 +20,9 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
       icon: <FileText className="w-5 h-5" />
     },
     {
-      label: "Calendar",
-      href: `/patients/${userId}/employee/calendar`,
-      icon: <Calendar className="w-5 h-5" />
-    },
-    {
-      label: "Manage Appointments",
+      label: "Appointments",
       href: `/patients/${userId}/employee/appointments`,
       icon: <Calendar className="w-5 h-5" />
-    },
-    {
-      label: "Medicines",
-      href: `/patients/${userId}/employee/medicines`,
-      icon: <Pill className="w-5 h-5" />
     },
     {
       label: "Go Back Home",

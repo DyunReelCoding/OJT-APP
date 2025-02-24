@@ -5,8 +5,7 @@ import { Client, Databases, ID } from "appwrite";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash, Edit, CheckCircle, Search, Plus, X, RefreshCw } from "lucide-react";
-import EmployeeSideBar from "@/components/EmployeeSideBar";
-import { useParams } from "next/navigation";
+import SideBar from "@/components/SideBar";
 
 interface Medicine {
   $id: string;
@@ -19,19 +18,19 @@ interface Medicine {
 }
 
 const MedicinesPage = () => {
-  const params = useParams();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [newMedicine, setNewMedicine] = useState<Omit<Medicine, '$id'>>({
+  const [newMedicine, setNewMedicine] = useState<Medicine>({
+    $id: "",
     name: "",
     brand: "",
     category: "",
     stock: "",
     location: "",
-    expiryDate: "",
+    expiryDate: ""
   });
 
   const client = new Client()
@@ -48,7 +47,7 @@ const MedicinesPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!
+        "67b486f5000ff28439c6"
       );
       setMedicines(response.documents);
       setFilteredMedicines(response.documents);
@@ -57,62 +56,38 @@ const MedicinesPage = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "In Stock":
-        return "bg-green-500";
-      case "Low Stock":
-        return "bg-blue-500";
-      case "Expiring Soon":
-        return "bg-red-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  useEffect(() => {
-    if (!searchTerm) {
-      setFilteredMedicines(medicines);
-    } else {
-      setFilteredMedicines(
-        medicines.filter((medicine) =>
-          medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          medicine.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          medicine.category.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    }
-  }, [searchTerm, medicines]);
-
   const addMedicine = async () => {
     try {
+      const medicineData = {
+        name: newMedicine.name,
+        brand: newMedicine.brand,
+        category: newMedicine.category,
+        stock: newMedicine.stock,
+        location: newMedicine.location,
+        expiryDate: newMedicine.expiryDate
+      };
+
       const response = await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         "67b486f5000ff28439c6",
         ID.unique(),
-        {
-          name: newMedicine.name,
-          brand: newMedicine.brand,
-          category: newMedicine.category,
-          stock: newMedicine.stock,
-          location: newMedicine.location,
-          expiryDate: newMedicine.expiryDate,
-        }
+        medicineData
       );
       
-      setMedicines([...medicines, response as Medicine]);
-      setMessage("Medicine added successfully! ✅");
+      setMedicines([...medicines, response]);
+      setFilteredMedicines([...medicines, response]);
       setNewMedicine({
+        $id: "",
         name: "",
         brand: "",
         category: "",
         stock: "",
         location: "",
-        expiryDate: "",
+        expiryDate: ""
       });
+      setMessage("Medicine added successfully!");
     } catch (error) {
       console.error("Error adding medicine:", error);
-      setMessage("Failed to add medicine ❌");
     }
   };
 
@@ -131,13 +106,11 @@ const MedicinesPage = () => {
           expiryDate: medicine.expiryDate
         }
       );
-      
-      fetchMedicines(); // Refresh the list after update
       setEditingId(null);
-      setMessage("Medicine updated successfully! ✅");
+      setMessage("Medicine updated successfully!");
+      fetchMedicines();
     } catch (error) {
       console.error("Error updating medicine:", error);
-      setMessage("Failed to update medicine ❌");
     }
   };
 
@@ -150,21 +123,43 @@ const MedicinesPage = () => {
         "67b486f5000ff28439c6",
         id
       );
-      
-      setMedicines(medicines.filter(med => med.$id !== id));
-      setMessage("Medicine deleted successfully! ✅");
+      setMedicines(medicines.filter(m => m.$id !== id));
+      setFilteredMedicines(filteredMedicines.filter(m => m.$id !== id));
+      setMessage("Medicine deleted successfully!");
     } catch (error) {
       console.error("Error deleting medicine:", error);
-      setMessage("Failed to delete medicine ❌");
+    }
+  };
+
+  useEffect(() => {
+    const filtered = medicines.filter(medicine => 
+      medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      medicine.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      medicine.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMedicines(filtered);
+  }, [searchTerm, medicines]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "low":
+        return "bg-red-100";
+      case "medium":
+        return "bg-yellow-100";
+      case "high":
+        return "bg-green-100";
+      default:
+        return "bg-gray-100";
     }
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <EmployeeSideBar userId={params.userId as string} />
+      <SideBar />
       
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-blue-700">Medicines Inventory</h1>
@@ -179,15 +174,19 @@ const MedicinesPage = () => {
             </Button>
           </div>
 
+          {/* Alert Message */}
           {message && (
             <div className="bg-green-600 text-white px-4 py-3 rounded-lg mb-6 flex items-center gap-2 shadow-md">
               <CheckCircle size={20} />
               {message}
-              <X className="ml-auto cursor-pointer hover:bg-green-700 rounded-full p-1" 
-                onClick={() => setMessage(null)} />
+              <X 
+                className="ml-auto cursor-pointer hover:bg-green-700 rounded-full p-1" 
+                onClick={() => setMessage(null)} 
+              />
             </div>
           )}
 
+          {/* Add Medicine Form */}
           <div className="bg-white p-8 rounded-xl shadow-md mb-8">
             <h2 className="text-xl font-semibold mb-6 text-gray-800">Add New Medicine</h2>
             <div className="grid grid-cols-3 gap-6">
@@ -237,8 +236,9 @@ const MedicinesPage = () => {
             </div>
           </div>
 
+          {/* Search Bar */}
           <div className="flex items-center gap-4 mb-8">
-            <div className="relative flex-1 maxw-xl">
+            <div className="relative flex-1 max-w-xl">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
                 type="text"
@@ -250,6 +250,7 @@ const MedicinesPage = () => {
             </div>
           </div>
 
+          {/* Medicines Table */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -266,8 +267,8 @@ const MedicinesPage = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredMedicines.map((medicine) => (
-                    <tr key={medicine.$id} className="border-t">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <tr key={medicine.$id}>
+                      <td className="px-6 py-4">
                         {editingId === medicine.$id ? (
                           <Input
                             value={medicine.name}
@@ -279,7 +280,7 @@ const MedicinesPage = () => {
                           medicine.name
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4">
                         {editingId === medicine.$id ? (
                           <Input
                             value={medicine.brand}
@@ -291,7 +292,7 @@ const MedicinesPage = () => {
                           medicine.brand
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4">
                         {editingId === medicine.$id ? (
                           <Input
                             value={medicine.category}
@@ -303,7 +304,7 @@ const MedicinesPage = () => {
                           medicine.category
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4">
                         {editingId === medicine.$id ? (
                           <Input
                             type="number"
@@ -316,7 +317,7 @@ const MedicinesPage = () => {
                           medicine.stock
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4">
                         {editingId === medicine.$id ? (
                           <Input
                             value={medicine.location}
@@ -328,7 +329,7 @@ const MedicinesPage = () => {
                           medicine.location
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4">
                         {editingId === medicine.$id ? (
                           <Input
                             type="date"
@@ -341,7 +342,7 @@ const MedicinesPage = () => {
                           medicine.expiryDate
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4">
                         <div className="flex gap-2">
                           {editingId === medicine.$id ? (
                             <Button 
