@@ -141,7 +141,7 @@ const CalendarPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <select
-                  className="border rounded p-1 mr-2"
+                  className="border rounded p-1 mr-2 "
                   value={appointment.status}
                   onChange={(e) => handleStatusChange(appointment.$id, e.target.value)}
                 >
@@ -178,21 +178,23 @@ const CalendarPage = () => {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-blue-700">Appointment Calendar</h1>
             <div className="flex items-center gap-4">
-              <select
-                className="border rounded-lg px-3 py-2 bg-white"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="all">All Status</option>
-                <option value="Scheduled">Scheduled</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                Filter
-              </Button>
-            </div>
+  <select
+    className="border rounded-lg px-3 py-2 bg-white text-black"
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+  >
+    <option value="all">All Status</option>
+    <option value="Scheduled">Scheduled</option>
+    <option value="Completed">Completed</option>
+    <option value="Cancelled">Cancelled</option>
+  </select>
+
+  <Button variant="outline" className="flex items-center gap-2 text-black bg-white">
+    <Filter className="w-4 h-4" />
+    Filter
+  </Button>
+</div>
+
           </div>
 
           {/* Calendar Container */}
@@ -205,19 +207,33 @@ const CalendarPage = () => {
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" onClick={previousMonth}>
-                      <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setCurrentDate(new Date())}
-                    >
-                      Today
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={nextMonth}>
-                      <ChevronRight className="h-5 w-5" />
-                    </Button>
-                  </div>
+  <Button 
+    variant="outline" 
+    size="icon" 
+    onClick={previousMonth} 
+    className="text-black bg-white"
+  >
+    <ChevronLeft className="h-5 w-5" />
+  </Button>
+
+  <Button 
+    variant="outline" 
+    onClick={() => setCurrentDate(new Date())} 
+    className="text-black bg-white"
+  >
+    Today
+  </Button>
+
+  <Button 
+    variant="outline" 
+    size="icon" 
+    onClick={nextMonth} 
+    className="text-black bg-white"
+  >
+    <ChevronRight className="h-5 w-5" />
+  </Button>
+</div>
+
                 </div>
 
                 {/* Calendar Grid */}

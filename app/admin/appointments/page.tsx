@@ -23,6 +23,7 @@ const AppointmentsPage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -129,7 +130,7 @@ const AppointmentsPage = () => {
 
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-6">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-6 ml-64">
                 <div className="relative flex-1 max-w-xl">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <Input
@@ -157,11 +158,11 @@ const AppointmentsPage = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredAppointments.map((appointment) => (
                       <tr key={appointment.$id}>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.patientName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.date}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.time}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.reason}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.patientName}</td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.date}</td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.time}</td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.reason}</td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">
                           <select
                             value={appointment.status}
                             onChange={(e) => handleStatusChange(appointment.$id, e.target.value)}
