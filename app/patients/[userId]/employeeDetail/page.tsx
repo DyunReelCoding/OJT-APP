@@ -3,126 +3,112 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Databases, Client } from "appwrite";
-import EmployeeSideBar from "@/components/EmployeeSideBar";
-import { Button } from "@/components/ui/button";
-import { Edit2 } from "lucide-react";
+import { notFound } from "next/navigation";
+import BackButton from "@/components/BackButton";
+import PrintButton from "@/components/PrintButton";
+import BackToStudentButton from "@/components/BackToStudentButton";
+import BackToEmployeeButton from "@/components/BackToEmployeeButton";
 
-interface Employee {
-  $id: string;
-  name: string;
-  email: string;
-  phone: string;
-  department: string;
-  office: string;
-  position: string;
-  employeeId: string;
-  dateJoined: string;
-  emergencyContact: string;
-  address: string;
-}
+const client = new Client()
+  .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
+  .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
 
-const EmployeeDetailPage = () => {
-  const params = useParams();
-  const userId = params.userId as string;
-  const [employee, setEmployee] = useState<Employee | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+const databases = new Databases(client);
 
-  const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
-    .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
-  const databases = new Databases(client);
+const StudentDetail = () => {
+  const params = useParams(); 
+  const userId = params.userId as string; 
 
-  useEffect(() => {
-    fetchEmployee();
-  }, []);
+  const [student, setStudent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fetchEmployee = async () => {
+  const fetchStudent = async () => {
     try {
       const data = await databases.getDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
         userId
       );
-      setEmployee(data as Employee);
+      setStudent(data);
     } catch (error) {
-      console.error("Error fetching employee:", error);
+      console.error("Error fetching student details:", error);
+      notFound();
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchStudent();
+  }, [userId]);
+
+  if (loading) return <div className="text-white text-center">Loading...</div>;
+
   return (
-    <div className="flex h-screen bg-gray-100">
-      <EmployeeSideBar userId={userId} />
+    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
+      <BackToEmployeeButton userId={userId} />
+      <PrintButton student={student} />
       
-      <div className="flex-1 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-800">Employee Details</h1>
-              <Button 
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                <Edit2 className="w-4 h-4" />
-                Edit Details
-              </Button>
-            </div>
+      <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>
 
-            {employee && (
-              <div className="p-6 grid grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Full Name</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.name}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.email}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.phone}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Department</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.department}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Office</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.office}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Position</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.position}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Employee ID</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.employeeId}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Date Joined</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.dateJoined}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Emergency Contact</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.emergencyContact}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Address</h3>
-                    <p className="mt-1 text-lg text-gray-800">{employee.address}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+      {[  
+        { title: "Personal Information", data: [
+          ["Email", student.email],
+          ["Phone", student.phone],
+          ["Gender", student.gender],
+          ["Birth Date", student.birthDate],
+          ["Age", student.age],
+          ["Suffix", student.suffix],
+          ["Civil Status", student.civilStatus],
+          ["Person with Disability", student.personWithDisability],
+          ["Address", student.address],
+          ["Occupation", student.occupation],
+          ["Office", student.office],
+          ["Emergency Contact Name", student.emergencyContactName],
+          ["Emergency Contact Number", student.emergencyContactNumber]
+        ] },
+        { title: "Medical Information", data: [
+          ["Blood Type", student.bloodType],
+          ["Allergies", student.allergies],
+          ["Current Medication", student.currentMedication],
+          ["Family Medical History", student.familyMedicalHistory],
+          ["Past Medical History", student.pastMedicalHistory],
+          ["Primary Physician", student.primaryPhysician],
+          ["Insurance Provider", student.insuranceProvider],
+          ["Insurance Policy Number", student.insurancePolicyNumber],
+          ["Disability Type", student.disabilityType],
+          ["Disability Details", student.disabilityDetails]
+        ] },
+        { title: "Identification", data: [
+          ["Identification Type", student.identificationType],
+          ["Identification Number", student.identificationNumber],
+          ["Student Identification Number", student.idNumber],
+          ["Identification Document", <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">View Document</a>]
+        ] },
+        { title: "Health Information", data: [
+          ["Year Level", student.yearLevel],
+          ["BMI Category", student.bmiCategory],
+          ["Weight", student.weight],
+          ["Height", student.height],
+          ["BMI", student.bmi]
+        ] }
+      ].map((section, index) => (
+        <div key={index} className="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">{section.title}</h2>
+          <table className="w-full border-collapse border border-gray-700">
+            <tbody>
+              {section.data.map(([label, value]) => (
+                <tr key={label} className="border border-gray-700">
+                  <td className="p-2 font-semibold w-1/2 bg-gray-700">{label}</td>
+                  <td className="p-2">{value || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
 
-export default EmployeeDetailPage; 
+export default StudentDetail;
