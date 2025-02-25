@@ -176,15 +176,15 @@ const MedicinesPage = () => {
             <Button 
               onClick={fetchMedicines}
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-white bg-green-500"
             >
-              <RefreshCw className="w-4 h-4" /> Refresh
+              <RefreshCw className="w-4 h-4 " /> Refresh
             </Button>
           </div>
 
           {/* Alert Message */}
           {message && (
-            <div className="bg-green-600 text-white px-4 py-3 rounded-lg mb-6 flex items-center gap-2 shadow-md">
+            <div className="bg-green-500 text-white px-4 py-3 rounded-lg mb-6 flex items-center gap-2 shadow-md">
               <CheckCircle size={20} />
               {message}
               <X 
@@ -196,14 +196,14 @@ const MedicinesPage = () => {
 
           {/* Add Medicine Form */}
           <div className="bg-white p-8 rounded-xl shadow-md mb-8">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">Add New Medicine</h2>
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <h2 className="text-xl font-semibold mb-6 text-blue-700">Add New Medicine</h2>
+            <div className="grid grid-cols-3 gap-4 mb-6 text-black">
               <Input
                 type="text"
                 value={newMedicine.name}
                 onChange={(e) => setNewMedicine({...newMedicine, name: e.target.value})}
                 placeholder="Medicine Name"
-                className="border-gray-300 focus:border-blue-500"
+                className="border-blue-700 bg-white focus:ring-0 focus:outline-none"
                 required
               />
               <Input
@@ -211,7 +211,7 @@ const MedicinesPage = () => {
                 value={newMedicine.brand}
                 onChange={(e) => setNewMedicine({...newMedicine, brand: e.target.value})}
                 placeholder="Brand"
-                className="border-gray-300 focus:border-blue-500"
+                className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
               <Input
@@ -219,7 +219,7 @@ const MedicinesPage = () => {
                 value={newMedicine.category}
                 onChange={(e) => setNewMedicine({...newMedicine, category: e.target.value})}
                 placeholder="Category"
-                className="border-gray-300 focus:border-blue-500"
+                className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
               <Input
@@ -227,7 +227,7 @@ const MedicinesPage = () => {
                 value={newMedicine.stock}
                 onChange={(e) => setNewMedicine({...newMedicine, stock: e.target.value})}
                 placeholder="Stock Level (low/medium/high)"
-                className="border-gray-300 focus:border-blue-500"
+                className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
               <Input
@@ -235,19 +235,19 @@ const MedicinesPage = () => {
                 value={newMedicine.location}
                 onChange={(e) => setNewMedicine({...newMedicine, location: e.target.value})}
                 placeholder="Location"
-                className="border-gray-300 focus:border-blue-500"
+                className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
               <Input
                 type="date"
                 value={newMedicine.expiryDate}
                 onChange={(e) => setNewMedicine({...newMedicine, expiryDate: e.target.value})}
-                className="border-gray-300 focus:border-blue-500"
+                className="text-gray-400 border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
               <Button 
                 onClick={addMedicine} 
-                className="bg-blue-700 hover:bg-blue-800 col-span-3"
+                className="bg-blue-700 hover:bg-blue-800 col-span-3 text-white"
               >
                 <Plus className="mr-2 h-5 w-5" /> Add Medicine
               </Button>
@@ -255,17 +255,17 @@ const MedicinesPage = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="flex items-center gap-4 mb-8">
-          <div className="w-full">
-  <Input
-    type="text"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    placeholder="Search medicines..."
-    className="w-full border-2 border-gray-200 focus:border-blue-500 rounded-lg px-4 py-2"
-  />
-</div>
-
+          <div className="flex  gap-4 mb-8 z-0 items-center justify-center">
+            <div className="relative w-1/2 flex items-center justify-center ">
+            <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <Input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search medicines..."
+                className="pl-9 border-2 border-blue-700 focus:border-blue-500 rounded-lg bg-white focus:ring-0 focus:outline-none text-black"
+              />
+            </div>
           </div>
 
           {/* Medicines Table */}

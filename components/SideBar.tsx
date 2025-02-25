@@ -57,9 +57,9 @@ const SideBar = () => {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-full transition-all duration-300 ${
-        isOpen ? "w-64" : "w-16"
-      } bg-gray-100 shadow-lg border-r border-gray-700 flex flex-col`}
+      className={`fixed left-0 top-0 h-screen transition-all duration-300 ${
+        isOpen ? "w-96" : "w-16"
+      } bg-gray-100 shadow-lg border-br border-gray-700 flex flex-col z-10`}
     >
       {/* Sidebar Toggle Button */}
       <button

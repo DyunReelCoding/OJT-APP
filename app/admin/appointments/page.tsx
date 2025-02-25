@@ -139,7 +139,7 @@ const AppointmentsPage = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search appointments..."
-                    className="pl-10 pr-4 py-2 w-full"
+                    className="pl-10 pr-4 py-2 w-full bg-white border-2 border-blue-700 text-black focus:outline-none focus:ring-0"
                   />
                 </div>
               </div>
@@ -174,7 +174,7 @@ const AppointmentsPage = () => {
                             <option value="Cancelled">Cancelled</option>
                           </select>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap text-red-700">
                           <Button
                             onClick={() => handleDelete(appointment.$id)}
                             variant="destructive"

@@ -155,14 +155,14 @@ const OccupationManagement = () => {
         )}
 
         {/* Search Input */}
-        <div className="flex items-center gap-2 mb-4 w-full max-w-lg">
-          <Search size={20} className="text-gray-400" />
+        <div className="relative flex items-center gap-2 mb-4 w-full max-w-lg">
+          <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <Input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`Search ${isOccupation ? "occupation" : "office type"}...`}
-            className="bg-white border-2 border-blue-700"
+            className="bg-white border-2 border-blue-700 pl-9 w-full text-black"
           />
         </div>
 

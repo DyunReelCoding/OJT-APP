@@ -157,14 +157,14 @@ const ManagementPage = () => {
           </div>
         )}
 
-        <div className="flex items-center gap-2 mb-4 w-full max-w-lg text-black focus:outline-none">
-          <Search size={20} className="text-gray-400" />
+        <div className="relative flex items-center gap-2 mb-4 w-full max-w-lg text-black focus:outline-none">
+          <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <Input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`Search ${isAllergies ? "allergy" : "medication"}...`}
-            className="bg-white border-2 border-blue-700 focus:outline-none"
+            className="bg-white border-2 border-blue-700 focus:outline-none pl-9 w-full"
           />
         </div>
 
