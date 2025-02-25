@@ -3,21 +3,23 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
 import { Form, FormControl} from "@/components/ui/form"
 import CustomFormField from "../ui/CustomFormField"
 import { useState } from "react"
 import SubmitButton from "../SubmitButton"
 import { PatientFormValidation, UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
-import { createUser, registerPatient } from "@/lib/actions/patient.actions"
+// import { createUser, registerPatient } from "@/lib/actions/patient.actions"
+import { registerPatient } from "@/lib/actions/patient.actions"
 import { FormFieldType } from "./PatientForms";
 import { RadioGroup } from "@radix-ui/react-radio-group";
-import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues } from "@/constants";
+// import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues } from "@/constants";
+import {GenderOptions, IdentificationTypes, PatientFormDefaultValues } from "@/constants";
 import { RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import Image from "next/image";
+// import Image from "next/image";
 import FileUploader from "../FileUploader";
 import { useEffect } from "react";
 import SuccessMessage from "../SuccessMessage";

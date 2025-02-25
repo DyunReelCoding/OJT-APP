@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Databases, Client } from "appwrite";
 import { notFound } from "next/navigation";
-import BackButton from "@/components/BackButton";
+// import BackButton from "@/components/BackButton";
 import PrintButton from "@/components/PrintButton";
 import BackToStudentButton from "@/components/BackToStudentButton";
 

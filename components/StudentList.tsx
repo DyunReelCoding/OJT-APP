@@ -7,9 +7,9 @@ import StudentListPrintButton from "./StudentListButton";
 import { FaEnvelope } from "react-icons/fa";
 import EmailForm from "@/components/EmailForm";
 
-type StudentListProps = {
-  students: any[]; // Replace `any` with a proper type if available
-};
+// type StudentListProps = {
+//   students: any[]; // Replace `any` with a proper type if available
+// };
 
 const StudentList = () => {
   const [students, setStudents] = useState<any[]>([]);

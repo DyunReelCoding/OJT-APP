@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Databases, Client } from "appwrite";
 import StudentSideBar from "@/components/StudentSideBar";

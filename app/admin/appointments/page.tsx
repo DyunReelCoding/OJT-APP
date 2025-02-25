@@ -20,7 +20,8 @@ interface Appointment {
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  // const [editingId, setEditingId] = useState<string | null>(null);
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   
