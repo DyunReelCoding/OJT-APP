@@ -57,6 +57,13 @@ const MedicinesPage = () => {
   };
 
   const addMedicine = async () => {
+    // Validate all required fields
+    if (!newMedicine.name || !newMedicine.brand || !newMedicine.category || 
+        !newMedicine.stock || !newMedicine.location || !newMedicine.expiryDate) {
+      setMessage("Please fill in all required fields");
+      return;
+    }
+
     try {
       const medicineData = {
         name: newMedicine.name,
@@ -88,6 +95,7 @@ const MedicinesPage = () => {
       setMessage("Medicine added successfully!");
     } catch (error) {
       console.error("Error adding medicine:", error);
+      setMessage("Error adding medicine. Please try again.");
     }
   };
 
@@ -189,43 +197,53 @@ const MedicinesPage = () => {
           {/* Add Medicine Form */}
           <div className="bg-white p-8 rounded-xl shadow-md mb-8">
             <h2 className="text-xl font-semibold mb-6 text-gray-800">Add New Medicine</h2>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-4 mb-6">
               <Input
-                placeholder="Medicine Name"
+                type="text"
                 value={newMedicine.name}
                 onChange={(e) => setNewMedicine({...newMedicine, name: e.target.value})}
+                placeholder="Medicine Name"
                 className="border-gray-300 focus:border-blue-500"
+                required
               />
               <Input
-                placeholder="Brand"
+                type="text"
                 value={newMedicine.brand}
                 onChange={(e) => setNewMedicine({...newMedicine, brand: e.target.value})}
+                placeholder="Brand"
                 className="border-gray-300 focus:border-blue-500"
+                required
               />
               <Input
-                placeholder="Category"
+                type="text"
                 value={newMedicine.category}
                 onChange={(e) => setNewMedicine({...newMedicine, category: e.target.value})}
+                placeholder="Category"
                 className="border-gray-300 focus:border-blue-500"
+                required
               />
               <Input
-                type="number"
-                placeholder="Stock"
+                type="text"
                 value={newMedicine.stock}
                 onChange={(e) => setNewMedicine({...newMedicine, stock: e.target.value})}
+                placeholder="Stock Level (low/medium/high)"
                 className="border-gray-300 focus:border-blue-500"
+                required
               />
               <Input
-                placeholder="Location"
+                type="text"
                 value={newMedicine.location}
                 onChange={(e) => setNewMedicine({...newMedicine, location: e.target.value})}
+                placeholder="Location"
                 className="border-gray-300 focus:border-blue-500"
+                required
               />
               <Input
                 type="date"
                 value={newMedicine.expiryDate}
                 onChange={(e) => setNewMedicine({...newMedicine, expiryDate: e.target.value})}
                 className="border-gray-300 focus:border-blue-500"
+                required
               />
               <Button 
                 onClick={addMedicine} 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, User, Home, FileText, Calendar } from "lucide-react";
+import { Menu, X, User, Home, FileText, Calendar, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiArrowLeft } from 'react-icons/fi'; // Import the back arrow icon
@@ -20,9 +20,14 @@ const StudentSideBar = ({ userId }: { userId: string }) => {
       icon: <FileText className="w-5 h-5" />
     },
     {
-      label: "Appointments",
+      label: "Schedule Appointment",
       href: `/patients/${userId}/appointments`,
       icon: <Calendar className="w-5 h-5" />
+    },
+    {
+      label: "My Appointments",
+      href: `/patients/${userId}/student/myAppointments`,
+      icon: <ClipboardList className="w-5 h-5" />
     },
     {
       label: "Go Back Home",
