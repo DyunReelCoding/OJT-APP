@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Client, Databases, ID } from "appwrite";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash, Edit, CheckCircle, Search, RefreshCw } from "lucide-react";
+import { Trash, Edit, CheckCircle, Search, RefreshCw, XCircle } from "lucide-react";
 import SideBar from "@/components/SideBar";
 
 // Define Item Type
@@ -30,6 +30,7 @@ const ManagementPage = () => {
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isAllergies, setIsAllergies] = useState(true);
+  const [messageType, setMessageType] = useState(""); // "success" or "error"
 
   // Initialize Appwrite Client
   const client = new Client();
@@ -86,9 +87,13 @@ const ManagementPage = () => {
       setItems([...items, newEntry]);
       setFilteredItems([...items, newEntry]);
       setNewItem("");
-      setMessage(`${isAllergies ? "Allergy" : "Medication"} added successfully! ✅`);
+      setMessage(`✅ ${isAllergies ? "Allergy" : "Medication"} added successfully! `);
+      setMessageType("success"); // ✅ Mark as success
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error adding item:", error);
+      setMessage("❌ Failed to update item!");
+      setMessageType("error"); // ❌ Mark as error
     }
   };
 
@@ -110,9 +115,13 @@ const ManagementPage = () => {
       setFilteredItems(updatedList);
       setEditingId(null);
       setUpdatedItem("");
-      setMessage(`${isAllergies ? "Allergy" : "Medication"} updated successfully! ✅`);
+      setMessage(`✅ ${isAllergies ? "Allergy" : "Medication"} updated successfully!`);
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error updating item:", error);
+      setMessage("❌ Failed to update item!");
+      setMessageType("error");
     }
   };
 
@@ -128,9 +137,13 @@ const ManagementPage = () => {
       const filteredList = items.filter((item) => item.$id !== $id);
       setItems(filteredList);
       setFilteredItems(filteredList);
-      setMessage(`${isAllergies ? "Allergy" : "Medication"} deleted successfully! ✅`);
+      setMessage(`✅ ${isAllergies ? "Allergy" : "Medication"} deleted successfully!`);
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error deleting item:", error);
+      setMessage("❌ Failed to delete item!");
+      setMessageType("error");
     }
   };
 
@@ -151,11 +164,16 @@ const ManagementPage = () => {
         </div>
 
         {message && (
-          <div className="bg-green-600 text-white px-4 py-2 rounded-md mb-4 flex items-center gap-2">
-            <CheckCircle size={18} />
+          <div
+            className={`flex px-4 py-3 rounded relative my-4 border ${
+              messageType === "success"
+                ? "bg-green-100 border-green-400 text-green-700"
+                : "bg-red-100 border-red-400 text-red-700"
+            }`}
+          >
             {message}
           </div>
-        )}
+      )}
 
         <div className="relative flex items-center gap-2 mb-4 w-full max-w-lg text-black focus:outline-none">
           <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />

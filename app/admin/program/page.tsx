@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Client, Databases, ID } from "appwrite";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash, Edit, CheckCircle, Search } from "lucide-react";
+import { Trash, Edit, CheckCircle, Search, XCircle } from "lucide-react";
 import SideBar from "@/components/SideBar";
 
 // Program Type Interface
@@ -32,6 +32,7 @@ const ProgramTypesManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [updatedProgramType, setUpdatedProgramType] = useState("");
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     fetchProgramTypes();
@@ -80,10 +81,12 @@ const ProgramTypesManagement = () => {
       setProgramTypes([...programTypes, newEntry]);
       setFilteredProgramTypes([...programTypes, newEntry]);
       setNewProgramType("");
-      setMessage("Program type added successfully! ✅");
+      setMessage("✅ Program type added successfully!");
+      setMessageType("success");
     } catch (error) {
       console.error("Error adding program type:", error);
-      setMessage("Failed to add program type.");
+      setMessage("❌ Failed to add program type.");
+      setMessageType("error");
     }
   };
 
@@ -103,10 +106,12 @@ const ProgramTypesManagement = () => {
       setFilteredProgramTypes(updatedList);
       setEditingId(null);
       setUpdatedProgramType("");
-      setMessage("Program type updated successfully! ✅");
+      setMessage("✅ Program type updated successfully! ");
+      setMessageType("success");
     } catch (error) {
       console.error("Error updating program type:", error);
-      setMessage("Failed to update program type.");
+      setMessage("❌ Failed to update program type.");
+      setMessageType("error");
     }
   };
 
@@ -117,10 +122,12 @@ const ProgramTypesManagement = () => {
       const updatedList = programTypes.filter((programType) => programType.$id !== $id);
       setProgramTypes(updatedList);
       setFilteredProgramTypes(updatedList);
-      setMessage("Program type deleted successfully! ✅");
+      setMessage("✅ Program type deleted successfully! ");
+      setMessageType("success");
     } catch (error) {
       console.error("Error deleting program type:", error);
-      setMessage("Failed to delete program type.");
+      setMessage("❌ Failed to delete program type.");
+      setMessageType("error");
     }
   };
 
@@ -130,7 +137,17 @@ const ProgramTypesManagement = () => {
       <div className="flex flex-col items-center justify-center w-full min-h-screen p-6 bg-gray-50">
         <h2 className="text-2xl font-bold mb-6 text-blue-700">Manage Program Types</h2>
 
-        {message && <p className="mb-4 text-green-600 font-semibold">{message}</p>}
+        {message && (
+          <div
+            className={`flex px-4 py-3 rounded relative my-4 border ${
+              messageType === "success"
+                ? "bg-green-100 border-green-400 text-green-700"
+                : "bg-red-100 border-red-400 text-red-700"
+            }`}
+          >
+            {message}
+          </div>
+      )}
 
         {/* Search Input */}
         <div className="relative flex items-center gap-2 mb-4 w-full max-w-lg">

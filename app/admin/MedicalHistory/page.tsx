@@ -27,6 +27,7 @@ const MedicalHistoryManagement = () => {
   const [updatedHistory, setUpdatedHistory] = useState("");
   const [message, setMessage] = useState("");
   const [isFamilyHistory, setIsFamilyHistory] = useState(true);
+  const [messageType, setMessageType] = useState("");
 
   const client = new Client();
   client.setEndpoint(ENDPOINT).setProject(PROJECT_ID);
@@ -53,6 +54,7 @@ const MedicalHistoryManagement = () => {
     } catch (error) {
       console.error("Error fetching medical histories:", error);
       setMessage("❌ Failed to fetch medical histories.");
+      setMessageType("error");
     }
   };
 
@@ -82,9 +84,11 @@ const MedicalHistoryManagement = () => {
       setFilteredHistories((prev) => [...prev, newEntry]);
       setNewHistory("");
       setMessage("✅ Medical history added successfully!");
+      setMessageType("success");
     } catch (error) {
       console.error("Error adding medical history:", error);
       setMessage("❌ Failed to add medical history.");
+      setMessageType("error");
     }
   };
 
@@ -113,9 +117,11 @@ const MedicalHistoryManagement = () => {
       setEditingId(null);
       setUpdatedHistory("");
       setMessage("✅ Medical history updated successfully!");
+      setMessageType("success");
     } catch (error) {
       console.error("Error updating medical history:", error);
       setMessage("❌ Failed to update medical history.");
+      setMessageType("error");
     }
   };
 
@@ -130,9 +136,11 @@ const MedicalHistoryManagement = () => {
       setHistories((prev) => prev.filter((history) => history.$id !== $id));
       setFilteredHistories((prev) => prev.filter((history) => history.$id !== $id));
       setMessage("✅ Medical history deleted successfully!");
+      setMessageType("success");
     } catch (error) {
       console.error("Error deleting medical history:", error);
       setMessage("❌ Failed to delete medical history.");
+      setMessageType("error");
     }
   };
 
@@ -152,7 +160,17 @@ const MedicalHistoryManagement = () => {
           Switch to {isFamilyHistory ? "Past" : "Family"} Medical History
         </Button>
 
-        {message && <p className="mb-4 text-green-600 font-semibold">{message}</p>}
+        {message && (
+          <div
+            className={`flex px-4 py-3 rounded relative my-4 border ${
+              messageType === "success"
+                ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
+                : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+            }`}
+          >
+            {message}
+          </div>
+        )}
 
         <div className="relative flex items-center gap-2 mb-4 w-full max-w-lg">
           <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />

@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash, Edit, CheckCircle, Search, Plus, X, RefreshCw } from "lucide-react";
 import SideBar from "@/components/SideBar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Medicine {
   $id: string;
@@ -16,6 +24,8 @@ interface Medicine {
   location: string;
   expiryDate: string;
 }
+
+const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6"; // Update this to match your medicines collection ID
 
 const MedicinesPage = () => {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -32,6 +42,9 @@ const MedicinesPage = () => {
     location: "",
     expiryDate: ""
   });
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [medicineToDelete, setMedicineToDelete] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState("");
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -92,10 +105,13 @@ const MedicinesPage = () => {
         location: "",
         expiryDate: ""
       });
-      setMessage("Medicine added successfully!");
+      setMessage("✅ Medicine added successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error adding medicine:", error);
-      setMessage("Error adding medicine. Please try again.");
+      setMessage("❌ Error adding medicine. Please try again.");
+      setMessageType("error");
     }
   };
 
@@ -115,27 +131,50 @@ const MedicinesPage = () => {
         }
       );
       setEditingId(null);
-      setMessage("Medicine updated successfully!");
+      setMessage("✅ Medicine updated successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
       fetchMedicines();
     } catch (error) {
       console.error("Error updating medicine:", error);
+      setMessageType("error");
     }
   };
 
-  const deleteMedicine = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this medicine?")) return;
+  const openDeleteDialog = (medicineId: string) => {
+    setMedicineToDelete(medicineId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    console.log("Attempting to delete medicine:", medicineToDelete);
+    if (!medicineToDelete) return;
     
     try {
+      console.log("Database ID:", process.env.NEXT_PUBLIC_DATABASE_ID);
+      console.log("Collection ID:", MEDICINES_COLLECTION_ID);
+      
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6",
-        id
+        MEDICINES_COLLECTION_ID,
+        medicineToDelete
       );
-      setMedicines(medicines.filter(m => m.$id !== id));
-      setFilteredMedicines(filteredMedicines.filter(m => m.$id !== id));
-      setMessage("Medicine deleted successfully!");
+      
+      // Update local state to remove the deleted medicine
+      setMedicines(medicines.filter(m => m.$id !== medicineToDelete));
+      setFilteredMedicines(filteredMedicines.filter(m => m.$id !== medicineToDelete));
+      
+      console.log("Medicine deleted successfully");
+      setMessage("✅ Medicine deleted successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error deleting medicine:", error);
+      setMessage("❌ Error deleting medicine. Please try again.");
+      setMessageType("error");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setMedicineToDelete(null);
     }
   };
 
@@ -184,14 +223,15 @@ const MedicinesPage = () => {
 
           {/* Alert Message */}
           {message && (
-            <div className="bg-green-500 text-white px-4 py-3 rounded-lg mb-6 flex items-center gap-2 shadow-md">
-              <CheckCircle size={20} />
-              {message}
-              <X 
-                className="ml-auto cursor-pointer hover:bg-green-700 rounded-full p-1" 
-                onClick={() => setMessage(null)} 
-              />
-            </div>
+              <div
+                className={`flex px-4 py-3 rounded relative my-4 border ${
+                  messageType === "success"
+                    ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
+                    : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+                }`}
+              >
+                {message}
+              </div>
           )}
 
           {/* Add Medicine Form */}
@@ -382,7 +422,7 @@ const MedicinesPage = () => {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            onClick={() => deleteMedicine(medicine.$id)}
+                            onClick={() => openDeleteDialog(medicine.$id)}
                           >
                             <Trash className="text-red-500" />
                           </Button>
@@ -396,6 +436,34 @@ const MedicinesPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-red-700">Delete Medicine</DialogTitle>
+            <DialogDescription className="text-gray-500">
+              Are you sure you want to delete this medicine? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              className="border border-red-700 text-red-700 hover:bg-red-700 hover:text-white"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
