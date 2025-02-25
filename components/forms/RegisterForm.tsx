@@ -32,6 +32,8 @@ const MEDICATIONS_COLLECTION_ID = process.env.NEXT_PUBLIC_CURRENTMEDICATION_COLL
 const OCCUPATION_COLLECTION_ID = process.env.NEXT_PUBLIC_OCCUPATIONTYPE_COLLECTION_ID!;
 const OFFICETYPE_COLLECTION_ID = process.env.NEXT_PUBLIC_OFFICETYPE_COLLECTION_ID!;
 const PROGRAMTYPES_COLLECTION_ID = process.env.NEXT_PUBLIC_PROGRAMTYPES_COLLECTION_ID!;
+const FAMILYMEDICALHISTORY_COLLECTION_ID = process.env.NEXT_PUBLIC_FAMILYMEDICALHISTORY_COLLECTION_ID!;
+const PASTMEDICALHISTORY_COLLECTION_ID = process.env.NEXT_PUBLIC_PASTMEDICALHISTORY_COLLECTION_ID!;
 
 const RegisterForm = ({ user }: { user: User }) => { 
   const router = useRouter();
@@ -47,6 +49,13 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [selectedOffice, setSelectedOffice] = useState<string>("");
   const [programTypes, setProgramTypes] = useState<string[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<string>("");
+  const [familyHistories, setFamilyHistories] = useState<string[]>([]);
+  const [familyMedicalHistories, setFamilyMedicalHistories] = useState<string[]>([]);
+  const [pastMedicalHistories, setPastMedicalHistories] = useState<string[]>([]);
+  const [showOtherField, setShowOtherField] = useState(false);
+  const [otherFamilyHistory, setOtherFamilyHistory] = useState("");
+  const [showOtherPastField, setShowOtherPastField] = useState(false);
+  const [otherPastHistory, setOtherPastHistory] = useState("");
 
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -67,25 +76,23 @@ const RegisterForm = ({ user }: { user: User }) => {
     },
   });
 
-  // Watch the occupation field and normalize input
   const occupation = form.watch("occupation", "").toLowerCase().replace(/\s+$/, "");
   const isStudent = occupation === "student";
   const isEmployee = occupation === "employee";
 
-  // Automatically set program and yearLevel to "None" if not a student
   useEffect(() => {
     if (isStudent) {
-      form.setValue("program", ""); // Clear program field
-      form.setValue("yearLevel", ""); // Clear yearLevel field
-      form.setValue("office", "None"); // Set office to "None" if student
+      form.setValue("program", "");
+      form.setValue("yearLevel", "");
+      form.setValue("office", "None");
     } else if (isEmployee) {
-      form.setValue("program", "None"); // Hide program
-      form.setValue("yearLevel", "None"); // Hide yearLevel
-      form.setValue("office", ""); // Clear office field
+      form.setValue("program", "None");
+      form.setValue("yearLevel", "None");
+      form.setValue("office", "");
     } else {
-      form.setValue("program", "None"); // Default for non-students
-      form.setValue("yearLevel", "None"); // Default for non-students
-      form.setValue("office", ""); // Clear office field
+      form.setValue("program", "None");
+      form.setValue("yearLevel", "None");
+      form.setValue("office", "");
     }
   }, [isStudent, isEmployee, form]);
 
@@ -97,8 +104,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     const fetchAllergies = async () => {
       try {
         const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
-        const allergyNames = response.documents.map((doc) => doc.name);
-        setAllergies(["None", ...allergyNames]);
+        setAllergies(["None", ...response.documents.map((doc) => doc.name)]);
       } catch (error) {
         console.error("Error fetching allergies:", error);
       }
@@ -116,8 +122,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     const fetchOccupations = async () => {
       try {
         const response = await databases.listDocuments(DATABASE_ID, OCCUPATION_COLLECTION_ID);
-        const occupationList = response.documents.map((doc) => doc.name);
-        setOccupations(occupationList);
+        setOccupations(response.documents.map((doc) => doc.name));
       } catch (error) {
         console.error("Error fetching occupations:", error);
       }
@@ -134,30 +139,43 @@ const RegisterForm = ({ user }: { user: User }) => {
         console.error("Error fetching program types:", error);
       }
     };
-    
-    fetchAllergies();
-    fetchMedications();
-    fetchOccupations();
-    fetchProgramTypes();
 
-    // Fetch office types from the database
     const fetchOfficeTypes = async () => {
       try {
         const response = await databases.listDocuments(DATABASE_ID, OFFICETYPE_COLLECTION_ID);
-        const officeList = response.documents.map((doc) => doc.name);
-        setOfficeTypes(officeList);
+        setOfficeTypes(response.documents.map((doc) => doc.name));
       } catch (error) {
         console.error("Error fetching office types:", error);
       }
     };
-  
-    fetchOfficeTypes();
 
+    const fetchFamilyHistories = async () => {
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, FAMILYMEDICALHISTORY_COLLECTION_ID);
+        setFamilyMedicalHistories(response.documents.map((doc) => doc.name));
+      } catch (error) {
+        console.error("Error fetching family medical histories:", error);
+      }
+    };
+    const fetchPastMedicalHistories = async () => {
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, PASTMEDICALHISTORY_COLLECTION_ID);
+        setPastMedicalHistories(response.documents.map((doc) => doc.name));
+      } catch (error) {
+        console.error("Error fetching past medical histories:", error);
+      }
+    };
+    
+
+    fetchAllergies();
+    fetchMedications();
+    fetchOccupations();
+    fetchProgramTypes();
+    fetchOfficeTypes();
+    fetchFamilyHistories();
+    fetchPastMedicalHistories();
   }, []);
 
-  
-
-  // BMI Calculation Logic
   const weightStr = form.watch("weight");
   const heightStr = form.watch("height");
   const ageStr = form.watch("age");
@@ -173,22 +191,12 @@ const RegisterForm = ({ user }: { user: User }) => {
 
       let bmiCategory = "";
       if (age < 18) {
-        if (bmiValue < 18.5) bmiCategory = "Underweight";
-        else if (bmiValue < 24.9) bmiCategory = "Normal weight";
-        else if (bmiValue < 29.9) bmiCategory = "Overweight";
-        else bmiCategory = "Obese";
-      } else if (age >= 18 && age <= 34) {
-        if (bmiValue < 18.5) bmiCategory = "Underweight";
-        else if (bmiValue < 24.9) bmiCategory = "Normal weight";
-        else if (bmiValue < 29.9) bmiCategory = "Overweight";
-        else bmiCategory = "Obese";
+        bmiCategory = bmiValue < 18.5 ? "Underweight" : bmiValue < 24.9 ? "Normal weight" : bmiValue < 29.9 ? "Overweight" : "Obese";
+      } else if (age <= 34) {
+        bmiCategory = bmiValue < 18.5 ? "Underweight" : bmiValue < 24.9 ? "Normal weight" : bmiValue < 29.9 ? "Overweight" : "Obese";
       } else {
-        if (bmiValue < 18.5) bmiCategory = "Underweight";
-        else if (bmiValue < 24.9) bmiCategory = "Normal weight";
-        else if (bmiValue < 30) bmiCategory = "Overweight";
-        else bmiCategory = "Obese";
+        bmiCategory = bmiValue < 18.5 ? "Underweight" : bmiValue < 24.9 ? "Normal weight" : bmiValue < 30 ? "Overweight" : "Obese";
       }
-
       form.setValue("bmiCategory", bmiCategory);
     } else {
       form.setValue("bmi", "");
@@ -198,8 +206,8 @@ const RegisterForm = ({ user }: { user: User }) => {
 
   async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
     setIsLoading(true);
-  
     let formData;
+
     if (values.identificationDocument?.length > 0) {
       const blobFile = new Blob([values.identificationDocument[0]], {
         type: values.identificationDocument[0].type,
@@ -208,7 +216,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       formData.append("blobFile", blobFile);
       formData.append("fileName", values.identificationDocument[0].name);
     }
-  
+
     try {
       const patientData = {
         ...values,
@@ -222,15 +230,14 @@ const RegisterForm = ({ user }: { user: User }) => {
       if (patient) {
         form.reset();
         setSuccessMessage("Registration successful! You have been registered successfully.");
-        
-        // Check occupation and redirect accordingly
         const occupation = values.occupation.toLowerCase();
+
         if (occupation === "student") {
           router.push(`/patients/${patient.$id}/student`);
         } else if (occupation === "employee") {
           router.push(`/patients/${patient.$id}/employee`);
         } else {
-          router.push('/'); // Default redirect
+          router.push('/');
         }
       }
     } catch (error) {
@@ -239,6 +246,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       setIsLoading(false);
     }
   }
+
 
   return (
     <Form {...form}>
@@ -773,22 +781,91 @@ const RegisterForm = ({ user }: { user: User }) => {
 </div>
 
       <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
-            control={form.control}
-            name="familyMedicalHistory"
-            label="Family medical history"
-            placeholder="Mother had caugh disease"
-                    
-          />
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
-            control={form.control}
-            name="pastMedicalHistory"
-            label="Past medical history"
-            placeholder="Appendectomy"
-          
-          />
+      <CustomFormField
+        fieldType={FormFieldType.SKELETON}
+        control={form.control}
+        name="familyMedicalHistory"
+        label="Family Medical History"
+        renderSkeleton={(field) => (
+          <div className="text-black">
+            <FormControl>
+                    <Select
+          onValueChange={(value) => {
+            setShowOtherField(value === "Others");
+            form.setValue("familyMedicalHistory", value);
+          }}
+          value={form.watch("familyMedicalHistory") || ""}
+        >
+          <SelectTrigger className="w-full bg-gray-50">
+            <SelectValue placeholder="Select Family Medical History" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-white border-gray-600">
+            <SelectItem value="None">None</SelectItem>
+            {familyMedicalHistories.map((history) => (
+              <SelectItem key={history} value={history}>
+                {history}
+              </SelectItem>
+            ))}
+            <SelectItem value="Others">Others</SelectItem>
+          </SelectContent>
+        </Select>
+            </FormControl>
+          </div>
+        )}
+      />
+
+{form.watch("familyMedicalHistory") === "Others" && (
+    <CustomFormField
+      fieldType={FormFieldType.TEXTAREA}
+      control={form.control}
+      name="specificFamilyMedicalHistory"
+      label="Specify Family Medical History"
+      placeholder="Please specify..."
+    />
+  )}
+    
+    <CustomFormField
+    fieldType={FormFieldType.SKELETON}
+    control={form.control}
+    name="pastMedicalHistory"
+    label="Past Medical History"
+    renderSkeleton={(field) => (
+      <div className="text-black">
+        <FormControl>
+          <Select
+            onValueChange={(value) => {
+              form.setValue("pastMedicalHistory", value);
+            }}
+            value={form.watch("pastMedicalHistory") || ""}
+          >
+            <SelectTrigger className="w-full bg-gray-50">
+              <SelectValue placeholder="Select Past Medical History" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 text-white border-gray-600">
+              <SelectItem value="None">None</SelectItem>
+              {pastMedicalHistories.map((history) => (
+                <SelectItem key={history} value={history}>
+                  {history}
+                </SelectItem>
+              ))}
+              <SelectItem value="Others">Others</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormControl>
+      </div>
+    )}
+  />
+
+  {/* Show textarea if "Others" is selected */}
+  {form.watch("pastMedicalHistory") === "Others" && (
+    <CustomFormField
+      fieldType={FormFieldType.TEXTAREA}
+      control={form.control}
+      name="specificPastMedicalHistory"
+      label="Specify Past Medical History"
+      placeholder="Please specify..."
+    />
+  )}
       </div>
 
       <section className="space-y-6">

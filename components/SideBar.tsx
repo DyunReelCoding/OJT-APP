@@ -45,6 +45,11 @@ const SideBar = () => {
       label: "Program Types",
       href: "/admin/program",
       icon: <Briefcase className="w-5 h-5" />
+    },
+    {
+      label: "Past/Family Medical History",
+      href: "/admin/MedicalHistory",
+      icon: <Briefcase className="w-5 h-5" />
     }
   ];
 

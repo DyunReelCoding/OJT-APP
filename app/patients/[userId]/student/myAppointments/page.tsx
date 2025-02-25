@@ -108,10 +108,10 @@ const StudentAppointmentsPage = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredAppointments.map((appointment) => (
                       <tr key={appointment.$id}>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.date}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.time}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{appointment.reason}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.date}</td>
+                        <td className="px-6 py-4  text-black whitespace-nowrap">{appointment.time}</td>
+                        <td className="px-6 py-4  text-black whitespace-nowrap">{appointment.reason}</td>
+                        <td className="px-6 py-4  text-black whitespace-nowrap">
                           <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(appointment.status)}`}>
                             {appointment.status}
                           </span>
