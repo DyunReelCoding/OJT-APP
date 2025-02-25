@@ -3,149 +3,119 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import CustomFormField from "../ui/CustomFormField";
 import { useState } from "react";
 import SubmitButton from "../SubmitButton";
 import { UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/lib/actions/patient.actions";
+import OTPModal from "@/components/OTPModal";
 
 export enum FormFieldType {
   INPUT = "input",
-  TEXTAREA = "textarea",
   PHONE_INPUT = "phoneInput",
-  CHECKBOX = "checkbox",
   DATE_PICKER = "datePicker",
+  TEXTAREA = "textarea",
   SELECT = "select",
+  CHECKBOX = "checkbox",
   SKELETON = "skeleton",
 }
 
 const PatientForms = () => {
   const router = useRouter();
-  const [isLoading, setIsLoding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      suffix: "",
+     
       email: "",
-      phone: "",
+      
     },
   });
 
-  async function onSubmit({
-    firstName,
-    middleName,
-    lastName,
-    suffix,
-    email,
-    phone,
-  }: z.infer<typeof UserFormValidation>) {
-    setIsLoding(true);
+  const onSubmit = async (formData: z.infer<typeof UserFormValidation>) => {
+    setIsLoading(true);
+    setEmail(formData.email);
+
+    try {
+      const otpResponse = await fetch("/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const otpData = await otpResponse.json();
+
+      if (otpResponse.ok) {
+        setOtp(otpData.otp);
+        setShowModal(true);
+      } else {
+        alert(otpData.error || "Failed to send OTP.");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("Error sending OTP.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpVerification = async (enteredOtp: string) => {
+    if (enteredOtp !== otp) {
+      alert("Invalid OTP.");
+      return;
+    }
   
     try {
-      const userData = {
-        firstName,
-        middleName: middleName ?? "", // Ensure it's always a string
-        lastName,
-        suffix: suffix ?? "", // Ensure it's always a string
-        email,
-        phone,
-      };
+      const response = await fetch("/api/patient/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }), // Pass email here
+      });
   
-      console.log("Submitting Data:", userData); // Debugging log
+      const data = await response.json();
   
-      const user = await createUser(userData); // Now correctly matches CreateUserParams
-  
-      if (user) router.push(`/patients/${user.$id}/register`); 
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoding(false);
+      if (response.ok) {
+        if (data.patient) {
+          const { patient } = data;
+          // Redirect to patient page if email exists
+          router.push(`/patients/${patient.userId}/student`);
+        } else if (data.userId) {
+          // Redirect directly to register page if patient not found
+          router.push(`/patients/${data.userId}/register`);
+        }
+      }
+    } catch (err) {
+      console.error("Error verifying patient:", err);
+      alert("Failed to verify patient.");
     }
-  }
+  };
   
-
+  
+  
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
-        <section className="mb-12 space-y-4">
-          <h1 className="header text-green-400">Hi There!👋</h1>
-          <p className="text-dark-700">Schedule your First Appointment</p>
-        </section>
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
+          <section className="mb-12 space-y-4">
+            <h1 className="header text-green-400">Hi There! 👋</h1>
+            <p className="text-dark-700">Schedule your First Appointment</p>
+          </section>
 
-        {/* First Name */}
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="firstName"
-          label="First Name"
-          placeholder="John"
-          iconSrc="/assets/icons/user.svg"
-          iconAlt="user"
-        />
+        
+          <CustomFormField fieldType={FormFieldType.INPUT} control={form.control} name="email" label="Email" placeholder="JohnDoe@gmail.com" iconSrc="/assets/icons/email.svg" iconAlt="email" />
+        
 
-        {/* Middle Name */}
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="middleName"
-          label="Middle Name"
-          placeholder="Michael"
-          iconSrc="/assets/icons/user.svg"
-          iconAlt="user"
-        />
+          <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
+        </form>
+      </Form>
 
-        {/* Last Name */}
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="lastName"
-          label="Last Name"
-          placeholder="Doe"
-          iconSrc="/assets/icons/user.svg"
-          iconAlt="user"
-        />
-
-        {/* Suffix */}
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="suffix"
-          label="Suffix (Optional)"
-          placeholder="Jr., Sr., III"
-          iconSrc="/assets/icons/user.svg"
-          iconAlt="user"
-        />
-
-        {/* Email */}
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="email"
-          label="Email"
-          placeholder="JohnDoe@gmail.com"
-          iconSrc="/assets/icons/email.svg"
-          iconAlt="email"
-        />
-
-        {/* Phone */}
-        <CustomFormField
-          fieldType={FormFieldType.PHONE_INPUT}
-          control={form.control}
-          name="phone"
-          label="Phone Number"
-          placeholder="091234567"
-        />
-
-        <SubmitButton isLoading={isLoading}> Get Started</SubmitButton>
-      </form>
-    </Form>
+      {showModal && <OTPModal email={email} otp={otp} onClose={() => setShowModal(false)} onVerify={handleOtpVerification} />}
+    </>
   );
 };
 

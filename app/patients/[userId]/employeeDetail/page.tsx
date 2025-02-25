@@ -6,7 +6,8 @@ import { Databases, Client } from "appwrite";
 import { notFound } from "next/navigation";
 // import BackButton from "@/components/BackButton";
 import PrintButton from "@/components/PrintButton";
-import BackToStudentButton from "@/components/BackToStudentButton";
+// import BackToStudentButton from "@/components/BackToStudentButton";
+import BackToEmployeeButton from "@/components/BackToEmployeeButton";
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -45,7 +46,7 @@ const StudentDetail = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
-      <BackToStudentButton userId={userId} />
+      <BackToEmployeeButton userId={userId} />
       <PrintButton student={student} />
       
       <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>

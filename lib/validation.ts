@@ -1,33 +1,9 @@
 import { z } from "zod";
 
 export const UserFormValidation = z.object({
-  firstName: z
-    .string()
-    .min(2, "First name must be at least 2 characters")
-    .max(50, "First name must be at most 50 characters")
-    .regex(/^[A-Za-z\s'-]+$/, "First name must contain only letters"),
 
-  middleName: z
-    .string()
-    .max(50, "Middle name must be at most 50 characters")
-    .regex(/^[A-Za-z\s'-]*$/, "Middle name must contain only letters")
-    .optional(),
-
-  lastName: z
-    .string()
-    .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name must be at most 50 characters")
-    .regex(/^[A-Za-z\s'-]+$/, "Last name must contain only letters"),
-
-  suffix: z
-    .string()
-    .max(10, "Suffix must be at most 10 characters")
-    .regex(/^(Jr\.?|Sr\.?|II|III|IV|V|VI)?$/, "Invalid suffix format")
-    .optional(),
   email: z.string().email("Invalid email address"),
-  phone: z
-    .string()
-    .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+
 });
 
 export const PatientFormValidation = z.object({
@@ -70,8 +46,8 @@ suffix: z
     .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
   idNumber: z
     .string()
-    .min(8, "ID number must be at least 8 characters")
-    .max(50, "ID number must be at most 8 characters"),
+    .min(5, "ID number must be at least 5 characters")
+    .max(9, "ID number must be at most 8 characters"),
   age: z
     .string()
     .min(1, "Age must be at least 1 character")
@@ -95,7 +71,7 @@ suffix: z
   yearLevel: z
   .string()
   .min(1, "Year level must be at least 1 characters")
-  .max(100, "Year level must be at most 100 characters"),
+  .max(50, "Year level must be at most 1 characters"),
 
 weight: z
   .string()

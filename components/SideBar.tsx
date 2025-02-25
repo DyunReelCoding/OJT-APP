@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, ShieldAlert, Home, Briefcase, Users, Calendar, Pill, Stethoscope } from "lucide-react"; // Import Briefcase icon
+import { Menu, X, Briefcase, Users, Calendar, Pill, Stethoscope, ClipboardList } from "lucide-react"; // Import 
+// Briefcase icon
+// import { Menu, X, ShieldAlert, Home, Briefcase, Users, Calendar, Pill, Stethoscope, ClipboardList } from "lucide-react"; // Import 
 import BackToHomeButton from "./BackToHomeButton"; // Import Back Button
 import Link from "next/link"; // Import Link for navigation
 import { usePathname } from "next/navigation";
@@ -22,23 +24,33 @@ const SideBar = () => {
       icon: <Calendar className="w-5 h-5" />
     },
     {
-      label: "Appointments",
+      label: "Manage Appointments",
       href: "/admin/appointments",
-      icon: <Calendar className="w-5 h-5" />
+      icon: <ClipboardList className="w-5 h-5" />
     },
     {
-      label: "Medicines",
+      label: "Manage Medicines",
       href: "/admin/medicines",
       icon: <Stethoscope className="w-5 h-5" />
     },
     {
-      label: "Allergies",
+      label: "Allergies and Current Medications",
       href: "/admin/allergies",
       icon: <Pill className="w-5 h-5" />
     },
     {
-      label: "Occupation",
+      label: "Occupation and Office Types",
       href: "/admin/occupation",
+      icon: <Briefcase className="w-5 h-5" />
+    },
+    {
+      label: "Program Types",
+      href: "/admin/program",
+      icon: <Briefcase className="w-5 h-5" />
+    },
+    {
+      label: "Past/Family Medical History",
+      href: "/admin/MedicalHistory",
       icon: <Briefcase className="w-5 h-5" />
     }
   ];

@@ -2,31 +2,56 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import ComboBox from "@/components/ComboBox"; // Import the ComboBox component
+import ComboBox from "@/components/ComboBox";
 import StudentListPrintButton from "./StudentListButton";
-import { FaEnvelope } from "react-icons/fa"; // Import the email icon
-import EmailForm from "@/components/EmailForm"; // Import EmailForm component
+import { FaEnvelope } from "react-icons/fa";
+import EmailForm from "@/components/EmailForm";
 
-const StudentList = ({ students }: { students: any[] }) => {
-  const [filteredStudents, setFilteredStudents] = useState(students);
+// type StudentListProps = {
+//   students: any[]; // Replace `any` with a proper type if available
+// };
+
+const StudentList = () => {
+  const [students, setStudents] = useState<any[]>([]);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState(""); // Selected filter type
+  const [filterType, setFilterType] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [emails, setEmails] = useState<string[]>([]); // To store filtered student emails
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
-  const [view, setView] = useState("student"); // View toggle state (student or employee)
+  const [emails, setEmails] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [view, setView] = useState("student");
   const studentsPerPage = 5;
   const router = useRouter();
 
-  // Filter students based on search query and selected filter type
+  
+  // ✅ Fetch students when the component mounts
   useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await fetch("/api/students/");
+        if (!res.ok) throw new Error("Failed to fetch students");
+
+        const data = await res.json();
+        setStudents(data);
+      } catch (err) {
+        console.error("Error fetching students:", err);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  // 🔎 Filter students whenever dependencies change
+  useEffect(() => {
+    const normalizeOccupation = (occupation: string) => occupation.toLowerCase().replace(/s$/, "");
+
     let filtered = students;
 
     if (view === "student") {
-      filtered = students.filter(student => student.occupation === "Student");
+      filtered = filtered.filter((student) => normalizeOccupation(student.occupation) === "student");
     } else if (view === "employee") {
-      filtered = students.filter(student => student.occupation === "employee");
+      filtered = filtered.filter((student) => normalizeOccupation(student.occupation) === "employee");
     }
 
     if (filterType) {
@@ -46,21 +71,16 @@ const StudentList = ({ students }: { students: any[] }) => {
     }
 
     setFilteredStudents(filtered);
-    setCurrentPage(0); // Reset pagination when filtering
+    setEmails(filtered.map((student) => student.email));
+    setCurrentPage(0);
+  }, [students, searchQuery, filterType, view]);
 
-    // Collect emails of filtered students
-    const studentEmails = filtered.map((student) => student.email);
-    setEmails(studentEmails);
-  }, [searchQuery, filterType, students, view]);
-
-  // Paginate students
   const startIndex = currentPage * studentsPerPage;
   const paginatedStudents = filteredStudents.slice(startIndex, startIndex + studentsPerPage);
 
-  // Handle student click with loading state
   const handleStudentClick = (studentId: string) => {
-    setLoadingId(studentId); // Set loading state
-    router.push(`/patients/${studentId}/studentDetail`);
+    setLoadingId(studentId);
+    router.push(`/patients/${studentId}/studentDetailAdmin`);
   };
 
   return (
@@ -73,39 +93,34 @@ const StudentList = ({ students }: { students: any[] }) => {
       <div className="flex justify-center mb-4">
         <button
           onClick={() => setView("student")}
-          className={`px-4 py-2 mx-2 ${view === "student" ? "bg-blue-700" : "bg-gray-200 text-black"} rounded-lg`}
+          className={`px-4 py-2 mx-2 rounded-lg ${view === "student" ? "bg-blue-700 text-white" : "bg-gray-200 text-black"}`}
         >
           Student View
         </button>
         <button
           onClick={() => setView("employee")}
-          className={`px-4 py-2 mx-2 ${view === "employee" ? "bg-blue-700" : "bg-gray-200 text-black" } rounded-lg`}
+          className={`px-4 py-2 mx-2 rounded-lg ${view === "employee" ? "bg-blue-700 text-white" : "bg-gray-200 text-black"}`}
         >
           Employee View
         </button>
       </div>
 
-      {/* Centered Search & ComboBox */}
+      {/* Filters */}
       <div className="flex flex-col items-center mb-4">
-        <div className="flex justify-end mb-4">
-        <StudentListPrintButton
-        filteredStudents={filteredStudents}
-        filterType={filterType}
-        view={view} // Pass the 'view' prop to the StudentListPrintButton
-      />
-        </div>
-        <div className="w-96">
+        <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} view={view} />
+        <div className="w-96 mt-2">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
         </div>
         <input
           type="text"
           placeholder="Search..."
-          className="w-96 p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm focus:outline-none mt-2"
+          className="w-96 p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm mt-2 focus:outline-none"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
+      {/* Table */}
       {filteredStudents.length === 0 ? (
         <p className="text-gray-400 text-center">No {view}s found.</p>
       ) : (
@@ -121,23 +136,16 @@ const StudentList = ({ students }: { students: any[] }) => {
                     <th className="py-3 px-6">Year Level</th>
                   </>
                 ) : (
-                  <>
-                    <th className="py-3 px-6">Office</th>
-                
-                  </>
+                  <th className="py-3 px-6">Office</th>
                 )}
                 {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
               </tr>
             </thead>
             <tbody>
-              {paginatedStudents.map((student: any) => (
-                <tr key={student.$id} className="bg-white text-black border-b border-gray-700 hover:bg-blue-400 hover:text-white transition">
+              {paginatedStudents.map((student) => (
+                <tr key={student.$id} className="bg-white text-black hover:bg-blue-400 hover:text-white transition">
                   <td className="py-3 px-6">
-                    <button
-                      onClick={() => handleStudentClick(student.$id)}
-                      className="text-blue-700 hover:text-white transition"
-                      disabled={loadingId !== null}
-                    >
+                    <button onClick={() => handleStudentClick(student.$id)} className="text-blue-700 hover:text-white">
                       {student.name}
                       {loadingId === student.$id && <span className="ml-2 animate-spin">🔄</span>}
                     </button>
@@ -149,12 +157,9 @@ const StudentList = ({ students }: { students: any[] }) => {
                       <td className="py-3 px-6">{student.yearLevel}</td>
                     </>
                   ) : (
-                    <>
-                      <td className="py-3 px-6">{student.office}</td>
-                     
-                    </>
+                    <td className="py-3 px-6">{student.office}</td>
                   )}
-                  {filterType && <td className="py-3 px-6">{student[filterType] || "N/A"}</td>}
+                  {filterType && <td className="py-3 px-6">{student[filterType] ?? "N/A"}</td>}
                 </tr>
               ))}
             </tbody>
@@ -162,45 +167,37 @@ const StudentList = ({ students }: { students: any[] }) => {
         </div>
       )}
 
-      {/* Email Button */}
+      {/* Email Modal */}
       {emails.length > 0 && (
         <div className="mt-4 flex justify-center">
-          <button
-            onClick={() => setIsModalOpen(true)} // Open the modal on button click
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md flex items-center gap-2"
-          >
+          <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center gap-2">
             <FaEnvelope /> Send Email to All
           </button>
         </div>
       )}
-
-      {/* Modal for sending email */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
           <div className="bg-gray-800 p-6 rounded-lg shadow-md max-w-md w-full">
             <EmailForm studentEmail={emails.join(",")} />
-            <button
-              onClick={() => setIsModalOpen(false)} // Close the modal
-              className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg"
-            >
+            <button onClick={() => setIsModalOpen(false)} className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg">
               Close
             </button>
           </div>
         </div>
       )}
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <div className="flex justify-center mt-4">
         <button
-          className="px-4 py-2 mx-2 bg-gray-700 text-white rounded disabled:opacity-50"
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+          className="px-4 py-2 mx-2 bg-gray-700 text-white rounded disabled:opacity-50"
           disabled={currentPage === 0}
         >
           ← Prev
         </button>
         <button
-          className="px-4 py-2 mx-2 bg-green-400 text-white rounded disabled:opacity-50"
           onClick={() => setCurrentPage((prev) => (startIndex + studentsPerPage < filteredStudents.length ? prev + 1 : prev))}
+          className="px-4 py-2 mx-2 bg-green-400 text-white rounded disabled:opacity-50"
           disabled={startIndex + studentsPerPage >= filteredStudents.length}
         >
           Next →
