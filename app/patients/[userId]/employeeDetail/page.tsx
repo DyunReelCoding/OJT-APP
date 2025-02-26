@@ -82,7 +82,7 @@ const StudentDetail = () => {
         { title: "Identification", data: [
           ["Identification Type", student.identificationType],
           ["Identification Number", student.identificationNumber],
-          ["Student Identification Number", student.idNumber],
+          ["Employee Identification Number", student.idNumber],
           ["Identification Document", <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">View Document</a>]
         ] },
         { title: "Health Information", data: [

@@ -54,8 +54,8 @@ const EmployeePage = () => {
                 <p className="text-gray-800">{employee.office}</p>
               </div>
               <div>
-                <p className="font-medium text-gray-600">Department:</p>
-                <p className="text-gray-800">{employee.department || 'N/A'}</p>
+                <p className="font-medium text-gray-600">Email:</p>
+                <p className="text-gray-800">{employee.email || 'N/A'}</p>
               </div>
             </div>
 
