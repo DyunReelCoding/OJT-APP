@@ -54,10 +54,8 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [familyHistories, setFamilyHistories] = useState<string[]>([]);
   const [familyMedicalHistories, setFamilyMedicalHistories] = useState<string[]>([]);
   const [pastMedicalHistories, setPastMedicalHistories] = useState<string[]>([]);
-  const [showOtherField, setShowOtherField] = useState(false);
-  const [otherFamilyHistory, setOtherFamilyHistory] = useState("");
-  const [showOtherPastField, setShowOtherPastField] = useState(false);
-  const [otherPastHistory, setOtherPastHistory] = useState("");
+  const [showFamilyOtherField, setShowFamilyOtherField] = useState(false);
+  const [showPastOtherField, setShowPastOtherField] = useState(false);
 
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -783,20 +781,22 @@ const RegisterForm = ({ user }: { user: User }) => {
 </div>
 
       <div className="flex flex-col gap-6 xl:flex-row">
-      <CustomFormField
-        fieldType={FormFieldType.SKELETON}
-        control={form.control}
-        name="familyMedicalHistory"
-        label="Family Medical History"
-        renderSkeleton={(field) => (
-          <div className="text-black">
-            <FormControl>
-                    <Select
+     {/* Family Medical History */}
+{/* Family Medical History */}
+<CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="familyMedicalHistory"
+  label="Family Medical History"
+  renderSkeleton={() => (
+    <div className="text-black">
+      <FormControl>
+        <Select
           onValueChange={(value) => {
-            setShowOtherField(value === "Others");
-            form.setValue("familyMedicalHistory", value);
+            setShowFamilyOtherField(value === "Others");
+            form.setValue("familyMedicalHistory", value === "Others" ? "" : value);
           }}
-          value={form.watch("familyMedicalHistory") || ""}
+          value={showFamilyOtherField ? "Others" : form.watch("familyMedicalHistory") || ""}
         >
           <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Family Medical History" />
@@ -811,63 +811,81 @@ const RegisterForm = ({ user }: { user: User }) => {
             <SelectItem value="Others">Others</SelectItem>
           </SelectContent>
         </Select>
-            </FormControl>
-          </div>
-        )}
-      />
-
-{form.watch("familyMedicalHistory") === "Others" && (
-    <CustomFormField
-      fieldType={FormFieldType.TEXTAREA}
-      control={form.control}
-      name="specificFamilyMedicalHistory"
-      label="Specify Family Medical History"
-      placeholder="Please specify..."
-    />
+      </FormControl>
+    </div>
   )}
-    
-    <CustomFormField
-    fieldType={FormFieldType.SKELETON}
+/>
+
+{showFamilyOtherField && (
+  <CustomFormField
+    fieldType={FormFieldType.TEXTAREA}
     control={form.control}
-    name="pastMedicalHistory"
-    label="Past Medical History"
-    renderSkeleton={(field) => (
-      <div className="text-black">
-        <FormControl>
-          <Select
-            onValueChange={(value) => {
-              form.setValue("pastMedicalHistory", value);
-            }}
-            value={form.watch("pastMedicalHistory") || ""}
-          >
-            <SelectTrigger className="w-full bg-gray-50">
-              <SelectValue placeholder="Select Past Medical History" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 text-white border-gray-600">
-              <SelectItem value="None">None</SelectItem>
-              {pastMedicalHistories.map((history) => (
-                <SelectItem key={history} value={history}>
-                  {history}
-                </SelectItem>
-              ))}
-              <SelectItem value="Others">Others</SelectItem>
-            </SelectContent>
-          </Select>
-        </FormControl>
-      </div>
+    name="familyMedicalHistory"
+    label="Specify Family Medical History"
+    placeholder="Please specify..."
+    renderSkeleton={() => (
+      <textarea
+        className="w-full p-2 border border-gray-300 rounded"
+        {...form.register("familyMedicalHistory")}
+        placeholder="Please specify..."
+      />
     )}
   />
+)}
 
-  {/* Show textarea if "Others" is selected */}
-  {form.watch("pastMedicalHistory") === "Others" && (
-    <CustomFormField
-      fieldType={FormFieldType.TEXTAREA}
-      control={form.control}
-      name="specificPastMedicalHistory"
-      label="Specify Past Medical History"
-      placeholder="Please specify..."
-    />
+
+{/* Past Medical History */}
+<CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="pastMedicalHistory"
+  label="Past Medical History"
+  renderSkeleton={() => (
+    <div className="text-black">
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setShowPastOtherField(value === "Others");
+            form.setValue("pastMedicalHistory", value === "Others" ? "" : value);
+          }}
+          value={showPastOtherField ? "Others" : form.watch("pastMedicalHistory") || ""}
+        >
+          <SelectTrigger className="w-full bg-gray-50">
+            <SelectValue placeholder="Select Past Medical History" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-white border-gray-600">
+            <SelectItem value="None">None</SelectItem>
+            {pastMedicalHistories.map((history) => (
+              <SelectItem key={history} value={history}>
+                {history}
+              </SelectItem>
+            ))}
+            <SelectItem value="Others">Others</SelectItem>
+          </SelectContent>
+        </Select>
+      </FormControl>
+    </div>
   )}
+/>
+
+
+{showPastOtherField && (
+  <CustomFormField
+    fieldType={FormFieldType.TEXTAREA}
+    control={form.control}
+    name="pastMedicalHistory"
+    label="Specify Past Medical History"
+    placeholder="Please specify..."
+    renderSkeleton={() => (
+      <textarea
+        className="w-full p-2 border border-gray-300 rounded"
+        {...form.register("pastMedicalHistory")}
+        placeholder="Please specify..."
+      />
+    )}
+  />
+)}
+
       </div>
 
       <section className="space-y-6">
