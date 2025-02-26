@@ -100,7 +100,7 @@
   }
 
   .checkbox-label {
-    @apply cursor-pointer text-sm font-medium text-dark-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 md:leading-none;
+    @apply cursor-pointer text-sm font-medium text-dark-600 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 md:leading-none;
   }
 
   /* ==== File Upload */
@@ -223,7 +223,7 @@
   }
 
   .shad-select-content {
-    @apply border border-dark-500 bg-white text-black !important;
+    @apply border-2 border-blue-700 bg-white text-black !important;
   }
 
   .shad-dialog {

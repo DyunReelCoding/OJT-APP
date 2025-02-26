@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Client, Databases, ID } from "appwrite";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash, Edit, CheckCircle, Search } from "lucide-react";
+import { Trash, Edit, CheckCircle, Search, XCircle } from "lucide-react";
 import SideBar from "@/components/SideBar";
 
 // Define Occupation and Office Type
@@ -34,6 +34,7 @@ const OccupationManagement = () => {
   const [updatedItem, setUpdatedItem] = useState("");
   const [isOccupation, setIsOccupation] = useState(true); // Toggle between occupation and office
   const [message, setMessage] = useState<string | null>(null); // Status messages
+  const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     fetchItems();
@@ -87,10 +88,12 @@ const OccupationManagement = () => {
       setItems(updatedItems);
       setFilteredItems(updatedItems);
       setNewItem("");
-      setMessage(`${isOccupation ? "Occupation" : "Office type"} added successfully.`);
+      setMessage(`✅ ${isOccupation ? "Occupation" : "Office type"} added successfully.`);
+      setMessageType("success");
     } catch (error) {
       console.error("Error adding item:", error);
-      setMessage("Failed to add item.");
+      setMessage("❌ Failed to add item.");
+      setMessageType("error");
     }
   };
 
@@ -108,10 +111,12 @@ const OccupationManagement = () => {
       setFilteredItems(updatedList);
       setEditingId(null);
       setUpdatedItem("");
-      setMessage(`${isOccupation ? "Occupation" : "Office type"} updated successfully.`);
+      setMessage(`✅ ${isOccupation ? "Occupation" : "Office type"} updated successfully.`);
+      setMessageType("success");
     } catch (error) {
       console.error("Error updating item:", error);
-      setMessage("Failed to update item.");
+      setMessage("❌ Failed to update item.");
+      setMessageType("error");
     }
   };
 
@@ -124,10 +129,12 @@ const OccupationManagement = () => {
       const filteredList = items.filter((item) => item.$id !== $id);
       setItems(filteredList);
       setFilteredItems(filteredList);
-      setMessage(`${isOccupation ? "Occupation" : "Office type"} deleted successfully.`);
+      setMessage(`✅ ${isOccupation ? "Occupation" : "Office type"} deleted successfully.`);
+      setMessageType("success");
     } catch (error) {
       console.error("Error deleting item:", error);
-      setMessage("Failed to delete item.");
+      setMessage("❌ Failed to delete item.");
+      setMessageType("error");
     }
   };
 
@@ -147,22 +154,30 @@ const OccupationManagement = () => {
           </Button>
         </div>
 
-        {/* Status Message */}
+        {/* Alert Message */}
         {message && (
-          <div className="mb-4 text-sm text-white bg-green-500 px-4 py-2 rounded-md">
-            {message}
-          </div>
-        )}
+              <div className="flex relative w-full items-center justify-center">
+              <div
+                className={`flex px-4 py-3 rounded absolute my-4 border top-28 items-center justify-center${
+                  messageType === "success"
+                    ? "bg-green-100 border-green-400 text-green-700"
+                    : "bg-red-100 border-red-400 text-red-700"
+                }`}
+              >
+                {message}
+              </div>
+            </div>
+          )}
 
         {/* Search Input */}
-        <div className="flex items-center gap-2 mb-4 w-full max-w-lg">
-          <Search size={20} className="text-gray-400" />
+        <div className="relative flex items-center gap-2 mb-4 w-full max-w-lg">
+          <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <Input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`Search ${isOccupation ? "occupation" : "office type"}...`}
-            className="bg-white border-2 border-blue-700"
+            className="bg-white border-2 border-blue-700 pl-9 w-full text-black"
           />
         </div>
 
@@ -180,8 +195,10 @@ const OccupationManagement = () => {
           </Button>
         </div>
 
+        
+
         {/* Item List */}
-        <ul className="mt-6 w-full max-w-lg">
+        <ul className="mt-20 w-full max-w-lg">
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <li key={item.$id} className="flex justify-between p-2 border-b border-blue-700 items-center">
