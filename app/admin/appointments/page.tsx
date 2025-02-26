@@ -145,8 +145,9 @@ const AppointmentsPage = () => {
           </div>
 
       {message && (
+          <div className="flex items-center justify-center">
           <div
-            className={`flex px-4 py-3 rounded relative my-4 border ${
+            className={`flex px-4 py-3 rounded relative my-4 border items-center justify-center${
               messageType === "success"
                 ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
                 : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
@@ -154,6 +155,7 @@ const AppointmentsPage = () => {
           >
             {message}
           </div>
+        </div>
       )}
 
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">

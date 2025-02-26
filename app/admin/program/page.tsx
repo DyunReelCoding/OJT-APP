@@ -138,8 +138,9 @@ const ProgramTypesManagement = () => {
         <h2 className="text-2xl font-bold mb-6 text-blue-700">Manage Program Types</h2>
 
         {message && (
+          <div className="flex relative w-full items-center justify-center">
           <div
-            className={`flex px-4 py-3 rounded relative my-4 border ${
+            className={`flex px-4 py-3 rounded absolute my-4 border top-28 items-center justify-center${
               messageType === "success"
                 ? "bg-green-100 border-green-400 text-green-700"
                 : "bg-red-100 border-red-400 text-red-700"
@@ -147,6 +148,7 @@ const ProgramTypesManagement = () => {
           >
             {message}
           </div>
+        </div>
       )}
 
         {/* Search Input */}
@@ -176,7 +178,7 @@ const ProgramTypesManagement = () => {
         </div>
 
         {/* Program Type List */}
-        <ul className="mt-4 w-full max-w-lg">
+        <ul className="mt-14 w-full max-w-lg">
           {filteredProgramTypes.length > 0 ? (
             filteredProgramTypes.map((programType) => (
               <li

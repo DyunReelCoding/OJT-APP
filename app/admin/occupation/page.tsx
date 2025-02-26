@@ -156,15 +156,17 @@ const OccupationManagement = () => {
 
         {/* Alert Message */}
         {message && (
+              <div className="flex relative w-full items-center justify-center">
               <div
-                className={`flex px-4 py-3 rounded relative my-4 border ${
+                className={`flex px-4 py-3 rounded absolute my-4 border top-28 items-center justify-center${
                   messageType === "success"
-                    ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
-                    : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+                    ? "bg-green-100 border-green-400 text-green-700"
+                    : "bg-red-100 border-red-400 text-red-700"
                 }`}
               >
                 {message}
               </div>
+            </div>
           )}
 
         {/* Search Input */}
@@ -196,7 +198,7 @@ const OccupationManagement = () => {
         
 
         {/* Item List */}
-        <ul className="mt-6 w-full max-w-lg">
+        <ul className="mt-20 w-full max-w-lg">
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <li key={item.$id} className="flex justify-between p-2 border-b border-blue-700 items-center">

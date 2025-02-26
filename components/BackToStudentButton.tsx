@@ -21,7 +21,7 @@ const BackToStudentButton = ({ userId }: BackToStudentButtonProps) => {
       onClick={handleBack}
       disabled={loading}
       className={`px-4 py-2 font-semibold rounded-lg shadow-md text-white ${
-        loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+        loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-500"
       }`}
     >
       {loading ? (

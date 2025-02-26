@@ -408,9 +408,9 @@ const RegisterForm = ({ user }: { user: User }) => {
           <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Occupation" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 text-white border-gray-600">
+          <SelectContent className="bg-white text-black border-2 border-blue-700">
             {occupations.map((occupation) => (
-              <SelectItem key={occupation} value={occupation}>
+              <SelectItem className="hover:bg-blue-100" key={occupation} value={occupation}>
                 {occupation}
               </SelectItem>
             ))}
@@ -533,9 +533,9 @@ const RegisterForm = ({ user }: { user: User }) => {
           <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Program" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 text-white border-gray-600">
+          <SelectContent className="bg-white text-black border-2 border-blue-700">
             {programTypes.map((program) => (
-              <SelectItem key={program} value={program}>
+              <SelectItem className="hover:bg-blue-100" key={program} value={program}>
                 {program}
               </SelectItem>
             ))}
@@ -577,11 +577,11 @@ const RegisterForm = ({ user }: { user: User }) => {
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select Office Type" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 text-white border-gray-600">
+              <SelectContent className="bg-white text-black border-2 border-blue-700">
                 {/* Check if officeTypes has data before rendering the dropdown */}
                 {officeTypes.length > 0 ? (
                   officeTypes.map((officeType, index) => (
-                    <SelectItem key={index} value={officeType}>
+                    <SelectItem className="hover:bg-blue-100" key={index} value={officeType}>
                       {officeType}
                     </SelectItem>
                   ))
@@ -660,9 +660,9 @@ const RegisterForm = ({ user }: { user: User }) => {
           <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Allergy" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 text-white border-gray-600">
+          <SelectContent className="bg-white text-black border-2 border-blue-700 ">
             {allergies.map((allergy) => (
-              <SelectItem key={allergy} value={allergy}>
+              <SelectItem className="hover:bg-blue-100" key={allergy} value={allergy}>
                 {allergy}
               </SelectItem>
             ))}
@@ -691,12 +691,12 @@ const RegisterForm = ({ user }: { user: User }) => {
           <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Medication" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 text-white border-gray-600">
-            <SelectItem key="None" value="None">
+          <SelectContent className="bg-white text-black border-2 border-blue-700">
+            <SelectItem className="hover:bg-blue-100" key="None" value="None">
               None
             </SelectItem>
             {medications.map((medication) => (
-              <SelectItem key={medication} value={medication}>
+              <SelectItem className="hover:bg-blue-100" key={medication} value={medication}>
                 {medication}
               </SelectItem>
             ))}
@@ -801,14 +801,14 @@ const RegisterForm = ({ user }: { user: User }) => {
           <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Family Medical History" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 text-white border-gray-600">
-            <SelectItem value="None">None</SelectItem>
+          <SelectContent className="bg-white text-black border-2 border-blue-700">
+            <SelectItem className="hover:bg-blue-100" value="None">None</SelectItem>
             {familyMedicalHistories.map((history) => (
-              <SelectItem key={history} value={history}>
+              <SelectItem className="hover:bg-blue-100" key={history} value={history}>
                 {history}
               </SelectItem>
             ))}
-            <SelectItem value="Others">Others</SelectItem>
+            <SelectItem className="hover:bg-blue-100" value="Others">Others</SelectItem>
           </SelectContent>
         </Select>
             </FormControl>
@@ -843,14 +843,14 @@ const RegisterForm = ({ user }: { user: User }) => {
             <SelectTrigger className="w-full bg-gray-50">
               <SelectValue placeholder="Select Past Medical History" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 text-white border-gray-600">
-              <SelectItem value="None">None</SelectItem>
+            <SelectContent className="bg-white text-black border-2 border-blue-700">
+              <SelectItem className="hover:bg-blue-100" value="None">None</SelectItem>
               {pastMedicalHistories.map((history) => (
                 <SelectItem key={history} value={history}>
                   {history}
                 </SelectItem>
               ))}
-              <SelectItem value="Others">Others</SelectItem>
+              <SelectItem className="hover:bg-blue-100" value="Others">Others</SelectItem>
             </SelectContent>
           </Select>
         </FormControl>
@@ -884,7 +884,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             placeholder="Select identification type"
             >
                 {IdentificationTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem className="hover:bg-blue-100" key={type} value={type}>
                     {type}
 
                     </SelectItem>

@@ -39,14 +39,14 @@ const EmployeePage = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <EmployeeSideBar userId={userId} />
+      <EmployeeSideBar userId={userId} /> 
       
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Welcome, {employee.name}!</h1>
           
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Quick Overview</h2>
+            <h2 className="text-2xl font-semibold text-blue-700 mb-4">Quick Overview</h2>
             
             <div className="grid grid-cols-2 gap-6">
               <div>
@@ -60,7 +60,7 @@ const EmployeePage = () => {
             </div>
 
             <Button 
-              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white"
+              className="mt-6 bg-blue-700 hover:bg-blue-500 text-white"
               onClick={() => router.push(`/patients/${userId}/employeeDetail`)}
             >
               View My Details

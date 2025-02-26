@@ -90,7 +90,7 @@ const MyAppointmentsPage = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search appointments..."
-                    className="pl-10 pr-4 py-2 w-full"
+                    className="pl-10 pr-4 py-2 w-full bg-white border-2 border-blue-700 text-black"
                   />
                 </div>
               </div>

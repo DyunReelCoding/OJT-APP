@@ -14,6 +14,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
   const [reason, setReason] = useState("");
   const [patientName, setPatientName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState("");
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -45,10 +46,14 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
       setDate("");
       setTime("");
       setReason("");
-      setMessage("Appointment scheduled successfully!");
+      setMessage("✅ Appointment scheduled successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error scheduling appointment:", error);
       setMessage("Failed to schedule appointment. Please try again.");
+      setMessageType("error");
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -60,7 +65,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
           type="text"
           value={patientName}
           onChange={(e) => setPatientName(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+          className="mt-1 block w-full rounded-md border-2 border-blue-700 p-2 bg-white text-black focus:outline-none"
           required
         />
       </div>
@@ -71,7 +76,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+          className="mt-1 block w-full rounded-md border-2 border-blue-700 bg-white text-black p-2 focus:outline-none placeholder-black"
           required
         />
       </div>
@@ -82,7 +87,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+          className="mt-1 block w-full rounded-md border-2 border-blue-700 bg-white text-black p-2 focus:outline-none placeholder-black"
           required
         />
       </div>
@@ -92,23 +97,28 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+          className="mt-1 block w-full rounded-md border-2 border-blue-700 bg-white text-black p-2 focus:outline-none"
           rows={4}
           required
         />
       </div>
 
       {message && (
-        <div
-          className={`text-sm font-medium ${
-            message.includes("successfully") ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {message}
-        </div>
-      )}
+            <div className="flex items-center justify-center">
+              <div
+                className={`flex px-4 py-3 rounded relative my-4 border items-center justify-center${
+                  messageType === "success"
+                    ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
+                    : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+                }`}
+              >
+                {message}
+              </div>
+            </div>
+              
+          )}
 
-      <Button type="submit" className="w-full bg-blue-600 text-white hover:bg-blue-700">
+      <Button type="submit" className="w-full bg-green-400 text-white hover:bg-green-500">
         Schedule Appointment
       </Button>
     </form>
