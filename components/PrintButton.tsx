@@ -111,13 +111,13 @@ const PrintButton = ({ student }: { student: any }) => {
     <div className="flex gap-2">
       <button
         onClick={() => generatePDF(false)}
-        className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md"
+        className="flex items-center border-2 border-red-700 hover:bg-red-700 hover:text-white text-red-700 px-4 py-2 rounded-lg shadow-md font-bold"
       >
         <FileText className="mr-2" /> Download PDF
       </button>
       <button
         onClick={() => generatePDF(true)}
-        className="flex items-center bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md"
+        className="flex items-center hover:bg-blue-700 text-blue-700 border-2 border-blue-700 hover:text-white px-4 py-2 rounded-lg shadow-md font-bold"
       >
         <Printer className="mr-2" /> Print
       </button>

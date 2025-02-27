@@ -83,14 +83,14 @@ const StudentAppointmentsPage = () => {
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-4 mb-6">
-                <div className="relative flex-1 max-w-xl">
+                <div className="relative flex-1 max-w-xl ">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <Input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search appointments..."
-                    className="pl-10 pr-4 py-2 w-full"
+                    className="pl-10 pr-4 py-2 w-full bg-white border-blue-700 text-black"
                   />
                 </div>
               </div>

@@ -6,7 +6,7 @@ import { FiArrowLeft } from 'react-icons/fi'; // Import the back arrow icon
 
 const StudentSideBar = ({ userId }: { userId: string }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const pathname = usePathname();
+  const pathname = usePathname(); 
 
   const navLinks = [
     {
@@ -37,7 +37,7 @@ const StudentSideBar = ({ userId }: { userId: string }) => {
   ];
 
   return (
-    <div className={`${isOpen ? "w-64" : "w-16"} bg-gray-900 text-white min-h-screen transition-all duration-300`}>
+    <div className={`${isOpen ? "w-64" : "w-16"} bg-white text-blue-700 min-h-screen transition-all duration-300`}>
       <div className="flex justify-between items-center p-4">
         {isOpen && <h2 className="text-xl font-bold">Student Portal</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="p-2">
@@ -50,8 +50,8 @@ const StudentSideBar = ({ userId }: { userId: string }) => {
           <Link
             key={link.href}
             href={link.href}
-            className={`flex items-center gap-2 p-4 hover:bg-gray-800 transition-colors ${
-              pathname === link.href ? "bg-gray-800" : ""
+            className={`flex items-center gap-2 p-4 hover:bg-blue-100 transition-colors ${
+              pathname === link.href ? "bg-blue-100" : ""
             }`}
           >
             {link.icon}

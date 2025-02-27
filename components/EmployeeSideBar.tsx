@@ -12,7 +12,7 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
     {
       label: "Dashboard",
       href: `/patients/${userId}/employee`,
-      icon: <Home className="w-5 h-5" />
+      icon: <Home className="w-5 h-5" /> 
     },
     {
       label: "My Details",
@@ -37,7 +37,7 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
   ];
 
   return (
-    <div className={`${isOpen ? "w-64" : "w-16"} bg-gray-900 text-white min-h-screen transition-all duration-300`}>
+    <div className={`${isOpen ? "w-64" : "w-16"} bg-white text-blue-700 min-h-screen transition-all duration-300`}>
       <div className="flex justify-between items-center p-4">
         {isOpen && <h2 className="text-xl font-bold">Employee Portal</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="p-2">
@@ -50,8 +50,8 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
           <Link
             key={link.href}
             href={link.href}
-            className={`flex items-center gap-2 p-4 hover:bg-gray-800 transition-colors ${
-              pathname === link.href ? "bg-gray-800" : ""
+            className={`flex items-center gap-2 p-4 hover:bg-blue-100 transition-colors ${
+              pathname === link.href ? "bg-blue-100" : ""
             }`}
           >
             {link.icon}
