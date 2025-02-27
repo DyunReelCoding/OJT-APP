@@ -86,7 +86,6 @@ const StudentDetail = () => {
           ["Identification Document", <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">View Document</a>]
         ] },
         { title: "Health Information", data: [
-          ["Year Level", student.yearLevel],
           ["BMI Category", student.bmiCategory],
           ["Weight", student.weight],
           ["Height", student.height],

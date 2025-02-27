@@ -41,6 +41,7 @@ interface CustomProps {
     fieldType: FormFieldType;
     backgroundColor?: string;
     radioOptionBackground?: string;
+    readOnly?: boolean;
 }
 
 const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
@@ -66,6 +67,7 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
           placeholder={placeholder}
           {...field}
           className="shad-input border-0"
+          readOnly={props.readOnly} // ✅ Now readOnly is recognized
           />
 
         </FormControl>
@@ -104,27 +106,34 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
         </div>
       </FormControl>
     )
-  case FormFieldType.DATE_PICKER:
-    return(
-      <div className={`flex rounded-md border ${backgroundColor} text-black`}>
-        <Image
-          src="/assets/icons/calendar.svg"
-          height={24}
-          width={24}
-          alt="calendar"
-          className="ml-2"
-        />
-        <FormControl>
-          <DatePicker selected={field.value} 
-          onChange={(date) => field.onChange(date) } 
-          dateFormat={dateFormat ?? 'MM/dd/yyyy'}
-          showTimeSelect={showTimeSelect ?? false}
-          timeInputLabel="Time:"
-          wrapperClassName="date-picker"
+    case FormFieldType.DATE_PICKER:
+      return (
+        <div className={`flex rounded-md border ${backgroundColor} text-black`}>
+          <Image
+            src="/assets/icons/calendar.svg"
+            height={24}
+            width={24}
+            alt="calendar"
+            className="ml-2"
           />
-        </FormControl>
-      </div>
-    ) 
+          <FormControl>
+            <DatePicker
+              selected={field.value}
+              onChange={(date) => field.onChange(date)}
+              dateFormat={dateFormat ?? 'MM/dd/yyyy'}
+              showTimeSelect={showTimeSelect ?? false}
+              timeInputLabel="Time:"
+              wrapperClassName="date-picker"
+              showYearDropdown
+              showMonthDropdown
+              dropdownMode="select"
+              yearDropdownItemNumber={100}
+              scrollableYearDropdown
+            />
+          </FormControl>
+        </div>
+      );
+    
     case FormFieldType.SELECT:
       return (
         <div className={`${backgroundColor} rounded-md border-dark-400`}>

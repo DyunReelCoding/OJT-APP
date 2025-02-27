@@ -74,19 +74,25 @@ const PatientForms = () => {
       const response = await fetch("/api/patient/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }), // Pass email here
+        body: JSON.stringify({ email }),
       });
   
       const data = await response.json();
   
       if (response.ok) {
         if (data.patient) {
-          const { patient } = data;
-          // Redirect to patient page if email exists
-          router.push(`/patients/${patient.userId}/student`);
+          const { userId, occupation } = data.patient;
+  
+          // Redirect based on occupation
+          if (occupation?.toLowerCase() === "student") {
+            router.push(`/patients/${userId}/student`);
+          } else if (occupation?.toLowerCase() === "employee") {
+            router.push(`/patients/${userId}/employee`);
+          }
         } else if (data.userId) {
           // Redirect directly to register page if patient not found
-          router.push(`/patients/${data.userId}/register`);
+          router.push(`/patients/${data.userId}/register?email=${encodeURIComponent(email)}`);
+
         }
       }
     } catch (err) {
@@ -94,6 +100,8 @@ const PatientForms = () => {
       alert("Failed to verify patient.");
     }
   };
+  
+  
   
   
   
