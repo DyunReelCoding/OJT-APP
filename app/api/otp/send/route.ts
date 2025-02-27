@@ -5,6 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes from now
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -21,10 +22,10 @@ export async function POST(req: NextRequest) {
       from: process.env.EMAIL_NAME,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP is ${otp}`,
+      text: `Your OTP is ${otp}. It will expire in 15 minutes.`,
     });
 
-    return NextResponse.json({ otp });
+    return NextResponse.json({ otp, expiresAt });
   } catch (error) {
     console.error("Error sending OTP:", error);
     return NextResponse.json({ error: "Failed to send OTP" }, { status: 500 });

@@ -24,6 +24,7 @@ import FileUploader from "../FileUploader";
 import { useEffect } from "react";
 import SuccessMessage from "../SuccessMessage";
 import { Client, Databases } from "appwrite";
+import { useSearchParams } from "next/navigation";
 
 // Load environment variables
 const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!;
@@ -56,6 +57,8 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [pastMedicalHistories, setPastMedicalHistories] = useState<string[]>([]);
   const [showFamilyOtherField, setShowFamilyOtherField] = useState(false);
   const [showPastOtherField, setShowPastOtherField] = useState(false);
+  const searchParams = useSearchParams();
+  const emailFromQuery = searchParams.get("email") || "";
 
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
@@ -66,7 +69,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       middleName: "",
       lastName: "",
       suffix: "",
-      email: "",
+      email: emailFromQuery, // Pre-fill email
       phone: "",
       weight: "",
       height: "",
@@ -330,16 +333,18 @@ const RegisterForm = ({ user }: { user: User }) => {
      </div>
       
       <div className="flex flex-col gap-6 xl:flex-row">
-        <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="email"
-            label="Email"
-            placeholder="JohnDoe@gmail.com"
-            iconSrc="/assets/icons/email.svg"
-            iconAlt="email"
-            backgroundColor="bg-gray-50"
-        />
+      <CustomFormField
+  fieldType={FormFieldType.INPUT}
+  control={form.control}
+  name="email"
+  label="Email"
+  placeholder="JohnDoe@gmail.com"
+  iconSrc="/assets/icons/email.svg"
+  iconAlt="email"
+  backgroundColor="bg-gray-50"
+  readOnly={true} // ✅ This makes the input read-only
+/>
+
         <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
             control={form.control}
@@ -496,7 +501,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           name="bmi"
           label="BMI"
           placeholder="Calculated BMI"
-          disabled={true} // Make it readonly since it's calculated automatically
+          readOnly={true}  
         />
 
       {/* Add BMI category field */}
@@ -506,7 +511,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="bmiCategory"
         label="BMI Category"
         placeholder="Normal weight"
-        disabled={true} // Disable it since it's auto-calculated
+        readOnly={true}  // Disable it since it's auto-calculated
       />
 
 </div>

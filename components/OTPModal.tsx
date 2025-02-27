@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -26,12 +26,51 @@ interface OTPModalProps {
 const OTPModal: React.FC<OTPModalProps> = ({ email, otp, onClose, onVerify }) => {
   const [inputOtp, setInputOtp] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(15 * 60 * 1000); // 15 minutes in milliseconds
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setIsExpired(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1000) {
+          clearInterval(timer);
+          setIsExpired(true);
+          return 0;
+        }
+        return prev - 1000;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (ms: number) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   const handleVerify = async () => {
+    if (isExpired) {
+      setError("OTP expired. Please log in again to request a new OTP.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
     try {
-      await onVerify(inputOtp); // Call the parent-provided verification function
+      await onVerify(inputOtp);
     } catch (err: any) {
       setError(err.message || 'Verification failed.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,8 +94,12 @@ const OTPModal: React.FC<OTPModalProps> = ({ email, otp, onClose, onVerify }) =>
           </AlertDialogDescription>
         </AlertDialogHeader>
 
+        <div className="text-center text-red-500 font-medium">
+          {isExpired ? "OTP expired. Login again to verify." : `OTP expires in: ${formatTime(timeLeft)}`}
+        </div>
+
         <div>
-          <InputOTP maxLength={6} value={inputOtp} onChange={setInputOtp}>
+          <InputOTP maxLength={6} value={inputOtp} onChange={setInputOtp} disabled={isExpired}>
             <InputOTPGroup className="shad-otp">
               {[...Array(6)].map((_, index) => (
                 <InputOTPSlot className="shad-otp-slot" key={index} index={index} />
@@ -65,7 +108,7 @@ const OTPModal: React.FC<OTPModalProps> = ({ email, otp, onClose, onVerify }) =>
           </InputOTP>
 
           {error && (
-            <p className="shad-error text-14-regular mt-4 flex justify-center">
+            <p className="shad-error text-14-regular mt-4 flex justify-center text-red-500">
               {error}
             </p>
           )}
@@ -74,9 +117,31 @@ const OTPModal: React.FC<OTPModalProps> = ({ email, otp, onClose, onVerify }) =>
         <AlertDialogFooter>
           <button
             onClick={handleVerify}
-            className="w-full py-3 text-lg font-semibold bg-green-500 text-white rounded-lg transform transition-transform active:scale-95"
+            disabled={isLoading || isExpired}
+            className={`w-full py-3 text-lg font-semibold rounded-lg transform transition-transform active:scale-95 ${
+              isLoading || isExpired ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 text-white'
+            }`}
           >
-            Verify OTP
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 01-8 8z"
+                  ></path>
+                </svg>
+                Verifying...
+              </div>
+            ) : (
+              "Verify OTP"
+            )}
           </button>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -39,6 +39,7 @@ export const PatientFormDefaultValues = {
 
 export const IdentificationTypes = [
   "Student ID Card",
+  "Employee ID Card",
   "Birth Certificate",
   "Driver's License",
   "Medical Insurance Card/Policy",

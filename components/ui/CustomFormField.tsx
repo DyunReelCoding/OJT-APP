@@ -41,6 +41,7 @@ interface CustomProps {
     fieldType: FormFieldType;
     backgroundColor?: string;
     radioOptionBackground?: string;
+    readOnly?: boolean;
 }
 
 const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
@@ -66,6 +67,7 @@ const RenderField = ({field, props}: {field:any; props:CustomProps}) => {
           placeholder={placeholder}
           {...field}
           className="shad-input border-0"
+          readOnly={props.readOnly} // ✅ Now readOnly is recognized
           />
 
         </FormControl>

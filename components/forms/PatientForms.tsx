@@ -91,7 +91,8 @@ const PatientForms = () => {
           }
         } else if (data.userId) {
           // Redirect directly to register page if patient not found
-          router.push(`/patients/${data.userId}/register`);
+          router.push(`/patients/${data.userId}/register?email=${encodeURIComponent(email)}`);
+
         }
       }
     } catch (err) {
