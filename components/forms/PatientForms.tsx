@@ -82,14 +82,12 @@ const PatientForms = () => {
       if (response.ok) {
         if (data.patient) {
           const { userId, occupation } = data.patient;
-          
+  
           // Redirect based on occupation
           if (occupation?.toLowerCase() === "student") {
             router.push(`/patients/${userId}/student`);
           } else if (occupation?.toLowerCase() === "employee") {
             router.push(`/patients/${userId}/employee`);
-          } else {
-            router.push(`/patients/${userId}/register`);
           }
         } else if (data.userId) {
           // Redirect directly to register page if patient not found
@@ -101,6 +99,7 @@ const PatientForms = () => {
       alert("Failed to verify patient.");
     }
   };
+  
   
   
   
