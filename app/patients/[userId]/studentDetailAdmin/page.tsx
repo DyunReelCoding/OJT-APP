@@ -52,15 +52,14 @@ const StudentDetail = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
+    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-white">
       <BackButton />
       <PrintButton student={student} />
-      <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>
+      <h1 className="text-3xl font-semibold text-black">{student.name}'s Details</h1>
 
       {/* Personal Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Personal Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Personal Information</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -78,8 +77,8 @@ const StudentDetail = () => {
               ["Emergency Contact Name", "emergencyContactName"],
               ["Emergency Contact Number", "emergencyContactNumber"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -96,9 +95,8 @@ const StudentDetail = () => {
       </div>
 
       {/* Medical Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Medical Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Medical Information</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -113,8 +111,8 @@ const StudentDetail = () => {
               ["Disability Type", "disabilityType"],
               ["Disability Details", "disabilityDetails"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -131,9 +129,8 @@ const StudentDetail = () => {
       </div>
 
       {/* Identification */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Identification</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Identification</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -141,8 +138,8 @@ const StudentDetail = () => {
               ["Identification Number", "identificationNumber"],
               ["School ID Number", "idNumber"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -154,8 +151,8 @@ const StudentDetail = () => {
                 </td>
               </tr>
             ))}
-            <tr className="border-b border-gray-700 last:border-none">
-              <td className="p-3 font-medium w-1/3">Identification Document</td>
+            <tr className="border border-gray-700">
+              <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">Identification Document</td>
               <td className="p-3">
                 <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
                   View Document
@@ -167,9 +164,8 @@ const StudentDetail = () => {
       </div>
 
       {/* Health Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Health Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Health Information</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -179,8 +175,8 @@ const StudentDetail = () => {
               ["Height", "height"],
               ["BMI", "bmi"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}

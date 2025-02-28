@@ -33,14 +33,14 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold text-white">Send an Email</h2>
+    <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+      <h2 className="text-xl font-semibold text-black">Send an Email</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
           value={email}
           readOnly // Prevent editing
-          className="w-full p-2 rounded-md bg-gray-700 text-white cursor-not-allowed"
+          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700 cursor-not-allowed"
         />
         <input
           type="text"
@@ -48,18 +48,18 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           required
-          className="w-full p-2 rounded-md bg-gray-700 text-white"
+          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700"
         />
         <textarea
           placeholder="Message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
-          className="w-full p-2 rounded-md bg-gray-700 text-white"
+          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700"
         ></textarea>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md"
+          className="px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-md"
         >
           Send Email
         </button>

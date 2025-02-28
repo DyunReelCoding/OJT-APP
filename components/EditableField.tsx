@@ -53,13 +53,12 @@ const EditableField: React.FC<EditableFieldProps> = ({
 
   return (
     <div className="flex items-center gap-2">
-      <strong>{label}:</strong>
       {isEditing ? (
         <input
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="border border-gray-600 bg-gray-700 text-white p-1 rounded"
+          className="border border-gray-600 bg-blue-100 text-black p-1 rounded"
         />
       ) : (
         <span>{value || "N/A"}</span>
@@ -79,7 +78,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
       ) : (
         <button
           onClick={() => setIsEditing(true)}
-          className="px-2 py-1 hover:bg-blue-600 text-white rounded flex items-center gap-1"
+          className="px-2 py-1 hover:bg-blue-700 hover:text-white text-blue-700 rounded flex items-center gap-1"
         >
           <FaPen className="text-sm" />
         </button>

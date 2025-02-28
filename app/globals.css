@@ -388,3 +388,12 @@
 .PhoneInputCountry {
   background: transparent !important;
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Makes the icon black */
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Makes the icon black */
+}
+

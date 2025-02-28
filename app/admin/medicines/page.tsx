@@ -49,7 +49,7 @@ const MedicinesPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
+
   const databases = new Databases(client);
 
   useEffect(() => {
@@ -71,8 +71,8 @@ const MedicinesPage = () => {
 
   const addMedicine = async () => {
     // Validate all required fields
-    if (!newMedicine.name || !newMedicine.brand || !newMedicine.category || 
-        !newMedicine.stock || !newMedicine.location || !newMedicine.expiryDate) {
+    if (!newMedicine.name || !newMedicine.brand || !newMedicine.category ||
+      !newMedicine.stock || !newMedicine.location || !newMedicine.expiryDate) {
       setMessage("Please fill in all required fields");
       return;
     }
@@ -93,7 +93,7 @@ const MedicinesPage = () => {
         ID.unique(),
         medicineData
       );
-      
+
       setMedicines([...medicines, response]);
       setFilteredMedicines([...medicines, response]);
       setNewMedicine({
@@ -149,21 +149,21 @@ const MedicinesPage = () => {
   const handleDelete = async () => {
     console.log("Attempting to delete medicine:", medicineToDelete);
     if (!medicineToDelete) return;
-    
+
     try {
       console.log("Database ID:", process.env.NEXT_PUBLIC_DATABASE_ID);
       console.log("Collection ID:", MEDICINES_COLLECTION_ID);
-      
+
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         MEDICINES_COLLECTION_ID,
         medicineToDelete
       );
-      
+
       // Update local state to remove the deleted medicine
       setMedicines(medicines.filter(m => m.$id !== medicineToDelete));
       setFilteredMedicines(filteredMedicines.filter(m => m.$id !== medicineToDelete));
-      
+
       console.log("Medicine deleted successfully");
       setMessage("✅ Medicine deleted successfully!");
       setMessageType("success");
@@ -179,7 +179,7 @@ const MedicinesPage = () => {
   };
 
   useEffect(() => {
-    const filtered = medicines.filter(medicine => 
+    const filtered = medicines.filter(medicine =>
       medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       medicine.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
       medicine.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -203,7 +203,7 @@ const MedicinesPage = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
-      
+
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
@@ -212,7 +212,7 @@ const MedicinesPage = () => {
               <h1 className="text-3xl font-bold text-blue-700">Medicines Inventory</h1>
               <p className="text-gray-600 mt-2">Manage medicine stock and inventory</p>
             </div>
-            <Button 
+            <Button
               onClick={fetchMedicines}
               variant="outline"
               className="flex items-center gap-2 text-white bg-green-500"
@@ -223,18 +223,14 @@ const MedicinesPage = () => {
 
           {/* Alert Message */}
           {message && (
-            <div className="flex items-center justify-center">
-              <div
-                className={`flex px-4 py-3 rounded relative my-4 border items-center justify-center${
-                  messageType === "success"
-                    ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
-                    : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+            <div
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success"
+                ? " bg-green-100 border-green-400 text-green-700"
+                : " bg-red-100 border-red-400 text-red-700"
                 }`}
-              >
-                {message}
-              </div>
+            >
+              {message}
             </div>
-              
           )}
 
           {/* Add Medicine Form */}
@@ -244,7 +240,7 @@ const MedicinesPage = () => {
               <Input
                 type="text"
                 value={newMedicine.name}
-                onChange={(e) => setNewMedicine({...newMedicine, name: e.target.value})}
+                onChange={(e) => setNewMedicine({ ...newMedicine, name: e.target.value })}
                 placeholder="Medicine Name"
                 className="border-blue-700 bg-white focus:ring-0 focus:outline-none"
                 required
@@ -252,7 +248,7 @@ const MedicinesPage = () => {
               <Input
                 type="text"
                 value={newMedicine.brand}
-                onChange={(e) => setNewMedicine({...newMedicine, brand: e.target.value})}
+                onChange={(e) => setNewMedicine({ ...newMedicine, brand: e.target.value })}
                 placeholder="Brand"
                 className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
@@ -260,7 +256,7 @@ const MedicinesPage = () => {
               <Input
                 type="text"
                 value={newMedicine.category}
-                onChange={(e) => setNewMedicine({...newMedicine, category: e.target.value})}
+                onChange={(e) => setNewMedicine({ ...newMedicine, category: e.target.value })}
                 placeholder="Category"
                 className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
@@ -268,7 +264,7 @@ const MedicinesPage = () => {
               <Input
                 type="text"
                 value={newMedicine.stock}
-                onChange={(e) => setNewMedicine({...newMedicine, stock: e.target.value})}
+                onChange={(e) => setNewMedicine({ ...newMedicine, stock: e.target.value })}
                 placeholder="Stock Level (low/medium/high)"
                 className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
@@ -276,7 +272,7 @@ const MedicinesPage = () => {
               <Input
                 type="text"
                 value={newMedicine.location}
-                onChange={(e) => setNewMedicine({...newMedicine, location: e.target.value})}
+                onChange={(e) => setNewMedicine({ ...newMedicine, location: e.target.value })}
                 placeholder="Location"
                 className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
@@ -284,12 +280,12 @@ const MedicinesPage = () => {
               <Input
                 type="date"
                 value={newMedicine.expiryDate}
-                onChange={(e) => setNewMedicine({...newMedicine, expiryDate: e.target.value})}
+                onChange={(e) => setNewMedicine({ ...newMedicine, expiryDate: e.target.value })}
                 className="text-gray-400 border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
-              <Button 
-                onClick={addMedicine} 
+              <Button
+                onClick={addMedicine}
                 className="bg-blue-700 hover:bg-blue-800 col-span-3 text-white"
               >
                 <Plus className="mr-2 h-5 w-5" /> Add Medicine
@@ -300,7 +296,7 @@ const MedicinesPage = () => {
           {/* Search Bar */}
           <div className="flex  gap-4 mb-8 z-0 items-center justify-center">
             <div className="relative w-1/2 flex items-center justify-center ">
-            <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <Search size={20} className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <Input
                 type="text"
                 value={searchTerm}
@@ -332,9 +328,10 @@ const MedicinesPage = () => {
                       <td className="px-6 py-4 text-black">
                         {editingId === medicine.$id ? (
                           <Input
+                            className="bg-blue-50 border-blue-300"
                             value={medicine.name}
-                            onChange={(e) => setMedicines(medicines.map(m => 
-                              m.$id === medicine.$id ? {...m, name: e.target.value} : m
+                            onChange={(e) => setMedicines(medicines.map(m =>
+                              m.$id === medicine.$id ? { ...m, name: e.target.value } : m
                             ))}
                           />
                         ) : (
@@ -344,9 +341,10 @@ const MedicinesPage = () => {
                       <td className="px-6 py-4 text-black">
                         {editingId === medicine.$id ? (
                           <Input
+                            className="bg-blue-50 border-blue-300"
                             value={medicine.brand}
-                            onChange={(e) => setMedicines(medicines.map(m => 
-                              m.$id === medicine.$id ? {...m, brand: e.target.value} : m
+                            onChange={(e) => setMedicines(medicines.map(m =>
+                              m.$id === medicine.$id ? { ...m, brand: e.target.value } : m
                             ))}
                           />
                         ) : (
@@ -357,8 +355,9 @@ const MedicinesPage = () => {
                         {editingId === medicine.$id ? (
                           <Input
                             value={medicine.category}
-                            onChange={(e) => setMedicines(medicines.map(m => 
-                              m.$id === medicine.$id ? {...m, category: e.target.value} : m
+                            className="bg-blue-50 border-blue-300"
+                            onChange={(e) => setMedicines(medicines.map(m =>
+                              m.$id === medicine.$id ? { ...m, category: e.target.value } : m
                             ))}
                           />
                         ) : (
@@ -369,9 +368,10 @@ const MedicinesPage = () => {
                         {editingId === medicine.$id ? (
                           <Input
                             type="number"
+                            className="bg-blue-50 border-blue-300"
                             value={medicine.stock}
-                            onChange={(e) => setMedicines(medicines.map(m => 
-                              m.$id === medicine.$id ? {...m, stock: e.target.value} : m
+                            onChange={(e) => setMedicines(medicines.map(m =>
+                              m.$id === medicine.$id ? { ...m, stock: e.target.value } : m
                             ))}
                           />
                         ) : (
@@ -382,8 +382,9 @@ const MedicinesPage = () => {
                         {editingId === medicine.$id ? (
                           <Input
                             value={medicine.location}
-                            onChange={(e) => setMedicines(medicines.map(m => 
-                              m.$id === medicine.$id ? {...m, location: e.target.value} : m
+                            className="bg-blue-50 border-blue-300"
+                            onChange={(e) => setMedicines(medicines.map(m =>
+                              m.$id === medicine.$id ? { ...m, location: e.target.value } : m
                             ))}
                           />
                         ) : (
@@ -394,9 +395,10 @@ const MedicinesPage = () => {
                         {editingId === medicine.$id ? (
                           <Input
                             type="date"
+                            className="bg-blue-50 border-blue-300"
                             value={medicine.expiryDate}
-                            onChange={(e) => setMedicines(medicines.map(m => 
-                              m.$id === medicine.$id ? {...m, expiryDate: e.target.value} : m
+                            onChange={(e) => setMedicines(medicines.map(m =>
+                              m.$id === medicine.$id ? { ...m, expiryDate: e.target.value } : m
                             ))}
                           />
                         ) : (
@@ -406,24 +408,24 @@ const MedicinesPage = () => {
                       <td className="px-6 py-4 text-black">
                         <div className="flex gap-2">
                           {editingId === medicine.$id ? (
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="icon"
                               onClick={() => updateMedicine(medicine.$id, medicine)}
                             >
                               <CheckCircle className="text-green-500" />
                             </Button>
                           ) : (
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="icon"
                               onClick={() => setEditingId(medicine.$id)}
                             >
                               <Edit className="text-blue-500" />
                             </Button>
                           )}
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="icon"
                             onClick={() => openDeleteDialog(medicine.$id)}
                           >

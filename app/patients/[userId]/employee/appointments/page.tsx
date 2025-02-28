@@ -23,7 +23,7 @@ const EmployeeAppointmentsPage = () => {
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-blue-700 mb-8">Schedule New Appointment</h1>
-          <AppointmentForm userId={userId} />
+          <AppointmentForm userId={userId} /> 
         </div>
       </div>
     </div>

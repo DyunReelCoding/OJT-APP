@@ -1,0 +1,7 @@
+<AppointmentForm 
+  userId={userId}
+  firstName={user.firstName}
+  middleName={user.middleName}
+  lastName={user.lastName}
+  suffix={user.suffix}
+/> 
