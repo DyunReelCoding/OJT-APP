@@ -58,21 +58,34 @@ const OTPModal: React.FC<OTPModalProps> = ({ email, otp, onClose, onVerify }) =>
 
   const handleVerify = async () => {
     if (isExpired) {
-      setError("OTP expired. Please log in again to request a new OTP.");
+      setError("OTP expired. Please request a new OTP.");
       return;
     }
-
+  
     setIsLoading(true);
     setError('');
-
+  
     try {
-      await onVerify(inputOtp);
-    } catch (err: any) {
-      setError(err.message || 'Verification failed.');
+      const response = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, enteredOtp: inputOtp }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        await onVerify(inputOtp); // Call parent function if verification is successful
+      } else {
+        setError(data.error || "Verification failed.");
+      }
+    } catch (err) {
+      setError("Failed to verify OTP.");
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <AlertDialog open onOpenChange={onClose}>

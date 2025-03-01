@@ -65,34 +65,40 @@ const PatientForms = () => {
   };
 
   const handleOtpVerification = async (enteredOtp: string) => {
-    if (enteredOtp !== otp) {
-      alert("Invalid OTP.");
-      return;
-    }
-  
     try {
-      const response = await fetch("/api/patient/check", {
+      const response = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, enteredOtp }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        alert(data.error || "Invalid OTP.");
+        return;
+      }
+  
+      // Proceed with patient verification after OTP validation
+      const checkResponse = await fetch("/api/patient/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
   
-      const data = await response.json();
+      const checkData = await checkResponse.json();
   
-      if (response.ok) {
-        if (data.patient) {
-          const { userId, occupation } = data.patient;
+      if (checkResponse.ok) {
+        if (checkData.patient) {
+          const { userId, occupation } = checkData.patient;
   
-          // Redirect based on occupation
           if (occupation?.toLowerCase() === "student") {
             router.push(`/patients/${userId}/student`);
           } else if (occupation?.toLowerCase() === "employee") {
             router.push(`/patients/${userId}/employee`);
           }
-        } else if (data.userId) {
-          // Redirect directly to register page if patient not found
-          router.push(`/patients/${data.userId}/register?email=${encodeURIComponent(email)}`);
-
+        } else if (checkData.userId) {
+          router.push(`/patients/${checkData.userId}/register?email=${encodeURIComponent(email)}`);
         }
       }
     } catch (err) {
@@ -100,6 +106,7 @@ const PatientForms = () => {
       alert("Failed to verify patient.");
     }
   };
+  
   
   
   

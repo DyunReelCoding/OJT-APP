@@ -1,38 +1,36 @@
-import { NextResponse } from "next/server";
-import { Client, Databases } from "appwrite";
+import { NextRequest, NextResponse } from "next/server";
+import { Client, Databases, Query } from "node-appwrite";
 
-const client = new Client()
-  .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
-  .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-
-const databases = new Databases(client);
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { email, otp, enteredOtp } = await req.json();
+    const { email, enteredOtp } = await req.json();
 
-    if (otp !== enteredOtp) {
+    const client = new Client()
+      .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT as string)
+      .setProject(process.env.NEXT_PUBLIC_PROJECT_ID as string)
+      .setKey(process.env.API_KEY as string);
+
+    const databases = new Databases(client);
+
+    const otpDocs = await databases.listDocuments(
+      process.env.DATABASE_ID as string,
+      process.env.NEXT_PUBLIC_OTP_COLLECTION_ID as string,
+      [Query.equal("email", email), Query.equal("otp", enteredOtp)]
+    );
+
+    if (otpDocs.total === 0) {
       return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
     }
 
-    const response = await databases.listDocuments(
-      process.env.NEXT_PUBLIC_DATABASE_ID!,
-      process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
-      [`equal("email", "${email}")`]
-    );
+    const otpData = otpDocs.documents[0];
 
-    if (response.documents.length > 0) {
-      const patient = response.documents[0];
-      if (patient.occupation === "student") {
-        return NextResponse.json({
-          redirectUrl: `/patients/${patient.$id}/student`,
-        });
-      }
+    if (Date.now() > otpData.expiresAt) {
+      return NextResponse.json({ error: "OTP expired" }, { status: 400 });
     }
 
-    return NextResponse.json({ message: "Verification successful" });
+    return NextResponse.json({ message: "OTP verified successfully" });
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    return NextResponse.json({ error: "Verification failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to verify OTP" }, { status: 500 });
   }
 }
