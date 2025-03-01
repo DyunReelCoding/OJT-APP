@@ -787,109 +787,251 @@ const RegisterForm = ({ user }: { user: User }) => {
 
       <div className="flex flex-col gap-6 xl:flex-row">
      {/* Family Medical History */}
-{/* Family Medical History */}
-<CustomFormField
-  fieldType={FormFieldType.SKELETON}
-  control={form.control}
-  name="familyMedicalHistory"
-  label="Family Medical History"
-  renderSkeleton={() => (
-    <div className="text-black">
-      <FormControl>
-        <Select
-          onValueChange={(value) => {
-            setShowFamilyOtherField(value === "Others");
-            form.setValue("familyMedicalHistory", value === "Others" ? "" : value);
-          }}
-          value={showFamilyOtherField ? "Others" : form.watch("familyMedicalHistory") || ""}
-        >
-          <SelectTrigger className="w-full bg-gray-50">
-            <SelectValue placeholder="Select Family Medical History" />
-          </SelectTrigger>
-          <SelectContent className="bg-white text-black border-2 border-blue-700">
-            <SelectItem className="hover:bg-blue-100" value="None">None</SelectItem>
-            {familyMedicalHistories.map((history) => (
-              <SelectItem className="hover:bg-blue-100" key={history} value={history}>
-                {history}
-              </SelectItem>
-            ))}
-            <SelectItem className="hover:bg-blue-100" value="Others">Others</SelectItem>
-          </SelectContent>
-        </Select>
-      </FormControl>
-    </div>
-  )}
-/>
-
-{showFamilyOtherField && (
-  <CustomFormField
-    fieldType={FormFieldType.TEXTAREA}
-    control={form.control}
-    name="familyMedicalHistory"
-    label="Specify Family Medical History"
-    placeholder="Please specify..."
-    renderSkeleton={() => (
-      <textarea
-        className="w-full p-2 border border-gray-300 rounded"
-        {...form.register("familyMedicalHistory")}
-        placeholder="Please specify..."
-      />
-    )}
-  />
-)}
-
-
 {/* Past Medical History */}
 <CustomFormField
   fieldType={FormFieldType.SKELETON}
   control={form.control}
   name="pastMedicalHistory"
   label="Past Medical History"
-  renderSkeleton={() => (
-    <div className="text-black">
-      <FormControl>
-        <Select
-          onValueChange={(value) => {
-            setShowPastOtherField(value === "Others");
-            form.setValue("pastMedicalHistory", value === "Others" ? "" : value);
-          }}
-          value={showPastOtherField ? "Others" : form.watch("pastMedicalHistory") || ""}
-        >
-          <SelectTrigger className="w-full bg-gray-50">
-            <SelectValue placeholder="Select Past Medical History" />
-          </SelectTrigger>
-          <SelectContent className="bg-white text-black border-2 border-blue-700">
-            <SelectItem className="hover:bg-blue-100" value="None">None</SelectItem>
-            {pastMedicalHistories.map((history) => (
-              <SelectItem key={history} value={history}>
-                {history}
-              </SelectItem>
-            ))}
-            <SelectItem value="Others">Others</SelectItem>
-          </SelectContent>
-        </Select>
-      </FormControl>
-    </div>
-  )}
+  renderSkeleton={() => {
+    const selectedHistory = form.watch("pastMedicalHistory");
+    const selectedArray = typeof selectedHistory === "string" ? selectedHistory.split(",") : [];
+    const isNoneSelected = selectedArray.includes("None");
+    const isOthersSelected = selectedArray.includes("Others");
+
+    // Format selected items for dropdown display
+    const displayText =
+      selectedArray.length > 3
+        ? `${selectedArray.slice(0, 3).join(", ")}...`
+        : selectedArray.join(", ") || "Select Past Medical History";
+
+    return (
+      <div className="text-black">
+        <FormControl>
+          <Select
+            onValueChange={() => {}}
+            value={selectedHistory || ""}
+          >
+            <SelectTrigger className="w-full bg-gray-50">
+              <SelectValue>{displayText}</SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-white text-black border-2 border-blue-700">
+              <div className="flex flex-col gap-2 p-2">
+                {/* None Option */}
+                <label htmlFor="None" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    id="None"
+                    name="pastMedicalHistory"
+                    className="peer hidden"
+                    checked={isNoneSelected}
+                    onChange={() => {
+                      form.setValue("pastMedicalHistory", "None");
+                      setShowPastOtherField(false);
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isNoneSelected ? "bg-black" : ""}`} />
+                  None
+                </label>
+
+                {/* Past Medical History Options */}
+                {pastMedicalHistories.map((history) => (
+                  <label key={history} htmlFor={history} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id={history}
+                      className="peer hidden"
+                      checked={selectedArray.includes(history)}
+                      onChange={(e) => {
+                        let updatedSelection;
+
+                        if (e.target.checked) {
+                          updatedSelection = [...selectedArray.filter(item => item !== "None" && item !== "Others"), history];
+                          setShowPastOtherField(false);
+                        } else {
+                          updatedSelection = selectedArray.filter(item => item !== history);
+                        }
+
+                        form.setValue("pastMedicalHistory", updatedSelection.length ? updatedSelection.join(",") : "");
+                      }}
+                    />
+                    <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${selectedArray.includes(history) ? "bg-black" : ""}`} />
+                    {history}
+                  </label>
+                ))}
+
+                {/* Others Option */}
+                <label htmlFor="Others" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="Others"
+                    className="peer hidden"
+                    checked={isOthersSelected}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        form.setValue("pastMedicalHistory", "Others");
+                        form.setValue("pastMedicalHistory", ""); // Clear the textarea when selecting "Others"
+                        setShowPastOtherField(true);
+                      } else {
+                        form.setValue("pastMedicalHistory", "");
+                        setShowPastOtherField(false);
+                      }
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isOthersSelected ? "bg-black" : ""}`} />
+                  Others
+                </label>
+              </div>
+            </SelectContent>
+          </Select>
+        </FormControl>
+
+        {/* Show Textarea if "Others" is selected */}
+        {showPastOtherField && (
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="pastMedicalHistory"
+            label="Specify Past Medical History"
+            placeholder="Please specify..."
+            renderSkeleton={() => (
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded"
+                {...form.register("pastMedicalHistory")}
+                placeholder="Please specify..."
+              />
+            )}
+          />
+        )}
+      </div>
+    );
+  }}
 />
 
 
-{showPastOtherField && (
-  <CustomFormField
-    fieldType={FormFieldType.TEXTAREA}
-    control={form.control}
-    name="pastMedicalHistory"
-    label="Specify Past Medical History"
-    placeholder="Please specify..."
-    renderSkeleton={() => (
-      <textarea
-        className="w-full p-2 border border-gray-300 rounded"
-        {...form.register("pastMedicalHistory")}
-        placeholder="Please specify..."
-      />
-    )}
-  />
-)}
+{/* Family Medical History */}
+<CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="familyMedicalHistory"
+  label="Family Medical History"
+  renderSkeleton={() => {
+    const selectedHistory = form.watch("familyMedicalHistory");
+    const selectedArray = typeof selectedHistory === "string" ? selectedHistory.split(",") : [];
+    const isNoneSelected = selectedArray.includes("None");
+    const isOthersSelected = selectedArray.includes("Others");
+
+    // Format selected items for dropdown display
+    const displayText =
+      selectedArray.length > 3
+        ? `${selectedArray.slice(0, 3).join(", ")}...`
+        : selectedArray.join(", ") || "Select Family Medical History";
+
+    return (
+      <div className="text-black">
+        <FormControl>
+          <Select
+            onValueChange={() => {}}
+            value={selectedHistory || ""}
+          >
+            <SelectTrigger className="w-full bg-gray-50">
+              <SelectValue>{displayText}</SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-white text-black border-2 border-blue-700">
+              <div className="flex flex-col gap-2 p-2">
+                {/* None Option */}
+                <label htmlFor="None" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    id="None"
+                    name="familyMedicalHistory"
+                    className="peer hidden"
+                    checked={isNoneSelected}
+                    onChange={() => {
+                      form.setValue("familyMedicalHistory", "None");
+                      setShowFamilyOtherField(false);
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isNoneSelected ? "bg-black" : ""}`} />
+                  None
+                </label>
+
+                {/* Family Medical History Options */}
+                {familyMedicalHistories.map((history) => (
+                  <label key={history} htmlFor={history} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id={history}
+                      className="peer hidden"
+                      checked={selectedArray.includes(history)}
+                      onChange={(e) => {
+                        let updatedSelection;
+
+                        if (e.target.checked) {
+                          updatedSelection = [...selectedArray.filter(item => item !== "None" && item !== "Others"), history];
+                          setShowFamilyOtherField(false);
+                        } else {
+                          updatedSelection = selectedArray.filter(item => item !== history);
+                        }
+
+                        form.setValue("familyMedicalHistory", updatedSelection.length ? updatedSelection.join(",") : "");
+                      }}
+                    />
+                    <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${selectedArray.includes(history) ? "bg-black" : ""}`} />
+                    {history}
+                  </label>
+                ))}
+
+                {/* Others Option */}
+                <label htmlFor="Others" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="Others"
+                    className="peer hidden"
+                    checked={isOthersSelected}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        form.setValue("familyMedicalHistory", "Others");
+                        form.setValue("familyMedicalHistory", ""); // Clear the textarea when selecting "Others"
+                        setShowFamilyOtherField(true);
+                      } else {
+                        form.setValue("familyMedicalHistory", "");
+                        setShowFamilyOtherField(false);
+                      }
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isOthersSelected ? "bg-black" : ""}`} />
+                  Others
+                </label>
+              </div>
+            </SelectContent>
+          </Select>
+        </FormControl>
+
+        {/* Show Textarea if "Others" is selected */}
+        {showFamilyOtherField && (
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="familyMedicalHistory"
+            label="Specify Family Medical History"
+            placeholder="Please specify..."
+            renderSkeleton={() => (
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded"
+                {...form.register("familyMedicalHistory")}
+                placeholder="Please specify..."
+              />
+            )}
+          />
+        )}
+      </div>
+    );
+  }}
+/>
+
+
+
 
       </div>
 
