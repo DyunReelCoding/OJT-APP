@@ -17,20 +17,46 @@ const StudentListPrintButton = ({ filteredStudents, filterType, view }: StudentL
   const handlePrint = () => {
     if (printRef.current) {
       const printContent = printRef.current.innerHTML;
-      const originalContent = document.body.innerHTML;
-      document.body.innerHTML = printContent;
-      window.print();
-      document.body.innerHTML = originalContent;
-      window.location.reload();
+      const newWindow = window.open("", "_blank");
+  
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>Print List</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+              </style>
+            </head>
+            <body>
+              ${printContent}
+              <script>
+                window.onload = function() {
+                  window.print();
+                };
+                window.onafterprint = function() {
+                  window.close();
+                };
+              </script>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      }
     }
   };
+  
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
 
     // Title
     doc.setFontSize(16);
-    doc.text("Student List", 105, 15, { align: "center" });
+    doc.text(view === "employee" ? "Employee List" : "Student List", 105, 15, { align: "center" });
+
 
     if (filterType) {
       doc.setFontSize(12);
@@ -84,7 +110,7 @@ const StudentListPrintButton = ({ filteredStudents, filterType, view }: StudentL
           onClick={handlePrint}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
-          <Printer size={20} className="mr-2" /> Print Student List
+          <Printer size={20} className="mr-2" /> Print List
         </button>
 
         {/* PDF Download Button */}
@@ -98,7 +124,7 @@ const StudentListPrintButton = ({ filteredStudents, filterType, view }: StudentL
 
       {/* Hidden print section */}
       <div ref={printRef} className="hidden print:block">
-        <h2 className="text-center text-xl font-semibold mb-4">Student List</h2>
+        <h2 className="text-center text-xl font-semibold mb-4">{view === "employee" ? "Employee List" : "Student List"}</h2>
 
         {/* Display selected filter type */}
         {filterType && (
