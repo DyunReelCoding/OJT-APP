@@ -200,11 +200,12 @@ const AppointmentsPage = () => {
                             <option value="Cancelled">Cancelled</option>
                           </select>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-red-700">
+                        <td className="px-4 py-4 whitespace-nowrap text-red-700">
                           <Button
                             onClick={() => openDeleteDialog(appointment.$id)}
                             variant="destructive"
                             size="sm"
+                            className=" hover:bg-red-700 hover:text-white px-5"
                           >
                             Delete
                           </Button>
