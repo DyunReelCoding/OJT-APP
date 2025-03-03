@@ -17,6 +17,7 @@ const StudentPage = () => {
   const router = useRouter();
   const userId = params.userId as string;
   const [student, setStudent] = useState<any>(null);
+  const [appointments, setAppointments] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -32,7 +33,23 @@ const StudentPage = () => {
       }
     };
 
+    const fetchAppointments = async () => {
+      try {
+        const response = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          "67b96b0800349392bb1c" // Replace with your appointment collection ID
+        );
+        const userAppointments = response.documents.filter(
+          (doc: any) => doc.userid === userId
+        );
+        setAppointments(userAppointments);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
+
     fetchStudent();
+    fetchAppointments();
   }, [userId]);
 
   if (!student) return <div>Loading...</div>;
@@ -59,6 +76,28 @@ const StudentPage = () => {
               </div>
             </div>
 
+            {/* Display Diet Recommendation */}
+            {student.dietRecommendation && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold text-green-700 mb-2">Diet Recommendation</h3>
+                <p className="text-gray-800">{student.dietRecommendation}</p>
+              </div>
+            )}
+
+            {/* Display Diagnosis Details */}
+            {appointments.map((appointment) => (
+              appointment.status === "Completed" && appointment.diagnosis && (
+                <div key={appointment.$id} className="mt-6">
+                  <h3 className="text-xl font-semibold text-green-700 mb-2">Diagnosis Details</h3>
+                  <p className="text-gray-800"><strong>Date:</strong> {appointment.date}</p>
+                  <p className="text-gray-800"><strong>Time:</strong> {appointment.time}</p>
+                  <p className="text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                  <p className="text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                  <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                </div>
+              )
+            ))}
+
             <Button 
               className="mt-6 bg-blue-700 hover:bg-blue-500 text-white"
               onClick={() => router.push(`/patients/${userId}/studentDetail`)}
@@ -72,4 +111,4 @@ const StudentPage = () => {
   );
 };
 
-export default StudentPage; 
+export default StudentPage;

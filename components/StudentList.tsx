@@ -7,10 +7,6 @@ import StudentListPrintButton from "./StudentListButton";
 import { FaEnvelope } from "react-icons/fa";
 import EmailForm from "@/components/EmailForm";
 
-// type StudentListProps = {
-//   students: any[]; // Replace `any` with a proper type if available
-// };
-
 const StudentList = () => {
   const [students, setStudents] = useState<any[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
@@ -21,11 +17,14 @@ const StudentList = () => {
   const [emails, setEmails] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [view, setView] = useState("student");
+  const [bmiCategory, setBmiCategory] = useState("");
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [dietRecommendation, setDietRecommendation] = useState("");
   const studentsPerPage = 5;
   const router = useRouter();
 
-  
-  // ✅ Fetch students when the component mounts
+  // Fetch students when the component mounts
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -42,7 +41,7 @@ const StudentList = () => {
     fetchStudents();
   }, []);
 
-  // 🔎 Filter students whenever dependencies change
+  // Filter students whenever dependencies change
   useEffect(() => {
     const normalizeOccupation = (occupation: string) => occupation.toLowerCase().replace(/s$/, "");
 
@@ -54,7 +53,9 @@ const StudentList = () => {
       filtered = filtered.filter((student) => normalizeOccupation(student.occupation) === "employee");
     }
 
-    if (filterType) {
+    if (filterType === "bmiCategory" && bmiCategory) {
+      filtered = filtered.filter((student) => student.bmiCategory === bmiCategory);
+    } else if (filterType) {
       filtered = filtered.filter((student) =>
         student[filterType]?.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -73,7 +74,7 @@ const StudentList = () => {
     setFilteredStudents(filtered);
     setEmails(filtered.map((student) => student.email));
     setCurrentPage(0);
-  }, [students, searchQuery, filterType, view]);
+  }, [students, searchQuery, filterType, view, bmiCategory]);
 
   const startIndex = currentPage * studentsPerPage;
   const paginatedStudents = filteredStudents.slice(startIndex, startIndex + studentsPerPage);
@@ -82,6 +83,69 @@ const StudentList = () => {
     setLoadingId(studentId);
     router.push(`/patients/${studentId}/studentDetailAdmin`);
   };
+
+  // Function to send diet recommendation to a single student
+  const sendDietRecommendation = async () => {
+    if (!selectedStudentId || !dietRecommendation) return;
+
+    try {
+      const res = await fetch(`/api/students/${selectedStudentId}/recommendation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ dietRecommendation }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("API Error:", errorData);
+        throw new Error("Failed to send recommendation");
+      }
+
+      alert("Diet recommendation sent successfully!");
+      setIsRecommendationModalOpen(false);
+      setDietRecommendation("");
+    } catch (err) {
+      console.error("Error sending recommendation:", err);
+      alert("Failed to send recommendation");
+    }
+  };
+
+  // Function to send diet recommendation to all students in the current filtered list
+  const sendBulkRecommendation = async () => {
+    if (!dietRecommendation) return;
+  
+    try {
+      const res = await fetch(`/api/students/bulk-recommendation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentIds: filteredStudents.map((student) => student.$id),
+          dietRecommendation,
+        }),
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("API Error:", errorData);
+        throw new Error("Failed to send bulk recommendation");
+      }
+  
+      const data = await res.json();
+      console.log("Bulk recommendation response:", data);
+  
+      alert("Bulk recommendation sent successfully!");
+      setIsRecommendationModalOpen(false);
+      setDietRecommendation("");
+    } catch (err) {
+      console.error("Error sending bulk recommendation:", err);
+      alert("Failed to send bulk recommendation");
+    }
+  };
+  
 
   return (
     <section className="student-list w-full px-6">
@@ -111,6 +175,19 @@ const StudentList = () => {
         <div className="w-96 mt-2">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
         </div>
+        {filterType === "bmiCategory" && (
+          <select
+            className="w-96 p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm mt-2 focus:outline-none"
+            value={bmiCategory}
+            onChange={(e) => setBmiCategory(e.target.value)}
+          >
+            <option value="">Select BMI Category</option>
+            <option value="Underweight">Underweight</option>
+            <option value="Normal">Normal</option>
+            <option value="Overweight">Overweight</option>
+            <option value="Obese">Obese</option>
+          </select>
+        )}
         <input
           type="text"
           placeholder="Search..."
@@ -139,6 +216,9 @@ const StudentList = () => {
                   <th className="py-3 px-6">Office</th>
                 )}
                 {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
+                {(filterType === "allergies" || filterType === "bmiCategory") && (
+                  <th className="py-3 px-6">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -160,10 +240,53 @@ const StudentList = () => {
                     <td className="py-3 px-6">{student.office}</td>
                   )}
                   {filterType && <td className="py-3 px-6">{student[filterType] ?? "N/A"}</td>}
+                  {(filterType === "allergies" || filterType === "bmiCategory") && (
+                    <td className="py-3 px-6">
+                      <button
+                        onClick={() => {
+                          setSelectedStudentId(student.$id);
+                          setIsRecommendationModalOpen(true);
+                        }}
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                      >
+                        Send Recommendation
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Recommendation Modal */}
+      {isRecommendationModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-md max-w-md w-full">
+            <h2 className="text-xl font-semibold mb-4">Send Diet Recommendation</h2>
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-lg mb-4"
+              placeholder="Enter diet recommendation..."
+              value={dietRecommendation}
+              onChange={(e) => setDietRecommendation(e.target.value)}
+              rows={5}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsRecommendationModalOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={filteredStudents.length > 1 ? sendBulkRecommendation : sendDietRecommendation}
+                className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600"
+              >
+                {filteredStudents.length > 1 ? "Send to All" : "Send"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
