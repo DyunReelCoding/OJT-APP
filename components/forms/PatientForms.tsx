@@ -79,6 +79,13 @@ const PatientForms = () => {
         return;
       }
   
+      // **Delete OTP record after successful verification**
+      await fetch("/api/otp/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+  
       // Proceed with patient verification after OTP validation
       const checkResponse = await fetch("/api/patient/check", {
         method: "POST",
@@ -106,10 +113,6 @@ const PatientForms = () => {
       alert("Failed to verify patient.");
     }
   };
-  
-  
-  
-  
   
   
   return (
