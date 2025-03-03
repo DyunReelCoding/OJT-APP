@@ -6,6 +6,10 @@ import SideBar from "@/components/SideBar";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Appointment {
   $id: string;
@@ -15,6 +19,12 @@ interface Appointment {
   reason: string;
   status: "Scheduled" | "Completed" | "Cancelled";
   userid: string;
+  cancellationReason?: string;
+  diagnosis?: {
+    bloodPressure: string;
+    chiefComplaint: string;
+    notes: string;
+  };
 }
 
 const CalendarPage = () => {
@@ -23,6 +33,13 @@ const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'day'>('month');
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<"Cancelled" | "Completed" | null>(null);
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [chiefComplaint, setChiefComplaint] = useState("");
+  const [notes, setNotes] = useState("");
+  const [cancellationReason, setCancellationReason] = useState("");
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -76,19 +93,67 @@ const CalendarPage = () => {
   };
 
   const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    if (newStatus === "Cancelled" || newStatus === "Completed") {
+      setSelectedAppointmentId(appointmentId);
+      setSelectedStatus(newStatus);
+      setIsModalOpen(true);
+    } else {
+      try {
+        await databases.updateDocument(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          "67b96b0800349392bb1c",
+          appointmentId,
+          { status: newStatus }
+        );
+        fetchAppointments();
+      } catch (error) {
+        console.error("Error updating appointment status:", error);
+        alert("Failed to update appointment status");
+      }
+    }
+  };
+  const handleModalSubmit = async () => {
+    if (!selectedAppointmentId || !selectedStatus) return;
+  
     try {
+      const updateData: any = { status: selectedStatus };
+      if (selectedStatus === "Cancelled") {
+        updateData.cancellationReason = cancellationReason;
+      } else if (selectedStatus === "Completed") {
+        // Truncate the notes field to ensure the JSON string does not exceed 255 characters
+        const truncatedNotes = notes.length > 500 ? notes.substring(0, 500) + "..." : notes;
+        const diagnosisData = JSON.stringify({
+          bloodPressure,
+          chiefComplaint,
+          notes: truncatedNotes,
+        });
+  
+        // Ensure the JSON string does not exceed 255 characters
+        if (diagnosisData.length > 1000) {
+          throw new Error("Diagnosis data exceeds the maximum length of 255 characters.");
+        }
+  
+        updateData.diagnosis = diagnosisData;
+      }
+  
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
-        appointmentId,
-        {
-          status: newStatus
-        }
+        "67b96b0800349392bb1c", // Use the correct collection ID
+        selectedAppointmentId,
+        updateData
       );
       fetchAppointments();
     } catch (error) {
-      console.error("Error updating appointment status:", error);
-      alert("Failed to update appointment status");
+      console.error("Error updating appointment:", error);
+      alert("Failed to update appointment. Diagnosis data may be too long.");
+    } finally {
+      setIsModalOpen(false);
+      setSelectedAppointmentId(null);
+      setSelectedStatus(null);
+      setBloodPressure("");
+      setChiefComplaint("");
+      setNotes("");
+      setCancellationReason("");
     }
   };
 
@@ -138,10 +203,23 @@ const CalendarPage = () => {
                 <p className="text-sm">Time: {appointment.time}</p>
                 <p className="text-sm mt-1">Reason: {appointment.reason}</p>
                 <p className="text-sm">Status: {appointment.status}</p>
+                {appointment.status === "Cancelled" && appointment.cancellationReason && (
+                  <p className="text-sm text-gray-500 mt-1">Reason: {appointment.cancellationReason}</p>
+                )}
+                {appointment.status === "Completed" && appointment.diagnosis && (
+                  <div className="mt-2">
+                    <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                    <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                    <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                    {JSON.parse(appointment.diagnosis).notes.endsWith("...") && (
+                      <p className="text-xs text-gray-500">(Notes truncated due to length restrictions)</p>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <select
-                  className="border rounded p-1 mr-2 "
+                  className="border rounded p-1 mr-2"
                   value={appointment.status}
                   onChange={(e) => handleStatusChange(appointment.$id, e.target.value)}
                 >
@@ -178,23 +256,21 @@ const CalendarPage = () => {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-blue-700">Appointment Calendar</h1>
             <div className="flex items-center gap-4">
-  <select
-    className="border rounded-lg px-3 py-2 bg-white text-black"
-    value={statusFilter}
-    onChange={(e) => setStatusFilter(e.target.value)}
-  >
-    <option value="all">All Status</option>
-    <option value="Scheduled">Scheduled</option>
-    <option value="Completed">Completed</option>
-    <option value="Cancelled">Cancelled</option>
-  </select>
-
-  <Button variant="outline" className="flex items-center gap-2 text-black bg-white">
-    <Filter className="w-4 h-4" />
-    Filter
-  </Button>
-</div>
-
+              <select
+                className="border rounded-lg px-3 py-2 bg-white text-black"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+              <Button variant="outline" className="flex items-center gap-2 text-black bg-white">
+                <Filter className="w-4 h-4" />
+                Filter
+              </Button>
+            </div>
           </div>
 
           {/* Calendar Container */}
@@ -207,33 +283,30 @@ const CalendarPage = () => {
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   <div className="flex items-center gap-3">
-  <Button 
-    variant="outline" 
-    size="icon" 
-    onClick={previousMonth} 
-    className="text-black bg-white"
-  >
-    <ChevronLeft className="h-5 w-5" />
-  </Button>
-
-  <Button 
-    variant="outline" 
-    onClick={() => setCurrentDate(new Date())} 
-    className="text-black bg-white"
-  >
-    Today
-  </Button>
-
-  <Button 
-    variant="outline" 
-    size="icon" 
-    onClick={nextMonth} 
-    className="text-black bg-white"
-  >
-    <ChevronRight className="h-5 w-5" />
-  </Button>
-</div>
-
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={previousMonth} 
+                      className="text-black bg-white"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setCurrentDate(new Date())} 
+                      className="text-black bg-white"
+                    >
+                      Today
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={nextMonth} 
+                      className="text-black bg-white"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Calendar Grid */}
@@ -298,8 +371,70 @@ const CalendarPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for Cancellation Reason and Diagnosis */}
+        <Dialog open={isModalOpen} onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              setIsModalOpen(false);
+              setBloodPressure("");
+              setChiefComplaint("");
+              setNotes("");
+              setCancellationReason("");
+            }
+          }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {selectedStatus === "Cancelled" ? "Cancellation Reason" : "Diagnosis Details"}
+                </DialogTitle>
+              </DialogHeader>
+              {selectedStatus === "Cancelled" ? (
+                <div className="space-y-4">
+                  <Textarea
+                    placeholder="Enter cancellation reason..."
+                    value={cancellationReason}
+                    onChange={(e) => setCancellationReason(e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Blood Pressure"
+                    value={bloodPressure}
+                    onChange={(e) => setBloodPressure(e.target.value)}
+                  />
+                  <Select value={chiefComplaint} onValueChange={(value) => setChiefComplaint(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Chief Complaint" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Fever">Fever</SelectItem>
+                      <SelectItem value="Cough">Cough</SelectItem>
+                      <SelectItem value="Headache">Headache</SelectItem>
+                      <SelectItem value="Stomachache">Stomachache</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Textarea
+                    placeholder="Notes..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                  />
+                  {notes.length > 100 && (
+                    <p className="text-xs text-red-500">
+                      Notes will be truncated to 100 characters to fit within the 255-character limit.
+                    </p>
+                  )}
+                </div>
+              )}
+              <DialogFooter>
+                <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button onClick={handleModalSubmit}>Submit</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
     </div>
   );
 };
 
-export default CalendarPage; 
+export default CalendarPage;

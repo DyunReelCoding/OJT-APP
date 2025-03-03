@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import StudentSideBar from "@/components/StudentSideBar";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Appointment {
   $id: string;
@@ -15,6 +16,8 @@ interface Appointment {
   reason: string;
   status: "Scheduled" | "Completed" | "Cancelled";
   userid: string;
+  cancellationReason?: string;
+  diagnosis?: string;
 }
 
 const StudentAppointmentsPage = () => {
@@ -37,7 +40,7 @@ const StudentAppointmentsPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c"
+        "67b96b0800349392bb1c" // Replace with your appointment collection ID
       );
       const userAppointments = response.documents.filter(
         (doc: any) => doc.userid === params.userId
@@ -70,6 +73,21 @@ const StudentAppointmentsPage = () => {
     }
   };
 
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    try {
+      await databases.updateDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        "67b96b0800349392bb1c", // Replace with your appointment collection ID
+        appointmentId,
+        { status: newStatus }
+      );
+      fetchAppointments(); // Refresh the appointments list
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+      alert("Failed to update appointment status");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <StudentSideBar userId={params.userId as string} />
@@ -83,14 +101,14 @@ const StudentAppointmentsPage = () => {
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-6">
               <div className="flex items-center gap-4 mb-6">
-                <div className="relative flex-1 max-w-xl ">
+                <div className="relative flex-1 max-w-xl">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <Input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search appointments..."
-                    className="pl-10 pr-4 py-2 w-full bg-white border-blue-700 text-black"
+                    className="pl-10 pr-4 py-2 w-full bg-white border-2 border-blue-700 text-black"
                   />
                 </div>
               </div>
@@ -108,13 +126,23 @@ const StudentAppointmentsPage = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredAppointments.map((appointment) => (
                       <tr key={appointment.$id}>
-                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.date}</td>
-                        <td className="px-6 py-4  text-black whitespace-nowrap">{appointment.time}</td>
-                        <td className="px-6 py-4  text-black whitespace-nowrap">{appointment.reason}</td>
-                        <td className="px-6 py-4  text-black whitespace-nowrap">
+                        <td className="px-6 py-4 text-gray-800 whitespace-nowrap">{appointment.date}</td>
+                        <td className="px-6 py-4 text-gray-800 whitespace-nowrap">{appointment.time}</td>
+                        <td className="px-6 py-4 text-gray-800 whitespace-nowrap">{appointment.reason}</td>
+                        <td className="px-6 py-4 text-gray-800 whitespace-nowrap">
                           <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(appointment.status)}`}>
                             {appointment.status}
                           </span>
+                          {appointment.status === "Cancelled" && appointment.cancellationReason && (
+                            <p className="text-sm text-gray-500 mt-1">Reason: {appointment.cancellationReason}</p>
+                          )}
+                          {appointment.status === "Completed" && appointment.diagnosis && (
+                            <div className="mt-2">
+                              <p className="text-sm text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                              <p className="text-sm text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                              <p className="text-sm text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -129,4 +157,4 @@ const StudentAppointmentsPage = () => {
   );
 };
 
-export default StudentAppointmentsPage; 
+export default StudentAppointmentsPage;

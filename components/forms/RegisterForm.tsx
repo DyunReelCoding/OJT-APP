@@ -276,6 +276,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           iconSrc="/assets/icons/user.svg"
           iconAlt="user"
           backgroundColor="bg-gray-50"
+          required={true} 
         />
           
         
@@ -298,6 +299,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           placeholder="Doe"
           backgroundColor="bg-gray-50"
           iconAlt="user"
+          required={true} 
         />
 
         <CustomFormField
@@ -319,7 +321,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           label="ID number"
           placeholder="211-01338"
           backgroundColor="bg-gray-50"
-          
+          required={true} 
         />
         <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -328,7 +330,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             label="Age"
             placeholder="21"
             backgroundColor="bg-gray-50"
-            
+            required={true} 
       />
      </div>
       
@@ -343,6 +345,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   iconAlt="email"
   backgroundColor="bg-gray-50"
   readOnly={true} // ✅ This makes the input read-only
+  required={true}
 />
 
         <CustomFormField
@@ -351,6 +354,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="phone"
             label="Phone Number"
             placeholder="091234567"
+            required={true} 
         />
       </div>
       <div className="flex flex-col gap-6 xl:flex-row">
@@ -360,6 +364,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 name="birthDate"
                 label="Date of Birth"
                 backgroundColor="bg-gray-50"
+                required={true} 
             />
         <CustomFormField
                 fieldType={FormFieldType.SKELETON}
@@ -367,6 +372,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 name="gender"
                 label="Gender"
                 backgroundColor="bg-gray-50"
+                required={true} 
                 renderSkeleton={(field)=>(
                     <FormControl>
                         <RadioGroup className="flex flex-11 gap-6 xl:justify-between text-black" 
@@ -391,13 +397,14 @@ const RegisterForm = ({ user }: { user: User }) => {
                 name="address"
                 label="Address"
                 placeholder="Ampayon, Butuan City"
-                
+                required={true} 
             />
        <CustomFormField
   fieldType={FormFieldType.SKELETON}
   control={form.control}
   name="occupation"
   label="Occupation"
+  required={true} 
   renderSkeleton={(field) => (
     <div className="text-black">
       <FormControl>
@@ -433,6 +440,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     control={form.control}
     name="civilStatus"
     label="Civil Status"
+    required={true} 
     renderSkeleton={(field) => (
         <FormControl>
             <RadioGroup
@@ -461,7 +469,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           name="bloodType"
           label="Blood Type"
           placeholder="0"
-          
+          required={true} 
         />
         <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -469,7 +477,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="religion"
             label="Religion"
             placeholder="Roman Catholic"
-            
+            required={true} 
       />
      </div>
      <div className="flex flex-col gap-6 xl:flex-row">
@@ -480,6 +488,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="weight"
         label="Weight (kg)"
         placeholder="70"
+        required={true} 
       />
 
       {/* Height Field */}
@@ -489,6 +498,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="height"
         label="Height (m)"
         placeholder="1.75"
+        required={true} 
       />
 
   
@@ -523,6 +533,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   control={form.control}
   name="program"
   label="Program"
+  required={true} 
   renderSkeleton={(field) => (
     <div className="text-black">
       <FormControl>
@@ -555,6 +566,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="yearLevel"
             label="Year Level"
             placeholder="4"
+            required={true} 
           />
         </div>
       )}
@@ -567,6 +579,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       control={form.control}
       name="office"
       label="Office"
+      required={true} 
       renderSkeleton={(field) => (
         <div>
           <FormControl>
@@ -609,6 +622,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 name="emergencyContactName"
                 label="Emergency contact name"
                 placeholder="Guardian's name"
+                required={true} 
             />
             <CustomFormField
                 fieldType={FormFieldType.PHONE_INPUT}
@@ -616,6 +630,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 name="emergencyContactNumber"
                 label="Emergency contact number"
                 placeholder="091234567"
+                required={true} 
             />
       </div>
 
@@ -632,6 +647,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="insuranceProvider"
             label="Insurance Provider"
             placeholder="Palawan Insurance"
+            
                     
           />
           <CustomFormField
@@ -640,6 +656,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="insurancePolicyNumber"
             label="Insurance policy number"
             placeholder="ABC123456789"
+           
           
           />
       </div>
@@ -650,6 +667,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   control={form.control}
   name="allergies"
   label="Allergies (if any)"
+  required={true} 
   renderSkeleton={(field) => (
     <div className="text-black">
       <FormControl>
@@ -681,6 +699,7 @@ const RegisterForm = ({ user }: { user: User }) => {
   control={form.control}
   name="currentMedication"
   label="Current Medication (if any)"
+  required={true} 
   renderSkeleton={(field) => (
     <div className="text-black">
       <FormControl>
@@ -718,6 +737,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     control={form.control}
     name="personWithDisability"
     label="Person with Disability"
+    required={true} 
     renderSkeleton={(field) => (
         <FormControl>
             <RadioGroup
@@ -787,109 +807,253 @@ const RegisterForm = ({ user }: { user: User }) => {
 
       <div className="flex flex-col gap-6 xl:flex-row">
      {/* Family Medical History */}
-{/* Family Medical History */}
-<CustomFormField
-  fieldType={FormFieldType.SKELETON}
-  control={form.control}
-  name="familyMedicalHistory"
-  label="Family Medical History"
-  renderSkeleton={() => (
-    <div className="text-black">
-      <FormControl>
-        <Select
-          onValueChange={(value) => {
-            setShowFamilyOtherField(value === "Others");
-            form.setValue("familyMedicalHistory", value === "Others" ? "" : value);
-          }}
-          value={showFamilyOtherField ? "Others" : form.watch("familyMedicalHistory") || ""}
-        >
-          <SelectTrigger className="w-full bg-gray-50">
-            <SelectValue placeholder="Select Family Medical History" />
-          </SelectTrigger>
-          <SelectContent className="bg-white text-black border-2 border-blue-700">
-            <SelectItem className="hover:bg-blue-100" value="None">None</SelectItem>
-            {familyMedicalHistories.map((history) => (
-              <SelectItem className="hover:bg-blue-100" key={history} value={history}>
-                {history}
-              </SelectItem>
-            ))}
-            <SelectItem className="hover:bg-blue-100" value="Others">Others</SelectItem>
-          </SelectContent>
-        </Select>
-      </FormControl>
-    </div>
-  )}
-/>
-
-{showFamilyOtherField && (
-  <CustomFormField
-    fieldType={FormFieldType.TEXTAREA}
-    control={form.control}
-    name="familyMedicalHistory"
-    label="Specify Family Medical History"
-    placeholder="Please specify..."
-    renderSkeleton={() => (
-      <textarea
-        className="w-full p-2 border border-gray-300 rounded"
-        {...form.register("familyMedicalHistory")}
-        placeholder="Please specify..."
-      />
-    )}
-  />
-)}
-
-
 {/* Past Medical History */}
 <CustomFormField
   fieldType={FormFieldType.SKELETON}
   control={form.control}
   name="pastMedicalHistory"
   label="Past Medical History"
-  renderSkeleton={() => (
-    <div className="text-black">
-      <FormControl>
-        <Select
-          onValueChange={(value) => {
-            setShowPastOtherField(value === "Others");
-            form.setValue("pastMedicalHistory", value === "Others" ? "" : value);
-          }}
-          value={showPastOtherField ? "Others" : form.watch("pastMedicalHistory") || ""}
-        >
-          <SelectTrigger className="w-full bg-gray-50">
-            <SelectValue placeholder="Select Past Medical History" />
-          </SelectTrigger>
-          <SelectContent className="bg-white text-black border-2 border-blue-700">
-            <SelectItem className="hover:bg-blue-100" value="None">None</SelectItem>
-            {pastMedicalHistories.map((history) => (
-              <SelectItem key={history} value={history}>
-                {history}
-              </SelectItem>
-            ))}
-            <SelectItem value="Others">Others</SelectItem>
-          </SelectContent>
-        </Select>
-      </FormControl>
-    </div>
-  )}
+  required={true} 
+  renderSkeleton={() => {
+    const selectedHistory = form.watch("pastMedicalHistory");
+    const selectedArray = typeof selectedHistory === "string" ? selectedHistory.split(",") : [];
+    const isNoneSelected = selectedArray.includes("None");
+    const isOthersSelected = selectedArray.includes("Others");
+
+    // Format selected items for dropdown display
+    const displayText =
+      selectedArray.length > 3
+        ? `${selectedArray.slice(0, 3).join(", ")}...`
+        : selectedArray.join(", ") || "Select Past Medical History";
+
+    return (
+      <div className="text-black">
+        <FormControl>
+          <Select
+            onValueChange={() => {}}
+            value={selectedHistory || ""}
+          >
+            <SelectTrigger className="w-full bg-gray-50">
+              <SelectValue placeholder="Select Past Medical History">{displayText}</SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-white text-black border-2 border-blue-700">
+              <div className="flex flex-col gap-2 p-2">
+                {/* None Option */}
+                <label htmlFor="None" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    id="None"
+                    name="pastMedicalHistory"
+                    className="peer hidden"
+                    checked={isNoneSelected}
+                    onChange={() => {
+                      form.setValue("pastMedicalHistory", "None");
+                      setShowPastOtherField(false);
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isNoneSelected ? "bg-black" : ""}`} />
+                  None
+                </label>
+
+                {/* Past Medical History Options */}
+                {pastMedicalHistories.map((history) => (
+                  <label key={history} htmlFor={history} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id={history}
+                      className="peer hidden"
+                      checked={selectedArray.includes(history)}
+                      onChange={(e) => {
+                        let updatedSelection;
+
+                        if (e.target.checked) {
+                          updatedSelection = [...selectedArray.filter(item => item !== "None" && item !== "Others"), history];
+                          setShowPastOtherField(false);
+                        } else {
+                          updatedSelection = selectedArray.filter(item => item !== history);
+                        }
+
+                        form.setValue("pastMedicalHistory", updatedSelection.length ? updatedSelection.join(",") : "");
+                      }}
+                    />
+                    <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${selectedArray.includes(history) ? "bg-black" : ""}`} />
+                    {history}
+                  </label>
+                ))}
+
+                {/* Others Option */}
+                <label htmlFor="Others" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="Others"
+                    className="peer hidden"
+                    checked={isOthersSelected}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        form.setValue("pastMedicalHistory", "Others");
+                        form.setValue("pastMedicalHistory", ""); // Clear the textarea when selecting "Others"
+                        setShowPastOtherField(true);
+                      } else {
+                        form.setValue("pastMedicalHistory", "");
+                        setShowPastOtherField(false);
+                      }
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isOthersSelected ? "bg-black" : ""}`} />
+                  Others
+                </label>
+              </div>
+            </SelectContent>
+          </Select>
+        </FormControl>
+
+        {/* Show Textarea if "Others" is selected */}
+        {showPastOtherField && (
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="pastMedicalHistory"
+            label="Specify Past Medical History"
+            placeholder="Please specify..."
+            renderSkeleton={() => (
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded"
+                {...form.register("pastMedicalHistory")}
+                placeholder="Please specify..."
+              />
+            )}
+          />
+        )}
+      </div>
+    );
+  }}
 />
 
 
-{showPastOtherField && (
-  <CustomFormField
-    fieldType={FormFieldType.TEXTAREA}
-    control={form.control}
-    name="pastMedicalHistory"
-    label="Specify Past Medical History"
-    placeholder="Please specify..."
-    renderSkeleton={() => (
-      <textarea
-        className="w-full p-2 border border-gray-300 rounded"
-        {...form.register("pastMedicalHistory")}
-        placeholder="Please specify..."
-      />
-    )}
-  />
-)}
+{/* Family Medical History */}
+<CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="familyMedicalHistory"
+  label="Family Medical History"
+  required={true} 
+  renderSkeleton={() => {
+    const selectedHistory = form.watch("familyMedicalHistory");
+    const selectedArray = typeof selectedHistory === "string" ? selectedHistory.split(",") : [];
+    const isNoneSelected = selectedArray.includes("None");
+    const isOthersSelected = selectedArray.includes("Others");
+
+    // Format selected items for dropdown display
+    const displayText =
+      selectedArray.length > 3
+        ? `${selectedArray.slice(0, 3).join(", ")}...`
+        : selectedArray.join(", ") || "Select Family Medical History";
+
+    return (
+      <div className="text-black">
+        <FormControl>
+          <Select
+            onValueChange={() => {}}
+            value={selectedHistory || ""}
+          >
+            <SelectTrigger className="w-full bg-gray-50">
+              <SelectValue placeholder="Select Family Medical History">{displayText}</SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-white text-black border-2 border-blue-700">
+              <div className="flex flex-col gap-2 p-2">
+                {/* None Option */}
+                <label htmlFor="None" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    id="None"
+                    name="familyMedicalHistory"
+                    className="peer hidden"
+                    checked={isNoneSelected}
+                    onChange={() => {
+                      form.setValue("familyMedicalHistory", "None");
+                      setShowFamilyOtherField(false);
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isNoneSelected ? "bg-black" : ""}`} />
+                  None
+                </label>
+
+                {/* Family Medical History Options */}
+                {familyMedicalHistories.map((history) => (
+                  <label key={history} htmlFor={history} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id={history}
+                      className="peer hidden"
+                      checked={selectedArray.includes(history)}
+                      onChange={(e) => {
+                        let updatedSelection;
+
+                        if (e.target.checked) {
+                          updatedSelection = [...selectedArray.filter(item => item !== "None" && item !== "Others"), history];
+                          setShowFamilyOtherField(false);
+                        } else {
+                          updatedSelection = selectedArray.filter(item => item !== history);
+                        }
+
+                        form.setValue("familyMedicalHistory", updatedSelection.length ? updatedSelection.join(",") : "");
+                      }}
+                    />
+                    <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${selectedArray.includes(history) ? "bg-black" : ""}`} />
+                    {history}
+                  </label>
+                ))}
+
+                {/* Others Option */}
+                <label htmlFor="Others" className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="Others"
+                    className="peer hidden"
+                    checked={isOthersSelected}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        form.setValue("familyMedicalHistory", "Others");
+                        form.setValue("familyMedicalHistory", ""); // Clear the textarea when selecting "Others"
+                        setShowFamilyOtherField(true);
+                      } else {
+                        form.setValue("familyMedicalHistory", "");
+                        setShowFamilyOtherField(false);
+                      }
+                    }}
+                  />
+                  <div className={`w-5 h-5 border-2 border-gray-500 rounded-full flex items-center justify-center ${isOthersSelected ? "bg-black" : ""}`} />
+                  Others
+                </label>
+              </div>
+            </SelectContent>
+          </Select>
+        </FormControl>
+
+        {/* Show Textarea if "Others" is selected */}
+        {showFamilyOtherField && (
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="familyMedicalHistory"
+            label="Specify Family Medical History"
+            placeholder="Please specify..."
+            renderSkeleton={() => (
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded"
+                {...form.register("familyMedicalHistory")}
+                placeholder="Please specify..."
+              />
+            )}
+          />
+        )}
+      </div>
+    );
+  }}
+/>
+
+
+
 
       </div>
 
@@ -904,7 +1068,9 @@ const RegisterForm = ({ user }: { user: User }) => {
             control={form.control}
             name="identificationType"
             label="Identification Type"
+            
             placeholder="Select identification type"
+            required={true} 
             >
                 {IdentificationTypes.map((type) => (
                     <SelectItem className="hover:bg-blue-100" key={type} value={type}>
@@ -920,20 +1086,33 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="identificationNumber"
             label="Identification Number"
             placeholder="1234556789"
+            required={true} 
                     
           />
         <CustomFormField
-                fieldType={FormFieldType.SKELETON}
-                control={form.control}
-                name="identificationDocument"
-                label="Scanned copy of identification document"
-                renderSkeleton={(field)=>(
-                    <FormControl>
-                      <FileUploader files = {field.value} onChange={field.onChange}/>
-                      
-                    </FormControl>
-                )}
-            />
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="identificationDocument"
+  label="Scanned copy of identification document"
+  renderSkeleton={({ value, onChange }) => {
+    const hasError = !value || value.length === 0;
+
+    return (
+      <div className={`p-2 border rounded-md ${hasError ? "border-red-500" : "border-green-500"}`}>
+        <FormControl>
+          <FileUploader
+            files={value}
+            onChange={(files) => {
+              onChange(files); // Update form state
+              form.trigger("identificationDocument"); // Force validation update
+            }}
+          />
+        </FormControl>
+      </div>
+    );
+  }}
+/>
+
        <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header text-blue-700">Consent and Privacy</h2>
@@ -947,6 +1126,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="treatmentConsent"
         label="I consent to treatment"
         backgroundColor="none"
+        required={true} 
       />
       
       
@@ -956,6 +1136,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="disclosureConsent"
         label="I consent to disclosure of information"
         backgroundColor="none"
+        required={true} 
       />
         <CustomFormField
         fieldType={FormFieldType.CHECKBOX}
@@ -963,6 +1144,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         name="privacyConsent"
         label="I consent to privacy policy"
         backgroundColor="none"
+        required={true} 
       />
       </div>
       <SubmitButton isLoading={isLoading}> Submit</SubmitButton>

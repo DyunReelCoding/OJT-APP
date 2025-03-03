@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { Client, Databases, ID } from "node-appwrite";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,9 +14,7 @@ export async function POST(req: NextRequest) {
         user: process.env.EMAIL_NAME,
         pass: process.env.EMAIL_PASSWORD,
       },
-      tls: {
-        rejectUnauthorized: false, // Fixes the self-signed certificate error
-      },
+      tls: { rejectUnauthorized: false },
     });
 
     await transporter.sendMail({
@@ -25,7 +24,26 @@ export async function POST(req: NextRequest) {
       text: `Your OTP is ${otp}. It will expire in 15 minutes.`,
     });
 
-    return NextResponse.json({ otp, expiresAt });
+    // Store OTP in Appwrite database
+    const client = new Client()
+      .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT as string)
+      .setProject(process.env.NEXT_PUBLIC_PROJECT_ID as string)
+      .setKey(process.env.API_KEY as string);
+
+    const databases = new Databases(client);
+
+    await databases.createDocument(
+      process.env.DATABASE_ID as string,
+      process.env.NEXT_PUBLIC_OTP_COLLECTION_ID as string,
+      ID.unique(),
+      {
+        email,
+        otp,
+        expiresAt,
+      }
+    );
+
+    return NextResponse.json({ message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending OTP:", error);
     return NextResponse.json({ error: "Failed to send OTP" }, { status: 500 });

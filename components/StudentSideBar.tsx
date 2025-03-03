@@ -20,8 +20,8 @@ const StudentSideBar = ({ userId }: { userId: string }) => {
       icon: <FileText className="w-5 h-5" />
     },
     {
-      label: "Schedule Appointment",
-      href: `/patients/${userId}/appointments`,
+      label: "My Calendar",
+      href: `/patients/${userId}/student/calendar`,
       icon: <Calendar className="w-5 h-5" />
     },
     {

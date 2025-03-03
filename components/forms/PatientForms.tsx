@@ -65,34 +65,47 @@ const PatientForms = () => {
   };
 
   const handleOtpVerification = async (enteredOtp: string) => {
-    if (enteredOtp !== otp) {
-      alert("Invalid OTP.");
-      return;
-    }
-  
     try {
-      const response = await fetch("/api/patient/check", {
+      const response = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, enteredOtp }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        alert(data.error || "Invalid OTP.");
+        return;
+      }
+  
+      // **Delete OTP record after successful verification**
+      await fetch("/api/otp/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
   
-      const data = await response.json();
+      // Proceed with patient verification after OTP validation
+      const checkResponse = await fetch("/api/patient/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
   
-      if (response.ok) {
-        if (data.patient) {
-          const { userId, occupation } = data.patient;
+      const checkData = await checkResponse.json();
   
-          // Redirect based on occupation
+      if (checkResponse.ok) {
+        if (checkData.patient) {
+          const { userId, occupation } = checkData.patient;
+  
           if (occupation?.toLowerCase() === "student") {
             router.push(`/patients/${userId}/student`);
           } else if (occupation?.toLowerCase() === "employee") {
             router.push(`/patients/${userId}/employee`);
           }
-        } else if (data.userId) {
-          // Redirect directly to register page if patient not found
-          router.push(`/patients/${data.userId}/register?email=${encodeURIComponent(email)}`);
-
+        } else if (checkData.userId) {
+          router.push(`/patients/${checkData.userId}/register?email=${encodeURIComponent(email)}`);
         }
       }
     } catch (err) {
@@ -100,9 +113,6 @@ const PatientForms = () => {
       alert("Failed to verify patient.");
     }
   };
-  
-  
-  
   
   
   return (
