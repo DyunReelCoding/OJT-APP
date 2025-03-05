@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Databases, Client } from "appwrite";
 import { Button } from "@/components/ui/button";
 import EmployeeSideBar from "@/components/EmployeeSideBar";
+import { ChevronDown, ChevronUp } from "lucide-react"; // Icons for expand/collapse
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -18,6 +19,10 @@ const EmployeePage = () => {
   const userId = params.userId as string;
   const [employee, setEmployee] = useState<any>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
+
+  // State for collapsible sections
+  const [isDiagnosisExpanded, setIsDiagnosisExpanded] = useState(false);
+  const [isDietExpanded, setIsDietExpanded] = useState(true); // Expanded by default
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -57,14 +62,14 @@ const EmployeePage = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <EmployeeSideBar userId={userId} />
-      
+
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Welcome, {employee.name}!</h1>
-          
-          <div className="bg-white rounded-lg shadow-md p-6">
+
+          {/* Quick Overview Section */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-2xl font-semibold text-blue-700 mb-4">Quick Overview</h2>
-            
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="font-medium text-gray-600">Office:</p>
@@ -75,28 +80,84 @@ const EmployeePage = () => {
                 <p className="text-gray-800">{employee.email || 'N/A'}</p>
               </div>
             </div>
-
-            {/* Display Diagnosis Details */}
-            {appointments.map((appointment) => (
-              appointment.status === "Completed" && appointment.diagnosis && (
-                <div key={appointment.$id} className="mt-6">
-                  <h3 className="text-xl font-semibold text-green-700 mb-2">Diagnosis Details</h3>
-                  <p className="text-gray-800"><strong>Date:</strong> {appointment.date}</p>
-                  <p className="text-gray-800"><strong>Time:</strong> {appointment.time}</p>
-                  <p className="text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
-                  <p className="text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
-                  <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
-                </div>
-              )
-            ))}
-            
-            <Button 
-              className="mt-6 bg-blue-700 hover:bg-blue-500 text-white"
-              onClick={() => router.push(`/patients/${userId}/employeeDetail`)}
-            >
-              View My Details
-            </Button>
           </div>
+
+          {/* Diet Recommendation Section (Collapsible) */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => setIsDietExpanded(!isDietExpanded)}
+            >
+              <h2 className="text-2xl font-semibold text-green-700">Diet Recommendation</h2>
+              <div>
+                {isDietExpanded ? (
+                  <ChevronUp className="h-6 w-6 text-gray-600" />
+                ) : (
+                  <ChevronDown className="h-6 w-6 text-gray-600" />
+                )}
+              </div>
+            </div>
+            {isDietExpanded && (
+              <div className="mt-4">
+                {employee.dietRecommendation ? (
+                  <>
+                    <p className="text-gray-800">{employee.dietRecommendation}</p>
+                    {employee.dietImageUrl && (
+                      <div className="mt-4">
+                        <img
+                          src={employee.dietImageUrl}
+                          alt="Diet Recommendation"
+                          className="w-full max-w-md rounded-lg shadow-md"
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-gray-800">No diet recommendation available.</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Diagnosis Section (Collapsible) */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => setIsDiagnosisExpanded(!isDiagnosisExpanded)}
+            >
+              <h2 className="text-2xl font-semibold text-green-700">Diagnosis Information</h2>
+              <div>
+                {isDiagnosisExpanded ? (
+                  <ChevronUp className="h-6 w-6 text-gray-600" />
+                ) : (
+                  <ChevronDown className="h-6 w-6 text-gray-600" />
+                )}
+              </div>
+            </div>
+            {isDiagnosisExpanded && (
+              <div className="mt-4">
+                {appointments
+                  .filter((appointment) => appointment.status === "Completed" && appointment.diagnosis)
+                  .map((appointment) => (
+                    <div key={appointment.$id} className="mb-4 border rounded-lg p-4">
+                      <p className="text-gray-800"><strong>Date:</strong> {appointment.date}</p>
+                      <p className="text-gray-800"><strong>Time:</strong> {appointment.time}</p>
+                      <p className="text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                      <p className="text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                      <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* View My Details Button */}
+          <Button
+            className="mt-6 bg-blue-700 hover:bg-blue-500 text-white"
+            onClick={() => router.push(`/patients/${userId}/employeeDetail`)}
+          >
+            View My Details
+          </Button>
         </div>
       </div>
     </div>
