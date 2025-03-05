@@ -10,6 +10,7 @@ import EmailForm from "@/components/EmailForm";
 import PrintButton from "@/components/PrintButton";
 import { ChevronDown, ChevronUp } from "lucide-react"; // Icons for expand/collapse
 import { Button } from "@/components/ui/button"; // Import the Button component
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -27,6 +28,14 @@ const StudentDetail = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedDiagnosisId, setExpandedDiagnosisId] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const [messageHistory, setMessageHistory] = useState("");
+  const [isSuccessHistory, setIsSuccessHistory] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
   // Diet Recommendation Form State
   const [dietNote, setDietNote] = useState("");
@@ -86,7 +95,6 @@ const StudentDetail = () => {
     setExpandedDiagnosisId(expandedDiagnosisId === appointmentId ? null : appointmentId);
   };
 
-  // Handle Diet Recommendation Submission
   const handleDietRecommendationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -94,115 +102,101 @@ const StudentDetail = () => {
     try {
       let imageUrl = "";
   
-      // Upload image if provided
       if (dietImage) {
         try {
           const response = await storage.createFile(
-            process.env.NEXT_PUBLIC_BUCKET_ID!, // Use your bucket ID
-            "unique()", // Unique file ID
-            dietImage // The file to upload
+            process.env.NEXT_PUBLIC_BUCKET_ID!,
+            "unique()",
+            dietImage
           );
           imageUrl = `${process.env.NEXT_PUBLIC_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_BUCKET_ID}/files/${response.$id}/view?project=${process.env.NEXT_PUBLIC_PROJECT_ID}`;
         } catch (error) {
           console.error("Error uploading image:", error);
-          throw error; // Re-throw the error to stop further execution
+          throw error;
         }
       }
   
-      // Create a new diet recommendation object
       const newDietRecommendation = {
         note: dietNote,
         imageUrl: imageUrl,
         timestamp: new Date().toISOString(),
       };
   
-      // Parse existing recommendations (if any) or initialize an empty array
       const existingRecommendations = student.dietRecommendations
         ? JSON.parse(student.dietRecommendations)
         : [];
   
-      // Add the new recommendation to the list
       const updatedRecommendations = [...existingRecommendations, newDietRecommendation];
   
-      // Update student document with the new diet recommendation
-      try {
-        await databases.updateDocument(
-          process.env.NEXT_PUBLIC_DATABASE_ID!,
-          process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
-          userId,
-          {
-            dietRecommendation: dietNote, // Update the latest recommendation for the student's dashboard
-            dietImageUrl: imageUrl, // Update the image URL for the student's dashboard
-            dietRecommendations: JSON.stringify(updatedRecommendations), // Store the full history as a JSON string
-          }
-        );
-      } catch (error) {
-        console.error("Error updating student document:", error);
-        throw error; // Re-throw the error to stop further execution
-      }
+      await databases.updateDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+        userId,
+        {
+          dietRecommendation: dietNote,
+          dietImageUrl: imageUrl,
+          dietRecommendations: JSON.stringify(updatedRecommendations),
+        }
+      );
   
-      // Refresh student data
       fetchStudent();
-  
-      // Clear form
       setDietNote("");
       setDietImage(null);
-      alert("Diet recommendation sent successfully!");
+      setMessage("Diet recommendation sent successfully!");
+      setTimeout(() => setMessage(""), 3000); // Clear message after 3 seconds
+      setIsSuccess(true);
     } catch (error) {
       console.error("Error sending diet recommendation:", error);
-      alert("Failed to send diet recommendation");
+      setMessage("Failed to send diet recommendation.");
+      setIsSuccess(false);
     } finally {
       setIsSubmitting(false);
     }
   };
+  
+  const handleDeleteRecommendation = async () => {
+    if (deleteIndex === null || !student || !student.dietRecommendations) return;
 
-  const handleDeleteRecommendation = async (index: number) => {
-    if (!student || !student.dietRecommendations) return;
-  
-    // Confirmation dialog
-    const confirmDelete = window.confirm("Are you sure you want to delete this recommendation?");
-    if (!confirmDelete) return;
-  
     try {
-      // Parse the existing recommendations
       const existingRecommendations = JSON.parse(student.dietRecommendations);
-  
-      // Check if the deleted recommendation is the latest one
-      const isLatestRecommendation = index === existingRecommendations.length - 1;
-  
-      // Remove the recommendation at the specified index
+      const isLatestRecommendation = deleteIndex === existingRecommendations.length - 1;
+
       const updatedRecommendations = existingRecommendations.filter(
-        (_: any, i: number) => i !== index
+        (_: any, i: number) => i !== deleteIndex
       );
-  
-      // Prepare the update object
+
       const updateData: any = {
         dietRecommendations: JSON.stringify(updatedRecommendations),
       };
-  
-      // If the deleted recommendation is the latest one, clear the dietRecommendation and dietImageUrl fields
+
       if (isLatestRecommendation) {
         updateData.dietRecommendation = "";
         updateData.dietImageUrl = "";
       }
-  
-      // Update the student document
+
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
         userId,
         updateData
       );
-  
-      // Refresh student data
+
       fetchStudent();
-  
-      alert("Recommendation deleted successfully!");
+      setIsDeleteModalOpen(false);
+      setDeleteIndex(null);
+      setMessageHistory("Diet Deleted successfully!");
+      setTimeout(() => setMessageHistory(""), 3000); // Clear message after 3 seconds
+      setIsSuccessHistory(true);
     } catch (error) {
       console.error("Error deleting recommendation:", error);
-      alert("Failed to delete recommendation");
     }
   };
+
+  const openDeleteModal = (index: number) => {
+    setDeleteIndex(index);
+    setIsDeleteModalOpen(true);
+  };
+
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
@@ -385,35 +379,43 @@ const StudentDetail = () => {
       </div>
 
       {/* Diet Recommendation Form */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Send Diet Recommendation</h2>
-        <hr className="border-gray-700 my-3" />
-        <form onSubmit={handleDietRecommendationSubmit}>
-          <div className="space-y-4">
-            <textarea
-              placeholder="Enter diet recommendation note..."
-              value={dietNote}
-              onChange={(e) => setDietNote(e.target.value)}
-              className="w-full p-2 bg-gray-700 text-white rounded-lg"
-              rows={4}
-              required
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setDietImage(e.target.files?.[0] || null)}
-              className="w-full p-2 bg-gray-700 text-white rounded-lg"
-            />
-            <Button
-              type="submit"
-              className="bg-blue-700 hover:bg-blue-500 text-white"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Sending..." : "Send Recommendation"}
-            </Button>
-          </div>
-        </form>
-      </div>
+<div className="bg-gray-800 p-6 rounded-lg shadow-md">
+  <h2 className="text-xl font-semibold">Send Diet Recommendation</h2>
+  <hr className="border-gray-700 my-3" />
+  <form onSubmit={handleDietRecommendationSubmit}>
+    <div className="space-y-4">
+      <textarea
+        placeholder="Enter diet recommendation note..."
+        value={dietNote}
+        onChange={(e) => setDietNote(e.target.value)}
+        className="w-full p-2 bg-gray-700 text-white rounded-lg"
+        rows={4}
+        required
+      />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setDietImage(e.target.files?.[0] || null)}
+        className="w-full p-2 bg-gray-700 text-white rounded-lg"
+      />
+      <Button
+        type="submit"
+        className="bg-blue-700 hover:bg-blue-500 text-white"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Sending..." : "Send Recommendation"}
+      </Button>
+    </div>
+  </form>
+
+  {/* Display message after submission */}
+  {message && (
+    <p className={`mt-3 text-sm ${isSuccess ? "text-green-500" : "text-red-500"}`}>
+      {message}
+    </p>
+  )}
+</div>
+
 
 {/* Diet Recommendation History */}
 <div className="bg-gray-800 p-6 rounded-lg shadow-md">
@@ -432,10 +434,22 @@ const StudentDetail = () => {
   </div>
   {isHistoryExpanded && (
     <div className="mt-4">
+      {isSuccessHistory && messageHistory && (
+  <div className="bg-green-500 text-white p-3 rounded-lg mb-4">
+    {messageHistory}
+  </div>
+)}
+
       {student.dietRecommendations ? (
         JSON.parse(student.dietRecommendations).length > 0 ? (
           JSON.parse(student.dietRecommendations).map((recommendation: any, index: number) => (
             <div key={index} className="mb-4 border rounded-lg p-4 relative">
+              <button 
+                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-lg shadow hover:bg-red-700" 
+                onClick={() => openDeleteModal(index)}
+              >
+                Delete
+              </button>
               <p className="text-gray-200"><strong>Note:</strong> {recommendation.note}</p>
               {recommendation.imageUrl && (
                 <div className="mt-2">
@@ -447,26 +461,6 @@ const StudentDetail = () => {
                 </div>
               )}
               <p className="text-gray-200"><strong>Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
-
-              {/* Delete Button */}
-              <button
-                onClick={() => handleDeleteRecommendation(index)}
-                className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-500"
-                title="Delete Recommendation"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
             </div>
           ))
         ) : (
@@ -475,6 +469,11 @@ const StudentDetail = () => {
       ) : (
         <p className="text-gray-200">No recommendations found.</p>
       )}
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteRecommendation}
+      />
     </div>
   )}
 </div>
