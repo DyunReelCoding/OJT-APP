@@ -63,13 +63,18 @@ const StudentPage = () => {
     <div className="flex h-screen bg-gray-100">
       <StudentSideBar userId={userId} />
 
-      <div className="flex-1 p-8">
+      {/* Main Content Wrapper */}
+      <div className="flex-1 p-8 overflow-auto min-h-screen flex flex-col">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">Welcome, {student.name}!</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">
+            Welcome, {student.name}!
+          </h1>
 
           {/* Quick Overview Section */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-semibold text-blue-700 mb-4">Quick Overview</h2>
+            <h2 className="text-2xl font-semibold text-blue-700 mb-4">
+              Quick Overview
+            </h2>
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="font-medium text-gray-600">Program:</p>
@@ -83,12 +88,14 @@ const StudentPage = () => {
           </div>
 
           {/* Diet Recommendation Section (Collapsible) */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8 max-h-[60vh] overflow-auto">
             <div
               className="flex justify-between items-center cursor-pointer"
               onClick={() => setIsDietExpanded(!isDietExpanded)}
             >
-              <h2 className="text-2xl font-semibold text-green-700">Diet Recommendation</h2>
+              <h2 className="text-2xl font-semibold text-green-700">
+                Diet Recommendation
+              </h2>
               <div>
                 {isDietExpanded ? (
                   <ChevronUp className="h-6 w-6 text-gray-600" />
@@ -120,12 +127,14 @@ const StudentPage = () => {
           </div>
 
           {/* Diagnosis Section (Collapsible) */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-6 max-h-[60vh] overflow-auto">
             <div
               className="flex justify-between items-center cursor-pointer"
               onClick={() => setIsDiagnosisExpanded(!isDiagnosisExpanded)}
             >
-              <h2 className="text-2xl font-semibold text-green-700">Diagnosis Information</h2>
+              <h2 className="text-2xl font-semibold text-green-700">
+                Diagnosis Information
+              </h2>
               <div>
                 {isDiagnosisExpanded ? (
                   <ChevronUp className="h-6 w-6 text-gray-600" />
@@ -137,14 +146,33 @@ const StudentPage = () => {
             {isDiagnosisExpanded && (
               <div className="mt-4">
                 {appointments
-                  .filter((appointment) => appointment.status === "Completed" && appointment.diagnosis)
+                  .filter(
+                    (appointment) =>
+                      appointment.status === "Completed" && appointment.diagnosis
+                  )
                   .map((appointment) => (
-                    <div key={appointment.$id} className="mb-4 border rounded-lg p-4">
-                      <p className="text-gray-800"><strong>Date:</strong> {appointment.date}</p>
-                      <p className="text-gray-800"><strong>Time:</strong> {appointment.time}</p>
-                      <p className="text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
-                      <p className="text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
-                      <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                    <div
+                      key={appointment.$id}
+                      className="mb-4 border rounded-lg p-4"
+                    >
+                      <p className="text-gray-800">
+                        <strong>Date:</strong> {appointment.date}
+                      </p>
+                      <p className="text-gray-800">
+                        <strong>Time:</strong> {appointment.time}
+                      </p>
+                      <p className="text-gray-800">
+                        <strong>Blood Pressure:</strong>{" "}
+                        {JSON.parse(appointment.diagnosis).bloodPressure}
+                      </p>
+                      <p className="text-gray-800">
+                        <strong>Chief Complaint:</strong>{" "}
+                        {JSON.parse(appointment.diagnosis).chiefComplaint}
+                      </p>
+                      <p className="text-gray-800">
+                        <strong>Notes:</strong>{" "}
+                        {JSON.parse(appointment.diagnosis).notes}
+                      </p>
                     </div>
                   ))}
               </div>

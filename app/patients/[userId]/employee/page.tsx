@@ -63,7 +63,7 @@ const EmployeePage = () => {
     <div className="flex h-screen bg-gray-100">
       <EmployeeSideBar userId={userId} />
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-auto min-h-screen flex flex-col">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Welcome, {employee.name}!</h1>
 
