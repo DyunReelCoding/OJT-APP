@@ -436,9 +436,9 @@ const StudentDetail = () => {
       {student.dietRecommendations ? (
         JSON.parse(student.dietRecommendations).length > 0 ? (
           JSON.parse(student.dietRecommendations).map((recommendation: any, index: number) => (
-            <div key={index} className="mb-4 border rounded-lg p-4 relative text-black">
+            <div key={index} className="mb-4 border border-blue-700 rounded-lg p-4 relative text-black">
               <button 
-                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-lg shadow hover:bg-red-700" 
+                className="absolute top-2 right-2 bg-red-700 text-white p-2 rounded-lg shadow hover:bg-white hover:text-red-700 border border-red-700" 
                 onClick={() => openDeleteModal(index)}
               >
                 Delete
@@ -454,28 +454,6 @@ const StudentDetail = () => {
                 </div>
               )}
               <p><strong className="text-blue-700">Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
-
-    
-
-              {/* Delete Button */}
-              <button
-                onClick={() => handleDeleteRecommendation(index)}
-                className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-500"
-                title="Delete Recommendation"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
             </div>
           ))
         ) : (
