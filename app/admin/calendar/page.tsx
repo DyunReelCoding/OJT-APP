@@ -431,8 +431,8 @@ const CalendarPage = () => {
                 </div>
               )}
               <DialogFooter>
-                <Button  className="font-semibold bg-white text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                <Button className="font-semibold bg-white text-green-500 border border-green-500 hover:bg-green-500 hover:text-white" onClick={handleModalSubmit}>Submit</Button>
+                <Button  className="font-semibold hover:bg-white hover:text-blue-700 border border-blue-700 bg-blue-700 text-white" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button className="font-semibold hover:bg-white hover:text-green-500 border border-green-500 bg-green-500 text-white" onClick={handleModalSubmit}>Submit</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

@@ -232,14 +232,14 @@ const AppointmentsPage = () => {
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white"
+              className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
-              className="border border-red-700 text-red-700 hover:bg-red-700 hover:text-white"
+              className="border border-red-700 hover:bg-white hover:text-red-700 bg-red-700 text-white"
             >
               Delete
             </Button>

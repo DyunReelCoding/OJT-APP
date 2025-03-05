@@ -263,8 +263,8 @@ const EmployeeCalendarPage = () => {
           </div>
           
           <form onSubmit={handleSubmitAppointment} className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="patientName">Patient Name</Label>
+            <div className="space-y-2 text-black">
+              <Label className="text-blue-700" htmlFor="patientName">Patient Name</Label>
               <Input
                 id="patientName"
                 name="patientName"
@@ -273,13 +273,13 @@ const EmployeeCalendarPage = () => {
                 placeholder="Enter patient name"
                 required
                 readOnly
-                className="bg-gray-100"
+                className="bg-gray-50 border-blue-700 text-black"
               />
               <p className="text-xs text-gray-500">Name is automatically filled based on your account</p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
+              <Label className="text-blue-700" htmlFor="time">Time</Label>
               <Input
                 id="time"
                 name="time"
@@ -287,11 +287,12 @@ const EmployeeCalendarPage = () => {
                 value={newAppointment.time}
                 onChange={handleInputChange}
                 required
+                className="text-black bg-gray-50 border-blue-700"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="reason">Reason for Appointment</Label>
+              <Label className="text-blue-700" htmlFor="reason">Reason for Appointment</Label>
               <Textarea
                 id="reason"
                 name="reason"
@@ -300,6 +301,7 @@ const EmployeeCalendarPage = () => {
                 placeholder="Describe the reason for this appointment"
                 required
                 rows={3}
+                className="bg-gray-50 text-black border-blue-700"
               />
             </div>
             
@@ -320,14 +322,14 @@ const EmployeeCalendarPage = () => {
                 type="button"
                 variant="outline"
                 onClick={() => setShowScheduleModal(false)}
-                className="mr-2"
+                className="mr-2 hover:text-white text-blue-700 hover:bg-blue-700 border-blue-700"
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button 
                 type="submit"
-                className="bg-blue-700 hover:bg-blue-600 text-white"
+                className="hover:bg-green-700 bg-green-500 text-white"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Scheduling..." : "Schedule Appointment"}

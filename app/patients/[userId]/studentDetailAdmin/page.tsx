@@ -346,34 +346,33 @@ const StudentDetail = () => {
       </div>
 
       {/* Diagnosis Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Diagnosis Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-blue-700 mb-5">Diagnosis Information</h2>
         {appointments
           .filter((appointment) => appointment.status === "Completed" && appointment.diagnosis)
           .map((appointment) => (
-            <div key={appointment.$id} className="mb-4 border rounded-lg p-4">
+            <div key={appointment.$id} className="mb-4 border border-blue-700 rounded-lg p-4">
               <div
                 className="flex justify-between items-center cursor-pointer"
                 onClick={() => toggleDiagnosis(appointment.$id)}
               >
-                <div>
-                  <p className="text-gray-200"><strong>Date:</strong> {appointment.date}</p>
-                  <p className="text-gray-200"><strong>Time:</strong> {appointment.time}</p>
+                <div className="text-black">
+                  <p><strong className="text-blue-700">Date:</strong> {appointment.date}</p>
+                  <p><strong className="text-blue-700">Time:</strong> {appointment.time}</p>
                 </div>
                 <div>
                   {expandedDiagnosisId === appointment.$id ? (
-                    <ChevronUp className="h-5 w-5 text-gray-400" />
+                    <ChevronUp className="h-5 w-5 text-blue-700" />
                   ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                    <ChevronDown className="h-5 w-5 text-blue-700" />
                   )}
                 </div>
               </div>
               {expandedDiagnosisId === appointment.$id && (
-                <div className="mt-4">
-                  <p className="text-gray-200"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
-                  <p className="text-gray-200"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
-                  <p className="text-gray-200"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                <div className="mt-4 text-black">
+                  <p><strong className="text-blue-700">Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                  <p><strong className="text-blue-700">Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                  <p><strong className="text-blue-700">Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
                 </div>
               )}
             </div>
@@ -381,16 +380,15 @@ const StudentDetail = () => {
       </div>
 
       {/* Diet Recommendation Form */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Send Diet Recommendation</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-blue-700 mb-5">Send Diet Recommendation</h2>
         <form onSubmit={handleDietRecommendationSubmit}>
           <div className="space-y-4">
             <textarea
               placeholder="Enter diet recommendation note..."
               value={dietNote}
               onChange={(e) => setDietNote(e.target.value)}
-              className="w-full p-2 bg-gray-700 text-white rounded-lg"
+              className="w-full p-2 bg-gray-50 text-black rounded-lg focus:outline-none border border-blue-700"
               rows={4}
               required
             />
@@ -398,7 +396,7 @@ const StudentDetail = () => {
               type="file"
               accept="image/*"
               onChange={(e) => setDietImage(e.target.files?.[0] || null)}
-              className="w-full p-2 bg-gray-700 text-white rounded-lg"
+              className="w-full p-2 bg-gray-50 text-white rounded-lg"
             />
             <Button
               type="submit"
@@ -412,17 +410,17 @@ const StudentDetail = () => {
       </div>
 
 {/* Diet Recommendation History */}
-<div className="bg-gray-800 p-6 rounded-lg shadow-md">
+<div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
   <div
     className="flex justify-between items-center cursor-pointer"
     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
   >
-    <h2 className="text-xl font-semibold">Diet Recommendation History</h2>
+    <h2 className="text-xl font-semibold text-blue-700">Diet Recommendation History</h2>
     <div>
       {isHistoryExpanded ? (
-        <ChevronUp className="h-5 w-5 text-gray-400" />
+        <ChevronUp className="h-5 w-5 text-blue-700" />
       ) : (
-        <ChevronDown className="h-5 w-5 text-gray-400" />
+        <ChevronDown className="h-5 w-5 text-blue-700" />
       )}
     </div>
   </div>
@@ -431,8 +429,8 @@ const StudentDetail = () => {
       {student.dietRecommendations ? (
         JSON.parse(student.dietRecommendations).length > 0 ? (
           JSON.parse(student.dietRecommendations).map((recommendation: any, index: number) => (
-            <div key={index} className="mb-4 border rounded-lg p-4 relative">
-              <p className="text-gray-200"><strong>Note:</strong> {recommendation.note}</p>
+            <div key={index} className="mb-4 border rounded-lg p-4 relative text-black">
+              <p><strong className="text-blue-700">Note:</strong> {recommendation.note}</p>
               {recommendation.imageUrl && (
                 <div className="mt-2">
                   <img
@@ -442,7 +440,7 @@ const StudentDetail = () => {
                   />
                 </div>
               )}
-              <p className="text-gray-200"><strong>Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
+              <p><strong className="text-blue-700">Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
 
               {/* Delete Button */}
               <button
@@ -466,10 +464,10 @@ const StudentDetail = () => {
             </div>
           ))
         ) : (
-          <p className="text-gray-200">No recommendations found.</p>
+          <p className="text-gray-400">No recommendations found.</p>
         )
       ) : (
-        <p className="text-gray-200">No recommendations found.</p>
+        <p className="text-gray-400">No recommendations found.</p>
       )}
     </div>
   )}
