@@ -199,15 +199,14 @@ const StudentDetail = () => {
 
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-900 text-white">
+    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-white">
       <BackButton />
       <PrintButton student={student} />
-      <h1 className="text-3xl font-semibold">{student.name}'s Details</h1>
+      <h1 className="text-3xl font-semibold text-black">{student.name}'s Details</h1>
 
       {/* Personal Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Personal Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Personal Information</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -225,8 +224,8 @@ const StudentDetail = () => {
               ["Emergency Contact Name", "emergencyContactName"],
               ["Emergency Contact Number", "emergencyContactNumber"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -243,9 +242,8 @@ const StudentDetail = () => {
       </div>
 
       {/* Medical Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Medical Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Medical Information</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -260,8 +258,8 @@ const StudentDetail = () => {
               ["Disability Type", "disabilityType"],
               ["Disability Details", "disabilityDetails"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -278,9 +276,8 @@ const StudentDetail = () => {
       </div>
 
       {/* Identification */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Identification</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Identification</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -288,8 +285,8 @@ const StudentDetail = () => {
               ["Identification Number", "identificationNumber"],
               ["School ID Number", "idNumber"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -301,8 +298,8 @@ const StudentDetail = () => {
                 </td>
               </tr>
             ))}
-            <tr className="border-b border-gray-700 last:border-none">
-              <td className="p-3 font-medium w-1/3">Identification Document</td>
+            <tr className="border border-gray-700">
+              <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">Identification Document</td>
               <td className="p-3">
                 <a href={student.identificationDocumentUrl} target="_blank" className="text-blue-400">
                   View Document
@@ -314,9 +311,8 @@ const StudentDetail = () => {
       </div>
 
       {/* Health Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Health Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Health Information</h2>
         <table className="w-full border-collapse">
           <tbody>
             {[
@@ -326,8 +322,8 @@ const StudentDetail = () => {
               ["Height", "height"],
               ["BMI", "bmi"],
             ].map(([label, field]) => (
-              <tr key={field} className="border-b border-gray-700 last:border-none">
-                <td className="p-3 font-medium w-1/3">{label}</td>
+              <tr key={field} className="border border-gray-700">
+                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
                   <EditableField
                     label={label}
@@ -344,34 +340,33 @@ const StudentDetail = () => {
       </div>
 
       {/* Diagnosis Information */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold">Diagnosis Information</h2>
-        <hr className="border-gray-700 my-3" />
+      <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-blue-700 mb-5">Diagnosis Information</h2>
         {appointments
           .filter((appointment) => appointment.status === "Completed" && appointment.diagnosis)
           .map((appointment) => (
-            <div key={appointment.$id} className="mb-4 border rounded-lg p-4">
+            <div key={appointment.$id} className="mb-4 border border-blue-700 rounded-lg p-4">
               <div
                 className="flex justify-between items-center cursor-pointer"
                 onClick={() => toggleDiagnosis(appointment.$id)}
               >
-                <div>
-                  <p className="text-gray-200"><strong>Date:</strong> {appointment.date}</p>
-                  <p className="text-gray-200"><strong>Time:</strong> {appointment.time}</p>
+                <div className="text-black">
+                  <p><strong className="text-blue-700">Date:</strong> {appointment.date}</p>
+                  <p><strong className="text-blue-700">Time:</strong> {appointment.time}</p>
                 </div>
                 <div>
                   {expandedDiagnosisId === appointment.$id ? (
-                    <ChevronUp className="h-5 w-5 text-gray-400" />
+                    <ChevronUp className="h-5 w-5 text-blue-700" />
                   ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                    <ChevronDown className="h-5 w-5 text-blue-700" />
                   )}
                 </div>
               </div>
               {expandedDiagnosisId === appointment.$id && (
-                <div className="mt-4">
-                  <p className="text-gray-200"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
-                  <p className="text-gray-200"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
-                  <p className="text-gray-200"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                <div className="mt-4 text-black">
+                  <p><strong className="text-blue-700">Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                  <p><strong className="text-blue-700">Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                  <p><strong className="text-blue-700">Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
                 </div>
               )}
             </div>
@@ -379,56 +374,54 @@ const StudentDetail = () => {
       </div>
 
       {/* Diet Recommendation Form */}
-<div className="bg-gray-800 p-6 rounded-lg shadow-md">
-  <h2 className="text-xl font-semibold">Send Diet Recommendation</h2>
-  <hr className="border-gray-700 my-3" />
-  <form onSubmit={handleDietRecommendationSubmit}>
-    <div className="space-y-4">
-      <textarea
-        placeholder="Enter diet recommendation note..."
-        value={dietNote}
-        onChange={(e) => setDietNote(e.target.value)}
-        className="w-full p-2 bg-gray-700 text-white rounded-lg"
-        rows={4}
-        required
-      />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setDietImage(e.target.files?.[0] || null)}
-        className="w-full p-2 bg-gray-700 text-white rounded-lg"
-      />
-      <Button
-        type="submit"
-        className="bg-blue-700 hover:bg-blue-500 text-white"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Sending..." : "Send Recommendation"}
-      </Button>
-    </div>
-  </form>
-
-  {/* Display message after submission */}
+      <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-blue-700 mb-5">Send Diet Recommendation</h2>
+        <form onSubmit={handleDietRecommendationSubmit}>
+          <div className="space-y-4">
+            <textarea
+              placeholder="Enter diet recommendation note..."
+              value={dietNote}
+              onChange={(e) => setDietNote(e.target.value)}
+              className="w-full p-2 bg-gray-50 text-black rounded-lg focus:outline-none border border-blue-700"
+              rows={4}
+              required
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setDietImage(e.target.files?.[0] || null)}
+              className="w-full p-2 bg-gray-50 text-white rounded-lg"
+            />
+            <Button
+              type="submit"
+              className="bg-blue-700 hover:bg-blue-500 text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Send Recommendation"}
+            </Button>
+          </div>
+        </form>
+        {/* Display message after submission */}
   {message && (
     <p className={`mt-3 text-sm ${isSuccess ? "text-green-500" : "text-red-500"}`}>
       {message}
     </p>
   )}
-</div>
+      </div>
 
 
 {/* Diet Recommendation History */}
-<div className="bg-gray-800 p-6 rounded-lg shadow-md">
+<div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
   <div
     className="flex justify-between items-center cursor-pointer"
     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
   >
-    <h2 className="text-xl font-semibold">Diet Recommendation History</h2>
+    <h2 className="text-xl font-semibold text-blue-700">Diet Recommendation History</h2>
     <div>
       {isHistoryExpanded ? (
-        <ChevronUp className="h-5 w-5 text-gray-400" />
+        <ChevronUp className="h-5 w-5 text-blue-700" />
       ) : (
-        <ChevronDown className="h-5 w-5 text-gray-400" />
+        <ChevronDown className="h-5 w-5 text-blue-700" />
       )}
     </div>
   </div>
@@ -443,14 +436,14 @@ const StudentDetail = () => {
       {student.dietRecommendations ? (
         JSON.parse(student.dietRecommendations).length > 0 ? (
           JSON.parse(student.dietRecommendations).map((recommendation: any, index: number) => (
-            <div key={index} className="mb-4 border rounded-lg p-4 relative">
+            <div key={index} className="mb-4 border rounded-lg p-4 relative text-black">
               <button 
                 className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-lg shadow hover:bg-red-700" 
                 onClick={() => openDeleteModal(index)}
               >
                 Delete
               </button>
-              <p className="text-gray-200"><strong>Note:</strong> {recommendation.note}</p>
+              <p><strong className="text-blue-700">Note:</strong> {recommendation.note}</p>
               {recommendation.imageUrl && (
                 <div className="mt-2">
                   <img
@@ -460,14 +453,36 @@ const StudentDetail = () => {
                   />
                 </div>
               )}
-              <p className="text-gray-200"><strong>Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
+              <p><strong className="text-blue-700">Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
+
+    
+
+              {/* Delete Button */}
+              <button
+                onClick={() => handleDeleteRecommendation(index)}
+                className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-500"
+                title="Delete Recommendation"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
             </div>
           ))
         ) : (
-          <p className="text-gray-200">No recommendations found.</p>
+          <p className="text-gray-400">No recommendations found.</p>
         )
       ) : (
-        <p className="text-gray-200">No recommendations found.</p>
+        <p className="text-gray-400">No recommendations found.</p>
       )}
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}

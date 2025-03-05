@@ -11,7 +11,7 @@ const SuccessMessage = ({ message }: { message: string }) => {
   return (
     <div className="fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center">
       <span>{message}</span>
-      <Button className="ml-4" variant="ghost" onClick={() => setShow(false)}>
+      <Button className="ml-4 text-white" variant="ghost" onClick={() => setShow(false)}>
         ✖
       </Button>
     </div>
