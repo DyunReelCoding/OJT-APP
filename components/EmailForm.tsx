@@ -40,7 +40,7 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
           type="email"
           value={email}
           readOnly // Prevent editing
-          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700 cursor-not-allowed"
+          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700 cursor-not-allowed focus:outline-none"
         />
         <input
           type="text"
@@ -48,14 +48,14 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           required
-          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700"
+          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700 focus:outline-none"
         />
         <textarea
           placeholder="Message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
-          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700"
+          className="w-full p-2 rounded-md bg-gray-50 text-black border-2 border-blue-700 focus:outline-none"
         ></textarea>
         <button
           type="submit"
