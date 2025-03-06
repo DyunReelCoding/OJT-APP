@@ -22,6 +22,29 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
 
   const databases = new Databases(client);
 
+  // Fetch user's name when component mounts
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const response = await databases.getDocument(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          "67b486f5000ff28439c6",
+          userId
+        );
+        setPatientName(response.name);
+        console.log("Fetched patient name:", response.name);
+      } catch (error) {
+        console.error("Error fetching user name:", error);
+        setMessage("Error fetching user information");
+        setMessageType("error");
+      }
+    };
+
+    if (userId) {
+      fetchUserName();
+    }
+  }, [userId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -65,6 +88,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
           type="text"
           value={patientName}
           className="mt-1 block w-full rounded-md border-2 border-blue-700 p-2 bg-white text-black focus:outline-none"
+          readOnly // Make the field read-only since it's auto-populated
         />
       </div>
 
