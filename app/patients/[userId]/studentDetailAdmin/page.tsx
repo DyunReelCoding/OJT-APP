@@ -341,7 +341,7 @@ const StudentDetail = () => {
 
       {/* Diagnosis Information */}
       <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-blue-700 mb-5">Diagnosis Information</h2>
+        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Diagnosis Information</h2>
         {appointments
           .filter((appointment) => appointment.status === "Completed" && appointment.diagnosis)
           .map((appointment) => (
@@ -376,15 +376,14 @@ const StudentDetail = () => {
       {/* Diet Recommendation Form */}
 {/* Diet Recommendation Form */}
 <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700">
-  <h2 className="text-2xl font-semibold text-blue-700">Send Diet Recommendation</h2>
-  <hr className="border-blue-300 my-3" />
+  <h2 className="text-2xl font-semibold text-blue-700 mb-5">Send Diet Recommendation</h2>
   <form onSubmit={handleDietRecommendationSubmit}>
     <div className="space-y-4">
       <textarea
         placeholder="Enter diet recommendation note..."
         value={dietNote}
         onChange={(e) => setDietNote(e.target.value)}
-        className="w-full p-2 bg-gray-100 text-black border border-gray-300 rounded-lg"
+        className="w-full p-2 bg-gray-50 text-black border border-blue-700 rounded-lg focus:outline-none"
         rows={4}
         required
       />
@@ -435,7 +434,7 @@ const StudentDetail = () => {
     className="flex justify-between items-center cursor-pointer"
     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
   >
-    <h2 className="text-xl font-semibold text-blue-700">Diet Recommendation History</h2>
+    <h2 className="text-2xl font-semibold text-blue-700">Diet Recommendation History</h2>
     <div>
       {isHistoryExpanded ? (
         <ChevronUp className="h-5 w-5 text-blue-700" />

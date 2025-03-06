@@ -130,7 +130,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         console.error("Error fetching occupations:", error);
       }
     };
-
+    
     const fetchProgramTypes = async () => {
       try {
         const response = await databases.listDocuments(
@@ -151,7 +151,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         console.error("Error fetching office types:", error);
       }
     };
-
+  
     const fetchFamilyHistories = async () => {
       try {
         const response = await databases.listDocuments(DATABASE_ID, FAMILYMEDICALHISTORY_COLLECTION_ID);
@@ -219,7 +219,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       formData.append("blobFile", blobFile);
       formData.append("fileName", values.identificationDocument[0].name);
     }
-
+  
     try {
       const patientData = {
         ...values,
@@ -335,18 +335,18 @@ const RegisterForm = ({ user }: { user: User }) => {
      </div>
       
       <div className="flex flex-col gap-6 xl:flex-row">
-      <CustomFormField
-  fieldType={FormFieldType.INPUT}
-  control={form.control}
-  name="email"
-  label="Email"
-  placeholder="JohnDoe@gmail.com"
-  iconSrc="/assets/icons/email.svg"
-  iconAlt="email"
+        <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="email"
+            label="Email"
+            placeholder="JohnDoe@gmail.com"
+            iconSrc="/assets/icons/email.svg"
+            iconAlt="email"
   backgroundColor="bg-gray-50"
   readOnly={true} // ✅ This makes the input read-only
   required={true}
-/>
+        />
 
         <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
@@ -530,9 +530,9 @@ const RegisterForm = ({ user }: { user: User }) => {
         <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormField
   fieldType={FormFieldType.SKELETON}
-  control={form.control}
-  name="program"
-  label="Program"
+            control={form.control}
+            name="program"
+            label="Program"
   required={true} 
   renderSkeleton={(field) => (
     <div className="text-black">
@@ -808,9 +808,9 @@ const RegisterForm = ({ user }: { user: User }) => {
       <div className="flex flex-col gap-6 xl:flex-row">
      {/* Family Medical History */}
 {/* Past Medical History */}
-<CustomFormField
+          <CustomFormField
   fieldType={FormFieldType.SKELETON}
-  control={form.control}
+            control={form.control}
   name="pastMedicalHistory"
   label="Past Medical History"
   required={true} 
@@ -1090,10 +1090,10 @@ const RegisterForm = ({ user }: { user: User }) => {
                     
           />
         <CustomFormField
-  fieldType={FormFieldType.SKELETON}
-  control={form.control}
-  name="identificationDocument"
-  label="Scanned copy of identification document"
+                fieldType={FormFieldType.SKELETON}
+                control={form.control}
+                name="identificationDocument"
+                label="Scanned copy of identification document"
   renderSkeleton={({ value, onChange }) => {
     const hasError = !value || value.length === 0;
 
@@ -1107,11 +1107,11 @@ const RegisterForm = ({ user }: { user: User }) => {
               form.trigger("identificationDocument"); // Force validation update
             }}
           />
-        </FormControl>
+                    </FormControl>
       </div>
     );
   }}
-/>
+            />
 
        <section className="space-y-6">
           <div className="mb-9 space-y-1">

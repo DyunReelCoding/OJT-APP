@@ -6,7 +6,14 @@ import SideBar from "@/components/SideBar";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +66,10 @@ const CalendarPage = () => {
   const [prescriptionAppointmentId, setPrescriptionAppointmentId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">("success");
+
+  // Add these state variables with your other useState declarations
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -191,19 +202,33 @@ const CalendarPage = () => {
     }
   };
 
-  const handleDelete = async (appointmentId: string) => {
-    if (confirm("Are you sure you want to delete this appointment?")) {
-      try {
-        await databases.deleteDocument(
-          process.env.NEXT_PUBLIC_DATABASE_ID!,
-          "67b96b0800349392bb1c",
-          appointmentId
-        );
-        fetchAppointments();
-      } catch (error) {
-        console.error("Error deleting appointment:", error);
-        alert("Failed to delete appointment");
-      }
+  // Replace the handleDelete function with these two functions
+  const openDeleteDialog = (appointmentId: string) => {
+    setAppointmentToDelete(appointmentId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!appointmentToDelete) return;
+
+    try {
+      await databases.deleteDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        "67b96b0800349392bb1c",
+        appointmentToDelete
+      );
+      fetchAppointments();
+      setMessage("✅ Appointment deleted successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      setMessage("Failed to delete appointment. Please try again.");
+      setMessageType("error");
+      setTimeout(() => setMessage(null), 3000);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setAppointmentToDelete(null);
     }
   };
 
@@ -308,7 +333,7 @@ const CalendarPage = () => {
       }
       
       // Show success message
-      setMessage("Medicines prescribed successfully and inventory updated!");
+      setMessage("✅ Medicines prescribed successfully and inventory updated!");
       setMessageType("success");
       setTimeout(() => setMessage(null), 3000);
       
@@ -341,7 +366,7 @@ const CalendarPage = () => {
           <h2 className="text-2xl font-semibold text-gray-700">
             {format(selectedDate, 'MMMM d, yyyy')}
           </h2>
-          <Button variant="outline" onClick={() => setView('month')} className="text-black bg-white">
+          <Button variant="outline" onClick={() => setView('month')} className="text-white bg-blue-700">
             Back to Month View
           </Button>
         </div>
@@ -384,7 +409,7 @@ const CalendarPage = () => {
               
               <div className="flex flex-col gap-2">
                 <select
-                  className="border rounded p-1 mr-2 "
+                  className="border border-blue-700 rounded p-1 mr-2 bg-white focus:outline-none"
                   value={appointment.status}
                   onChange={(e) => handleStatusChange(appointment.$id, e.target.value)}
                 >
@@ -396,7 +421,7 @@ const CalendarPage = () => {
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="text-green-600 border-green-600"
+                    className="text-white border-blue-700 bg-blue-700 hover:bg-white hover:text-blue-700"
                     onClick={() => openPrescriptionModal(appointment.$id)}
                   >
                     {appointment.diagnosis && JSON.parse(appointment.diagnosis).medicines ? "Update Prescription" : "Add Prescription"}
@@ -405,8 +430,8 @@ const CalendarPage = () => {
                 <Button 
                   size="sm" 
                   variant="ghost" 
-                  className="text-red-500"
-                  onClick={() => handleDelete(appointment.$id)}
+                  className="text-red-700"
+                  onClick={() => openDeleteDialog(appointment.$id)}
                 >
                   Delete
                 </Button>
@@ -451,8 +476,8 @@ const CalendarPage = () => {
 
           {/* Success/Error Message */}
           {message && (
-            <div className={`fixed top-4 right-4 p-4 rounded-md shadow-md z-50 ${
-              messageType === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
+              messageType === "success" ? " bg-green-100 text-green-800" : " bg-red-100 text-red-800"
             }`}>
               {message}
             </div>
@@ -561,9 +586,9 @@ const CalendarPage = () => {
 
       {/* Diagnosis/Cancellation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white text-black">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-blue-700">
               {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
             </DialogTitle>
           </DialogHeader>
@@ -571,12 +596,13 @@ const CalendarPage = () => {
           {selectedStatus === "Cancelled" ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Reason for Cancellation</label>
+                <label className="text-sm font-medium text-black">Reason for Cancellation</label>
                 <Textarea
                   value={cancellationReason}
                   onChange={(e) => setCancellationReason(e.target.value)}
                   placeholder="Please provide a reason for cancellation"
                   required
+                  className="bg-gray-50 border-blue-700"
                 />
               </div>
             </div>
@@ -589,6 +615,7 @@ const CalendarPage = () => {
                   onChange={(e) => setBloodPressure(e.target.value)}
                   placeholder="e.g. 120/80"
                   required
+                  className="bg-white border border-blue-700 text-black"
                 />
               </div>
               <div className="space-y-2">
@@ -598,6 +625,7 @@ const CalendarPage = () => {
                   onChange={(e) => setChiefComplaint(e.target.value)}
                   placeholder="Primary reason for visit"
                   required
+                  className="bg-white border border-blue-700 text-black"
                 />
               </div>
               <div className="space-y-2">
@@ -607,16 +635,17 @@ const CalendarPage = () => {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Diagnosis notes and recommendations"
                   required
+                  className="bg-white border border-blue-700 text-black"
                 />
               </div>
             </div>
           )}
           
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+            <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border-red-700" type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="button" onClick={handleModalSubmit}>
+            <Button className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700" type="button" onClick={handleModalSubmit}>
               {selectedStatus === "Cancelled" ? "Confirm Cancellation" : "Complete Appointment"}
             </Button>
           </DialogFooter>
@@ -625,20 +654,20 @@ const CalendarPage = () => {
 
       {/* Prescription Modal */}
       <Dialog open={isPrescriptionModalOpen} onOpenChange={setIsPrescriptionModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-white text-black">
           <DialogHeader>
-            <DialogTitle>Prescribe Medicines</DialogTitle>
+            <DialogTitle className="text-blue-700">Prescribe Medicines</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             {/* Medicine Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-700" />
               <Input
                 value={medicineSearchTerm}
                 onChange={(e) => handleMedicineSearch(e.target.value)}
                 placeholder="Search medicines..."
-                className="pl-10"
+                className="pl-10 bg-white border-2 border-blue-700"
               />
             </div>
             
@@ -650,10 +679,10 @@ const CalendarPage = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Name</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Brand</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Stock</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Action</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-blue-700">Name</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-blue-700">Brand</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-blue-700">Stock</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-blue-700">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -665,6 +694,7 @@ const CalendarPage = () => {
                         <td className="px-4 py-2 text-sm">
                           <Button 
                             size="sm" 
+                            className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border-blue-700"
                             variant="outline"
                             onClick={() => addMedicineToPrescription(medicine.$id, medicine.name)}
                             disabled={selectedMedicines.some(med => med.id === medicine.$id) || parseInt(medicine.stock) <= 0}
@@ -681,13 +711,13 @@ const CalendarPage = () => {
             
             {/* Selected Medicines */}
             <div>
-              <h3 className="text-sm font-medium mb-2">Selected Medicines</h3>
+              <h3 className="text-sm font-medium mb-2 text-blue-700">Selected Medicines</h3>
               {selectedMedicines.length === 0 ? (
                 <div className="text-sm text-gray-500">No medicines selected</div>
               ) : (
                 <div className="space-y-2">
                   {selectedMedicines.map(medicine => (
-                    <div key={medicine.id} className="flex items-center justify-between border rounded-md p-2">
+                    <div key={medicine.id} className="flex items-center justify-between border border-blue-700 rounded-md p-2">
                       <span className="text-sm">{medicine.name}</span>
                       <div className="flex items-center gap-2">
                         <Button 
@@ -726,15 +756,44 @@ const CalendarPage = () => {
           </div>
           
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsPrescriptionModalOpen(false)}>
+            <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border border-red-700" type="button" variant="outline" onClick={() => setIsPrescriptionModalOpen(false)}>
               Cancel
             </Button>
             <Button 
               type="button" 
+              className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
               onClick={handlePrescriptionSubmit}
               disabled={selectedMedicines.length === 0}
             >
               Prescribe Medicines
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-red-700">Delete Appointment</DialogTitle>
+            <DialogDescription className="text-gray-500">
+              Are you sure you want to delete this appointment? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              className="border border-red-700 hover:bg-white hover:text-red-700 bg-red-700 text-white"
+            >
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

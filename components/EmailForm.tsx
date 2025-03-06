@@ -34,7 +34,7 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
-      <h2 className="text-xl font-semibold text-black">Send an Email</h2>
+      <h2 className="text-2xl font-semibold text-blue-700 mb-5">Send an Email</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
