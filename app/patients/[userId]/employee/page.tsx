@@ -24,6 +24,8 @@ const EmployeePage = () => {
   const [isDiagnosisExpanded, setIsDiagnosisExpanded] = useState(false);
   const [isDietExpanded, setIsDietExpanded] = useState(true); // Expanded by default
 
+  
+
   useEffect(() => {
     const fetchEmployee = async () => {
       try {

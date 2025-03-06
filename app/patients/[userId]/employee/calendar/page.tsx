@@ -20,6 +20,9 @@ interface Appointment {
   reason: string;
   status: "Scheduled" | "Completed" | "Cancelled";
   userid: string;
+  cancellationReason?: string;
+  diagnosis?: string;
+  prescriptions?: string;
 }
 
 interface Employee {
@@ -234,6 +237,31 @@ const EmployeeCalendarPage = () => {
                   <p className="text-sm">Time: {appointment.time}</p>
                   <p className="text-sm mt-1">Reason: {appointment.reason}</p>
                   <p className="text-sm">Status: {appointment.status}</p>
+                  
+                  {appointment.status === "Cancelled" && appointment.cancellationReason && (
+                    <p className="text-sm text-gray-500 mt-1">Reason: {appointment.cancellationReason}</p>
+                  )}
+                  
+                  {appointment.status === "Completed" && appointment.diagnosis && (
+                    <div className="mt-2">
+                      <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
+                      <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
+                      <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
+                      
+                      {JSON.parse(appointment.diagnosis).medicines && (
+                        <div className="mt-2 border-t pt-2">
+                          <p className="text-sm font-semibold">Prescribed Medicines:</p>
+                          <ul className="text-sm list-disc pl-5">
+                            {JSON.parse(appointment.diagnosis).medicines.map((med: any, index: number) => (
+                              <li key={index}>
+                                {med.name} - {med.quantity} unit(s)
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

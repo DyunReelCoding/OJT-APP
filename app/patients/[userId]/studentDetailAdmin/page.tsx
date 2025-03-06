@@ -374,34 +374,53 @@ const StudentDetail = () => {
       </div>
 
       {/* Diet Recommendation Form */}
-      <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-blue-700 mb-5">Send Diet Recommendation</h2>
-        <form onSubmit={handleDietRecommendationSubmit}>
-          <div className="space-y-4">
-            <textarea
-              placeholder="Enter diet recommendation note..."
-              value={dietNote}
-              onChange={(e) => setDietNote(e.target.value)}
-              className="w-full p-2 bg-gray-50 text-black rounded-lg focus:outline-none border border-blue-700"
-              rows={4}
-              required
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setDietImage(e.target.files?.[0] || null)}
-              className="w-full p-2 bg-gray-50 text-white rounded-lg"
-            />
-            <Button
-              type="submit"
-              className="bg-blue-700 hover:bg-blue-500 text-white"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Sending..." : "Send Recommendation"}
-            </Button>
-          </div>
-        </form>
-        {/* Display message after submission */}
+{/* Diet Recommendation Form */}
+<div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700">
+  <h2 className="text-2xl font-semibold text-blue-700">Send Diet Recommendation</h2>
+  <hr className="border-blue-300 my-3" />
+  <form onSubmit={handleDietRecommendationSubmit}>
+    <div className="space-y-4">
+      <textarea
+        placeholder="Enter diet recommendation note..."
+        value={dietNote}
+        onChange={(e) => setDietNote(e.target.value)}
+        className="w-full p-2 bg-gray-100 text-black border border-gray-300 rounded-lg"
+        rows={4}
+        required
+      />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null;
+          setDietImage(file);
+        }}
+        className="w-full p-2 bg-gray-100 text-black border border-gray-300 rounded-lg"
+      />
+      
+      {/* Image Preview Section */}
+      {dietImage && (
+        <div className="mt-3">
+          <p className="text-sm text-gray-600">Selected Image:</p>
+          <img
+            src={URL.createObjectURL(dietImage)}
+            alt="Selected diet"
+            className="w-96 h-64 object-cover rounded-lg border border-gray-400 mt-2"
+          />
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        className="bg-blue-700 hover:bg-blue-500 text-white"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Sending..." : "Send Recommendation"}
+      </Button>
+    </div>
+  </form>
+
+  {/* Display message after submission */}
   {message && (
     <p className={`mt-3 text-sm ${isSuccess ? "text-green-500" : "text-red-500"}`}>
       {message}
@@ -436,9 +455,9 @@ const StudentDetail = () => {
       {student.dietRecommendations ? (
         JSON.parse(student.dietRecommendations).length > 0 ? (
           JSON.parse(student.dietRecommendations).map((recommendation: any, index: number) => (
-            <div key={index} className="mb-4 border border-blue-700 rounded-lg p-4 relative text-black">
+            <div key={index} className="mb-4 border rounded-lg p-4 relative text-black">
               <button 
-                className="absolute top-2 right-2 bg-red-700 text-white p-2 rounded-lg shadow hover:bg-white hover:text-red-700 border border-red-700" 
+                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-lg shadow hover:bg-red-700" 
                 onClick={() => openDeleteModal(index)}
               >
                 Delete
@@ -454,6 +473,10 @@ const StudentDetail = () => {
                 </div>
               )}
               <p><strong className="text-blue-700">Date:</strong> {new Date(recommendation.timestamp).toLocaleString()}</p>
+
+    
+
+              
             </div>
           ))
         ) : (
