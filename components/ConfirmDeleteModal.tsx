@@ -20,15 +20,15 @@ export default function ConfirmDeleteModal({ isOpen, onClose, onConfirm }: Confi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-white text-black">
         <DialogHeader>
-          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogTitle className="text-red-700">Confirm Deletion</DialogTitle>
         </DialogHeader>
         <p>Are you sure you want to delete this recommendation?</p>
         {message && <p className="text-green-600 font-semibold">{message}</p>}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="destructive" className="bg-red-600 hover:bg-red-700" onClick={handleConfirm}>
+          <Button variant="outline" className="bg-blue-700 text-white border border-blue-700 hover:bg-white hover:text-blue-700"  onClick={onClose}>Cancel</Button>
+          <Button variant="destructive" className="bg-red-700 text-white border border-red-700 hover:bg-white hover:text-red-700"  onClick={handleConfirm}>
             Delete
           </Button>
         </DialogFooter>
