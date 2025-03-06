@@ -374,25 +374,42 @@ const StudentDetail = () => {
       </div>
 
       {/* Diet Recommendation Form */}
-<div className="bg-gray-800 p-6 rounded-lg shadow-md">
-  <h2 className="text-xl font-semibold">Send Diet Recommendation</h2>
-  <hr className="border-gray-700 my-3" />
+{/* Diet Recommendation Form */}
+<div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700">
+  <h2 className="text-2xl font-semibold text-blue-700">Send Diet Recommendation</h2>
+  <hr className="border-blue-300 my-3" />
   <form onSubmit={handleDietRecommendationSubmit}>
     <div className="space-y-4">
       <textarea
         placeholder="Enter diet recommendation note..."
         value={dietNote}
         onChange={(e) => setDietNote(e.target.value)}
-        className="w-full p-2 bg-gray-700 text-white rounded-lg"
+        className="w-full p-2 bg-gray-100 text-black border border-gray-300 rounded-lg"
         rows={4}
         required
       />
       <input
         type="file"
         accept="image/*"
-        onChange={(e) => setDietImage(e.target.files?.[0] || null)}
-        className="w-full p-2 bg-gray-700 text-white rounded-lg"
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null;
+          setDietImage(file);
+        }}
+        className="w-full p-2 bg-gray-100 text-black border border-gray-300 rounded-lg"
       />
+      
+      {/* Image Preview Section */}
+      {dietImage && (
+        <div className="mt-3">
+          <p className="text-sm text-gray-600">Selected Image:</p>
+          <img
+            src={URL.createObjectURL(dietImage)}
+            alt="Selected diet"
+            className="w-96 h-64 object-cover rounded-lg border border-gray-400 mt-2"
+          />
+        </div>
+      )}
+
       <Button
         type="submit"
         className="bg-blue-700 hover:bg-blue-500 text-white"
@@ -459,25 +476,7 @@ const StudentDetail = () => {
 
     
 
-              {/* Delete Button */}
-              <button
-                onClick={() => handleDeleteRecommendation(index)}
-                className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-500"
-                title="Delete Recommendation"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
+              
             </div>
           ))
         ) : (
