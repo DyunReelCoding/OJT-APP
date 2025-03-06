@@ -164,16 +164,14 @@ const ManagementPage = () => {
         </div>
 
         {message && (
-          <div className="flex relative w-full items-center justify-center">
           <div
-            className={`flex px-4 py-3 rounded absolute my-4 border top-28 items-center justify-center${
-              messageType === "success"
-                ? "bg-green-100 border-green-400 text-green-700"
-                : "bg-red-100 border-red-400 text-red-700"
-            }`}
-          >
-            {message}
-          </div>
+          className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
+            messageType === "success"
+              ? " bg-green-100 border-green-400 text-green-700"
+              : " bg-red-100 border-red-400 text-red-700"
+          }`}
+        >
+          {message}
         </div>
       )}
 
@@ -210,7 +208,7 @@ const ManagementPage = () => {
           type="text"
           value={updatedItem}
           onChange={(e) => setUpdatedItem(e.target.value)}
-          className="bg-blue-200 text-black px-2 py-1 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-blue-50 text-black px-2 py-1 rounded-md border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         ) : (
           <span className="text-lg text-black">{item.name}</span>

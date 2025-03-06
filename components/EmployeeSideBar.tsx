@@ -42,7 +42,7 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
     <div className={`${isOpen ? "w-64" : "w-16"} bg-white text-blue-700 min-h-screen transition-all duration-300`}>
       <div className="flex justify-between items-center p-4">
         {isOpen && <h2 className="text-xl font-bold">Employee Portal</h2>}
-        <button onClick={() => setIsOpen(!isOpen)} className="p-2">
+        <button onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X /> : <Menu />}
         </button>
       </div>

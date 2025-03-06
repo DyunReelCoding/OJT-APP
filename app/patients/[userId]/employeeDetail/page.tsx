@@ -98,8 +98,8 @@ const StudentDetail = () => {
             <tbody>
               {section.data.map(([label, value]) => (
                 <tr key={label} className="border border-gray-700">
-                  <td className="p-2 font-semibold w-1/2 bg-blue-100">{label}</td>
-                  <td className="p-2">{value || "N/A"}</td>
+                  <td className="p-2 font-semibold w-1/2 bg-blue-100 text-blue-700">{label}</td>
+                  <td className="p-2">{value || "N/A"}</td> 
                 </tr>
               ))}
             </tbody>

@@ -187,7 +187,7 @@ const CalendarPage = () => {
           <h2 className="text-2xl font-semibold text-gray-700">
             {format(selectedDate, 'MMMM d, yyyy')}
           </h2>
-          <Button variant="outline" onClick={() => setView('month')}>
+          <Button className="bg-blue-700 " variant="outline" onClick={() => setView('month')}>
             Back to Month View
           </Button>
         </div>
@@ -219,7 +219,7 @@ const CalendarPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <select
-                  className="border rounded p-1 mr-2"
+                  className="border border-blue-700 rounded p-1 mr-2 bg-white"
                   value={appointment.status}
                   onChange={(e) => handleStatusChange(appointment.$id, e.target.value)}
                 >
@@ -230,7 +230,7 @@ const CalendarPage = () => {
                 <Button 
                   size="sm" 
                   variant="ghost" 
-                  className="text-red-500"
+                  className=" text-red-700 hover:bg-red-700 hover:text-white"
                   onClick={() => handleDelete(appointment.$id)}
                 >
                   Delete
@@ -382,9 +382,9 @@ const CalendarPage = () => {
               setCancellationReason("");
             }
           }}>
-            <DialogContent>
+            <DialogContent className="bg-white">
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-blue-700">
                   {selectedStatus === "Cancelled" ? "Cancellation Reason" : "Diagnosis Details"}
                 </DialogTitle>
               </DialogHeader>
@@ -394,6 +394,7 @@ const CalendarPage = () => {
                     placeholder="Enter cancellation reason..."
                     value={cancellationReason}
                     onChange={(e) => setCancellationReason(e.target.value)}
+                    className="bg-white text-black border-blue-700"
                   />
                 </div>
               ) : (
@@ -402,12 +403,13 @@ const CalendarPage = () => {
                     placeholder="Blood Pressure"
                     value={bloodPressure}
                     onChange={(e) => setBloodPressure(e.target.value)}
+                    className="bg-white border-blue-700 text-black"
                   />
                   <Select value={chiefComplaint} onValueChange={(value) => setChiefComplaint(value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-blue-700 border-blue-700">
                       <SelectValue placeholder="Select Chief Complaint" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white text-blue-700 border-2 border-blue-700">
                       <SelectItem value="Fever">Fever</SelectItem>
                       <SelectItem value="Cough">Cough</SelectItem>
                       <SelectItem value="Headache">Headache</SelectItem>
@@ -419,6 +421,7 @@ const CalendarPage = () => {
                     placeholder="Notes..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
+                    className="bg-white border-blue-700 text-black"
                   />
                   {notes.length > 100 && (
                     <p className="text-xs text-red-500">
@@ -428,8 +431,8 @@ const CalendarPage = () => {
                 </div>
               )}
               <DialogFooter>
-                <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                <Button onClick={handleModalSubmit}>Submit</Button>
+                <Button  className="font-semibold hover:bg-white hover:text-blue-700 border border-blue-700 bg-blue-700 text-white" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button className="font-semibold hover:bg-white hover:text-green-500 border border-green-500 bg-green-500 text-white" onClick={handleModalSubmit}>Submit</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

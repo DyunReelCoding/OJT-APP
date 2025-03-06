@@ -33,11 +33,11 @@ const AppointmentsPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [messageType, setMessageType] = useState(""); // "success" or "error"
-  
+
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
+
   const databases = new Databases(client);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const AppointmentsPage = () => {
 
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
-    
+
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
@@ -127,7 +127,7 @@ const AppointmentsPage = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
-      
+
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
@@ -135,7 +135,7 @@ const AppointmentsPage = () => {
               <h1 className="text-3xl font-bold text-blue-700">Manage Appointments</h1>
               <p className="text-gray-600 mt-2">View and manage all appointments</p>
             </div>
-            <Button 
+            <Button
               onClick={fetchAppointments}
               variant="outline"
               className="flex items-center gap-2"
@@ -144,19 +144,16 @@ const AppointmentsPage = () => {
             </Button>
           </div>
 
-      {message && (
-          <div className="flex items-center justify-center">
-          <div
-            className={`flex px-4 py-3 rounded relative my-4 border items-center justify-center${
-              messageType === "success"
-                ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
-                : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
-            }`}
-          >
-            {message}
-          </div>
-        </div>
-      )}
+          {message && (
+            <div
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success"
+                  ? " bg-green-100 border-green-400 text-green-700"
+                  : " bg-red-100 border-red-400 text-red-700"
+                }`}
+            >
+              {message}
+            </div>
+          )}
 
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-6">
@@ -203,11 +200,12 @@ const AppointmentsPage = () => {
                             <option value="Cancelled">Cancelled</option>
                           </select>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-red-700">
+                        <td className="px-4 py-4 whitespace-nowrap text-red-700">
                           <Button
                             onClick={() => openDeleteDialog(appointment.$id)}
                             variant="destructive"
                             size="sm"
+                            className=" hover:bg-red-700 hover:text-white px-5"
                           >
                             Delete
                           </Button>
@@ -234,14 +232,14 @@ const AppointmentsPage = () => {
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white"
+              className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
-              className="border border-red-700 text-red-700 hover:bg-red-700 hover:text-white"
+              className="border border-red-700 hover:bg-white hover:text-red-700 bg-red-700 text-white"
             >
               Delete
             </Button>

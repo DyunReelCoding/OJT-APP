@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Client, Databases, ID } from "appwrite";
 import { Button } from "@/components/ui/button";
 
@@ -64,9 +64,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
         <input
           type="text"
           value={patientName}
-          onChange={(e) => setPatientName(e.target.value)}
           className="mt-1 block w-full rounded-md border-2 border-blue-700 p-2 bg-white text-black focus:outline-none"
-          required
         />
       </div>
 
@@ -104,18 +102,15 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
       </div>
 
       {message && (
-            <div className="flex items-center justify-center">
-              <div
-                className={`flex px-4 py-3 rounded relative my-4 border items-center justify-center${
-                  messageType === "success"
-                    ? "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
-                    : "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
-                }`}
-              >
-                {message}
-              </div>
-            </div>
-              
+            <div
+            className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
+              messageType === "success"
+                ? " bg-green-100 border-green-400 text-green-700"
+                : " bg-red-100 border-red-400 text-red-700"
+            }`}
+          >
+            {message}
+          </div>
           )}
 
       <Button type="submit" className="w-full bg-green-400 text-white hover:bg-green-500">

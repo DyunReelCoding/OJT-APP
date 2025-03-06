@@ -93,12 +93,12 @@ const StudentDetail = () => {
         ] }
       ].map((section, index) => (
         <div key={index} className="bg-gray-50 p-6 rounded-lg shadow-md border-2 border-blue-700">
-          <h2 className="text-xl font-semibold mb-4 text-blue-700">{section.title}</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-blue-700">{section.title}</h2>
           <table className="w-full border-collapse border border-gray-700">
             <tbody>
               {section.data.map(([label, value]) => (
                 <tr key={label} className="border border-gray-700">
-                  <td className="p-2 font-bold w-1/2 bg-blue-100">{label}</td>
+                  <td className="p-2 font-bold w-1/2 bg-blue-50 text-blue-700">{label}</td> 
                   <td className="p-2">{value || "N/A"}</td>
                 </tr>
               ))}
