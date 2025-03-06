@@ -379,6 +379,7 @@ const StudentDetail = () => {
       </div>
 
       {/* Diet Recommendation Form */}
+{/* Diet Recommendation Form */}
 <div className="bg-gray-800 p-6 rounded-lg shadow-md">
   <h2 className="text-xl font-semibold">Send Diet Recommendation</h2>
   <hr className="border-gray-700 my-3" />
@@ -395,9 +396,23 @@ const StudentDetail = () => {
       <input
         type="file"
         accept="image/*"
-        onChange={(e) => setDietImage(e.target.files?.[0] || null)}
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null;
+          setDietImage(file);
+        }}
         className="w-full p-2 bg-gray-700 text-white rounded-lg"
       />
+      {/* Preview selected image */}
+      {dietImage && (
+        <div className="mt-2">
+          <p className="text-sm text-gray-400">Selected Image:</p>
+          <img
+            src={URL.createObjectURL(dietImage)}
+            alt="Selected diet"
+            className="w-96 h-64 object-cover rounded-lg border border-gray-600 mt-2"
+          />
+        </div>
+      )}
       <Button
         type="submit"
         className="bg-blue-700 hover:bg-blue-500 text-white"
