@@ -94,7 +94,7 @@ const StudentPage = () => {
               onClick={() => setIsDietExpanded(!isDietExpanded)}
             >
               <h2 className="text-2xl font-semibold text-green-700">
-                Diet Recommendation
+              Wellness Notes
               </h2>
               <div>
                 {isDietExpanded ? (
@@ -113,14 +113,14 @@ const StudentPage = () => {
                       <div className="mt-4">
                         <img
                           src={student.dietImageUrl}
-                          alt="Diet Recommendation"
+                          alt="Wellness Notes"
                           className="w-full max-w-md rounded-lg shadow-md"
                         />
                       </div>
                     )}
                   </>
                 ) : (
-                  <p className="text-gray-800">No diet recommendation available.</p>
+                  <p className="text-gray-800">No Wellness Note available.</p>
                 )}
               </div>
             )}

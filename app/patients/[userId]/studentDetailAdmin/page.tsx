@@ -146,8 +146,8 @@ const StudentDetail = () => {
       setTimeout(() => setMessage(""), 3000); // Clear message after 3 seconds
       setIsSuccess(true);
     } catch (error) {
-      console.error("Error sending diet recommendation:", error);
-      setMessage("Failed to send diet recommendation.");
+      console.error("Error sending Wellness Notes:", error);
+      setMessage("Failed to send Wellness Notes.");
       setIsSuccess(false);
     } finally {
       setIsSubmitting(false);
@@ -188,7 +188,7 @@ const StudentDetail = () => {
       setTimeout(() => setMessageHistory(""), 3000); // Clear message after 3 seconds
       setIsSuccessHistory(true);
     } catch (error) {
-      console.error("Error deleting recommendation:", error);
+      console.error("Error deleting Wellness Notes:", error);
     }
   };
 
@@ -376,7 +376,7 @@ const StudentDetail = () => {
       {/* Diet Recommendation Form */}
 {/* Diet Recommendation Form */}
 <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700">
-  <h2 className="text-2xl font-semibold text-blue-700 mb-5">Send Diet Recommendation</h2>
+  <h2 className="text-2xl font-semibold text-blue-700 mb-5">Send Wellness Notes</h2>
   <form onSubmit={handleDietRecommendationSubmit}>
     <div className="space-y-4">
       <textarea
@@ -414,7 +414,7 @@ const StudentDetail = () => {
         className="bg-blue-700 hover:bg-blue-500 text-white"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Sending..." : "Send Recommendation"}
+        {isSubmitting ? "Sending..." : "Send Wellness Notes"}
       </Button>
     </div>
   </form>
@@ -434,7 +434,7 @@ const StudentDetail = () => {
     className="flex justify-between items-center cursor-pointer"
     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
   >
-    <h2 className="text-2xl font-semibold text-blue-700">Diet Recommendation History</h2>
+    <h2 className="text-2xl font-semibold text-blue-700">Wellness Notes History</h2>
     <div>
       {isHistoryExpanded ? (
         <ChevronUp className="h-5 w-5 text-blue-700" />
@@ -466,7 +466,7 @@ const StudentDetail = () => {
                 <div className="mt-2">
                   <img
                     src={recommendation.imageUrl}
-                    alt="Diet Recommendation"
+                    alt="Wellness Notes"
                     className="w-full max-w-md rounded-lg shadow-md"
                   />
                 </div>

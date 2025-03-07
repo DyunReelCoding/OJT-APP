@@ -90,7 +90,7 @@ const EmployeePage = () => {
               className="flex justify-between items-center cursor-pointer"
               onClick={() => setIsDietExpanded(!isDietExpanded)}
             >
-              <h2 className="text-2xl font-semibold text-green-700">Diet Recommendation</h2>
+              <h2 className="text-2xl font-semibold text-green-700">Wellness Notes</h2>
               <div>
                 {isDietExpanded ? (
                   <ChevronUp className="h-6 w-6 text-gray-600" />
@@ -108,14 +108,14 @@ const EmployeePage = () => {
                       <div className="mt-4">
                         <img
                           src={employee.dietImageUrl}
-                          alt="Diet Recommendation"
+                          alt="Wellness Notes"
                           className="w-full max-w-md rounded-lg shadow-md"
                         />
                       </div>
                     )}
                   </>
                 ) : (
-                  <p className="text-gray-800">No diet recommendation available.</p>
+                  <p className="text-gray-800">No Wellness Notes available.</p>
                 )}
               </div>
             )}

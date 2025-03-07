@@ -427,14 +427,15 @@ const CalendarPage = () => {
                     {appointment.diagnosis && JSON.parse(appointment.diagnosis).medicines ? "Update Prescription" : "Add Prescription"}
                   </Button>
                 )}
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-red-700"
-                  onClick={() => openDeleteDialog(appointment.$id)}
-                >
-                  Delete
-                </Button>
+               <Button 
+  size="sm" 
+  variant="ghost" 
+  className="bg-red-500 text-white hover:bg-red-600"
+  onClick={() => openDeleteDialog(appointment.$id)}
+>
+  Delete
+</Button>
+
               </div>
             </div>
           ))}
