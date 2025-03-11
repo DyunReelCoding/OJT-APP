@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases, ID, Models } from "appwrite";
+import { Client, Databases, ID } from "appwrite";
 import { useParams } from "next/navigation";
 import StudentSideBar from "@/components/StudentSideBar";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
 
 interface Appointment {
   $id: string;
@@ -32,6 +32,13 @@ interface Student {
   // Add other student fields as needed
 }
 
+interface UnavailableSlot {
+  $id: string;
+  date: string;
+  timeRange: string;
+  reason?: string;
+}
+
 const StudentCalendarPage = () => {
   const params = useParams();
   const userId = params.userId as string;
@@ -40,6 +47,7 @@ const StudentCalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'day'>('month');
   const [student, setStudent] = useState<Student | null>(null);
+  const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]); // State for unavailable slots
   
   // State for appointment scheduling
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -63,8 +71,21 @@ const StudentCalendarPage = () => {
   useEffect(() => {
     fetchStudentData();
     fetchAppointments();
+    fetchUnavailableSlots(); // Fetch unavailable slots
   }, [currentDate]);
 
+  const fetchUnavailableSlots = async () => {
+    try {
+      const response = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        "67cd8eaa000fac61575d" // Unavailable slots collection ID
+      );
+      setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
+    } catch (error) {
+      console.error("Error fetching unavailable slots:", error);
+    }
+  };
+  
   const fetchStudentData = async () => {
     try {
       const response = await databases.getDocument(
@@ -123,6 +144,33 @@ const StudentCalendarPage = () => {
     }
   };
 
+  const isSlotUnavailable = (date: Date, time: string) => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    return unavailableSlots.some((slot) => {
+      const [startTime, endTime] = slot.timeRange.split(" - ");
+      return (
+        slot.date === formattedDate &&
+        time >= startTime &&
+        time <= endTime
+      );
+    });
+  };
+
+  // Function to generate time slots from 8:00 AM to 5:00 PM with 15-30 minute intervals
+  const generateTimeSlots = () => {
+    const slots = [];
+    let currentTime = new Date();
+    currentTime.setHours(8, 0, 0); // Start at 8:00 AM
+
+    while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
+      const formattedTime = format(currentTime, 'h:mm a');
+      slots.push(formattedTime);
+      // Add 15-30 minutes randomly
+      currentTime.setMinutes(currentTime.getMinutes() + 30);     }
+
+    return slots;
+  };
+
   // Function to handle opening the schedule modal
   const handleScheduleClick = (date: Date) => {
     setSchedulingDate(date);
@@ -147,11 +195,16 @@ const StudentCalendarPage = () => {
     }));
   };
 
-  // Function to handle appointment submission
   const handleSubmitAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!schedulingDate) return;
+    
+    // Check if the selected time slot is unavailable
+    if (isSlotUnavailable(schedulingDate, newAppointment.time)) {
+      setSubmitError("This time slot is unavailable. Please choose another time.");
+      return;
+    }
     
     setIsSubmitting(true);
     setSubmitError("");
@@ -163,7 +216,7 @@ const StudentCalendarPage = () => {
       // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        "67b96b0800349392bb1c", // Appointment collection ID
         ID.unique(),
         {
           patientName: newAppointment.patientName,
@@ -275,6 +328,14 @@ const StudentCalendarPage = () => {
   const renderScheduleModal = () => {
     if (!showScheduleModal || !schedulingDate) return null;
 
+    // Get unavailable slots for the selected date
+    const unavailableSlotsForDay = unavailableSlots.filter(
+      slot => slot.date === format(schedulingDate, 'yyyy-MM-dd')
+    );
+
+    // Generate time slots from 8:00 AM to 5:00 PM
+    const timeSlots = generateTimeSlots();
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
@@ -305,18 +366,44 @@ const StudentCalendarPage = () => {
               />
               <p className="text-xs text-gray-500">Name is automatically filled based on your account</p>
             </div>
-            
+
+            {/* Display unavailable slots for the selected date */}
+            {unavailableSlotsForDay.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-blue-700">Unavailable Time Slots</Label>
+                <div className="bg-gray-100 p-3 rounded-md">
+                  {unavailableSlotsForDay.map(slot => (
+                    <div key={slot.$id} className="text-sm text-gray-600">
+                      {slot.timeRange} - {slot.reason || "No reason provided"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label className="text-blue-700" htmlFor="time">Time</Label>
-              <Input
-                id="time"
-                name="time"
-                type="time"
-                value={newAppointment.time}
-                onChange={handleInputChange}
-                required
-                className="bg-gray-50 text-black border-blue-700"
-              />
+              <Select
+  name="time"
+  value={newAppointment.time}
+  onValueChange={(value) => setNewAppointment(prev => ({ ...prev, time: value }))}
+  required
+>
+  <SelectTrigger className="bg-gray-50 text-black border-blue-700">
+    <SelectValue placeholder="Select a time slot" />
+  </SelectTrigger>
+  <SelectContent className="bg-white border border-blue-700 text-black">
+    {timeSlots.map((time, index) => (
+      <SelectItem
+        key={index}
+        value={time}
+        disabled={isSlotUnavailable(schedulingDate, time)}
+      >
+        {time}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
             </div>
             
             <div className="space-y-2">
@@ -439,6 +526,11 @@ const StudentCalendarPage = () => {
                     });
                     const isToday = date.toDateString() === new Date().toDateString();
 
+                    // Check if the date has any unavailable slots
+                    const unavailableSlotsForDay = unavailableSlots.filter(
+                      slot => slot.date === format(date, 'yyyy-MM-dd')
+                    );
+
                     return (
                       <div
                         key={i}
@@ -481,6 +573,15 @@ const StudentCalendarPage = () => {
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
+                          {/* Display unavailable slots */}
+                          {unavailableSlotsForDay.map(slot => (
+                            <div
+                              key={slot.$id}
+                              className="text-xs p-1.5 rounded-md bg-gray-200 text-gray-500"
+                            >
+                              {slot.timeRange} - Unavailable
+                            </div>
+                          ))}
                           <div 
                             className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
                             onClick={() => handleScheduleClick(date)}
@@ -506,4 +607,4 @@ const StudentCalendarPage = () => {
   );
 };
 
-export default StudentCalendarPage; 
+export default StudentCalendarPage;

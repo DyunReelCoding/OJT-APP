@@ -94,7 +94,7 @@ const StudentPage = () => {
               onClick={() => setIsDietExpanded(!isDietExpanded)}
             >
               <h2 className="text-2xl font-semibold text-green-700">
-              Wellness Notes
+                Wellness Notes
               </h2>
               <div>
                 {isDietExpanded ? (
@@ -150,31 +150,48 @@ const StudentPage = () => {
                     (appointment) =>
                       appointment.status === "Completed" && appointment.diagnosis
                   )
-                  .map((appointment) => (
-                    <div
-                      key={appointment.$id}
-                      className="mb-4 border rounded-lg p-4"
-                    >
-                      <p className="text-gray-800">
-                        <strong>Date:</strong> {appointment.date}
-                      </p>
-                      <p className="text-gray-800">
-                        <strong>Time:</strong> {appointment.time}
-                      </p>
-                      <p className="text-gray-800">
-                        <strong>Blood Pressure:</strong>{" "}
-                        {JSON.parse(appointment.diagnosis).bloodPressure}
-                      </p>
-                      <p className="text-gray-800">
-                        <strong>Chief Complaint:</strong>{" "}
-                        {JSON.parse(appointment.diagnosis).chiefComplaint}
-                      </p>
-                      <p className="text-gray-800">
-                        <strong>Notes:</strong>{" "}
-                        {JSON.parse(appointment.diagnosis).notes}
-                      </p>
-                    </div>
-                  ))}
+                  .map((appointment) => {
+                    let diagnosis = {
+                      bloodPressure: "N/A",
+                      chiefComplaint: "N/A",
+                      notes: "N/A",
+                    };
+
+                    try {
+                      // Safely parse the diagnosis field
+                      if (appointment.diagnosis) {
+                        diagnosis = JSON.parse(appointment.diagnosis);
+                      }
+                    } catch (error) {
+                      console.error("Error parsing diagnosis:", error);
+                    }
+
+                    return (
+                      <div
+                        key={appointment.$id}
+                        className="mb-4 border rounded-lg p-4"
+                      >
+                        <p className="text-gray-800">
+                          <strong>Date:</strong> {appointment.date}
+                        </p>
+                        <p className="text-gray-800">
+                          <strong>Time:</strong> {appointment.time}
+                        </p>
+                        <p className="text-gray-800">
+                          <strong>Blood Pressure:</strong> {diagnosis.bloodPressure}
+                        </p>
+                        <p className="text-gray-800">
+                          <strong>Chief Complaint:</strong>{" "}
+                          {Array.isArray(diagnosis.chiefComplaint)
+                            ? diagnosis.chiefComplaint.join(", ") // Display as comma-separated list
+                            : diagnosis.chiefComplaint}
+                        </p>
+                        <p className="text-gray-800">
+                          <strong>Notes:</strong> {diagnosis.notes}
+                        </p>
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </div>
