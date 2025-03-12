@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp } from "lucide-react"; // Icons for expand/colla
 import { Button } from "@/components/ui/button"; // Import the Button component
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 
+
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
   .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!)
@@ -44,6 +45,7 @@ const StudentDetail = () => {
 
   // Collapsible state for diet recommendation history
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
+  
 
   const fetchStudent = async () => {
     try {
@@ -142,7 +144,7 @@ const StudentDetail = () => {
       fetchStudent();
       setDietNote("");
       setDietImage(null);
-      setMessage("Diet recommendation sent successfully!");
+      setMessage("Wellness Notes. sent successfully!");
       setTimeout(() => setMessage(""), 3000); // Clear message after 3 seconds
       setIsSuccess(true);
     } catch (error) {
@@ -375,12 +377,12 @@ const StudentDetail = () => {
 
       {/* Diet Recommendation Form */}
 {/* Diet Recommendation Form */}
-<div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700">
+<div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 relative">
   <h2 className="text-2xl font-semibold text-blue-700 mb-5">Send Wellness Notes</h2>
   <form onSubmit={handleDietRecommendationSubmit}>
     <div className="space-y-4">
       <textarea
-        placeholder="Enter diet recommendation note..."
+        placeholder="Enter wellness note..."
         value={dietNote}
         onChange={(e) => setDietNote(e.target.value)}
         className="w-full p-2 bg-gray-50 text-black border border-blue-700 rounded-lg focus:outline-none"
@@ -397,13 +399,71 @@ const StudentDetail = () => {
         className="w-full p-2 bg-gray-100 text-black border border-gray-300 rounded-lg"
       />
       
+      {/* Camera Capture Button */}
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            video.playsInline = true;
+            video.style.display = 'block';
+            video.style.width = '100%';
+            video.style.maxWidth = '400px';
+            video.style.border = '2px solid #1e3a8a';
+            video.style.borderRadius = '8px';
+            video.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+            
+            const cameraContainer = document.createElement('div');
+            cameraContainer.style.display = 'flex';
+            cameraContainer.style.flexDirection = 'column';
+            cameraContainer.style.alignItems = 'center';
+            cameraContainer.style.marginTop = '16px';
+            cameraContainer.style.width = '100%';
+
+            cameraContainer.appendChild(video);
+            document.querySelector('.space-y-4')?.appendChild(cameraContainer);
+
+            // Create Capture button
+            const captureButton = document.createElement('button');
+            captureButton.innerText = 'Capture Photo';
+            captureButton.className = 'bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg mt-2';
+            cameraContainer.appendChild(captureButton);
+
+            // Wait for user to click Capture
+            await new Promise((resolve) => captureButton.onclick = resolve);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageUrl = canvas.toDataURL('image/png');
+            const blob = await fetch(imageUrl).then((res) => res.blob());
+            const file = new File([blob], 'captured_image.png', { type: 'image/png' });
+            setDietImage(file);
+
+            // Cleanup
+            stream.getTracks().forEach((track) => track.stop());
+            cameraContainer.remove();
+          } catch (error) {
+            console.error('Error accessing camera:', error);
+          }
+        }}
+        className="absolute top-0 right-0 m-3 p-2 border-2 border-blue-700 bg-white-600 hover:bg-blue-500 text-white rounded-full"
+      >
+        📷
+      </button>
+
       {/* Image Preview Section */}
       {dietImage && (
         <div className="mt-3">
           <p className="text-sm text-gray-600">Selected Image:</p>
           <img
             src={URL.createObjectURL(dietImage)}
-            alt="Selected diet"
+            alt="Selected notes"
             className="w-96 h-64 object-cover rounded-lg border border-gray-400 mt-2"
           />
         </div>
@@ -414,18 +474,18 @@ const StudentDetail = () => {
         className="bg-blue-700 hover:bg-blue-500 text-white"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Sending..." : "Send Wellness Notes"}
+        {isSubmitting ? 'Sending...' : 'Send Wellness Notes'}
       </Button>
     </div>
   </form>
 
   {/* Display message after submission */}
   {message && (
-    <p className={`mt-3 text-sm ${isSuccess ? "text-green-500" : "text-red-500"}`}>
+    <p className={`mt-3 text-sm ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
       {message}
     </p>
   )}
-      </div>
+</div>
 
 
 {/* Diet Recommendation History */}
@@ -479,10 +539,10 @@ const StudentDetail = () => {
             </div>
           ))
         ) : (
-          <p className="text-gray-400">No recommendations found.</p>
+          <p className="text-gray-400">No Wellness Notes found.</p>
         )
       ) : (
-        <p className="text-gray-400">No recommendations found.</p>
+        <p className="text-gray-400">No Wellness Notes found.</p>
       )}
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}

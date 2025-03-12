@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases, ID } from "appwrite"; // Import ID from Appwrite
+import { Client, Databases, ID, Query } from "appwrite"; // Import ID from Appwrite
 import SideBar from "@/components/SideBar";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Search, X } from "lucide-react"; // Import X
 import { Button } from "@/components/ui/button";
