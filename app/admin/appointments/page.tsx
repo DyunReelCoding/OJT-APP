@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Appointment {
   $id: string;
@@ -23,6 +24,7 @@ interface Appointment {
   reason: string;
   status: "Scheduled" | "Completed" | "Cancelled";
   userid: string;
+  diagnosis?: string;
 }
 
 const AppointmentsPage = () => {
@@ -33,6 +35,10 @@ const AppointmentsPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [messageType, setMessageType] = useState(""); // "success" or "error"
+  const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState<any>(null);
+  const [bpFilter, setBpFilter] = useState("");
+  const [chiefComplaintFilter, setChiefComplaintFilter] = useState("");
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -124,6 +130,36 @@ const AppointmentsPage = () => {
     }
   };
 
+  const handleViewDiagnosis = (diagnosis: string) => {
+    try {
+      const parsedDiagnosis = JSON.parse(diagnosis);
+      setSelectedDiagnosis(parsedDiagnosis);
+      setIsDiagnosisDialogOpen(true);
+    } catch (error) {
+      console.error("Error parsing diagnosis:", error);
+    }
+  };
+
+  const handleFilter = () => {
+    const filtered = appointments.filter(appointment => {
+      if (appointment.diagnosis) {
+        const diagnosis = JSON.parse(appointment.diagnosis);
+        const bpMatch = !bpFilter || diagnosis.bloodPressure === bpFilter;
+        const complaintMatch = !chiefComplaintFilter || diagnosis.chiefComplaint === chiefComplaintFilter;
+        return bpMatch && complaintMatch;
+      }
+      return false;
+    });
+    setFilteredAppointments(filtered);
+  };
+
+  const resetFilters = () => {
+    setBpFilter(""); // Reset BP filter
+    setChiefComplaintFilter(""); // Reset chief complaint filter
+    setSearchTerm(""); // Reset search term
+    fetchAppointments(); // Re-fetch appointments to show the full list
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
@@ -170,6 +206,31 @@ const AppointmentsPage = () => {
                 </div>
               </div>
 
+              {/* Filter Options */}
+              <div className="flex gap-4 mb-6 text-black">
+                <Input
+                  type="text"
+                  value={bpFilter}
+                  onChange={(e) => setBpFilter(e.target.value)}
+                  placeholder="Filter by BP (e.g., 120/80)"
+                  className="w-48 text-white"
+                />
+                <Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
+                  <SelectTrigger className="w-48 text-black">
+                    <SelectValue placeholder="Filter by Chief Complaint" />
+                  </SelectTrigger>
+                  <SelectContent className="text-black">
+                    <SelectItem value="Cough">Cough</SelectItem>
+                    <SelectItem value="Stomachache">Stomachache</SelectItem>
+                    <SelectItem value="Headache">Headache</SelectItem>
+                    <SelectItem value="Fever">Fever</SelectItem>
+                    <SelectItem value="LBM">LBM</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleFilter}>Apply Filter</Button>
+                <Button onClick={resetFilters} variant="outline">Reset Filter</Button> {/* Add this button */}
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -179,6 +240,7 @@ const AppointmentsPage = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnosis</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
@@ -200,6 +262,17 @@ const AppointmentsPage = () => {
                             <option value="Cancelled">Cancelled</option>
                           </select>
                         </td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">
+                          {appointment.diagnosis && (
+                            <Button
+                              onClick={() => handleViewDiagnosis(appointment.diagnosis!)}
+                              variant="outline"
+                              size="sm"
+                            >
+                              View Details
+                            </Button>
+                          )}
+                        </td>
                         <td className="px-4 py-4 whitespace-nowrap text-red-700">
                           <Button
                             onClick={() => openDeleteDialog(appointment.$id)}
@@ -220,6 +293,7 @@ const AppointmentsPage = () => {
         </div>
       </div>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
@@ -246,8 +320,49 @@ const AppointmentsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diagnosis Details Dialog */}
+      <Dialog open={isDiagnosisDialogOpen} onOpenChange={setIsDiagnosisDialogOpen}>
+        <DialogContent className="bg-white text-black">
+          <DialogHeader>
+            <DialogTitle className="text-blue-700">Diagnosis Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedDiagnosis && (
+              <>
+                <div>
+                  <p className="text-sm"><strong>Blood Pressure:</strong> {selectedDiagnosis.bloodPressure || 'N/A'}</p>
+                  <p className="text-sm"><strong>Chief Complaint:</strong> {selectedDiagnosis.chiefComplaint || 'N/A'}</p>
+                  <p className="text-sm"><strong>Notes:</strong> {selectedDiagnosis.notes || 'N/A'}</p>
+                </div>
+                {selectedDiagnosis.medicines && (
+                  <div>
+                    <p className="text-sm font-semibold">Prescribed Medicines:</p>
+                    <ul className="text-sm list-disc pl-5">
+                      {selectedDiagnosis.medicines.map((med: any, index: number) => (
+                        <li key={index}>
+                          {med.name} - {med.quantity} unit(s)
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDiagnosisDialogOpen(false)}
+              className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default AppointmentsPage; 
+export default AppointmentsPage;

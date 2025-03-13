@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases } from "appwrite";
+import { Client, Databases, ID, Query } from "appwrite"; // Import ID from Appwrite
 import SideBar from "@/components/SideBar";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Search } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Search, X } from "lucide-react"; // Import X
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import {
@@ -15,8 +15,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label"; // Import Label
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import ReactSelect from "react-select";
 
 interface Appointment {
   $id: string;
@@ -41,7 +43,15 @@ interface Medicine {
   expiryDate: string;
 }
 
+interface UnavailableSlot {
+  $id: string;
+  date: string;
+  timeRange: string;
+  reason?: string;
+}
+
 const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6";
+const UNAVAILABLESLOTS_COLLECTION_ID = "67cd8eaa000fac61575d"; // Replace with your collection ID
 
 const CalendarPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -70,6 +80,15 @@ const CalendarPage = () => {
   // Add these state variables with your other useState declarations
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false);
+  const [unavailableDate, setUnavailableDate] = useState<Date | null>(null);
+  const [unavailableTimeRange, setUnavailableTimeRange] = useState("");
+  const [unavailableReason, setUnavailableReason] = useState("");
+  const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
+
+
+    // New state for multi-select time slots
+    const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -80,6 +99,7 @@ const CalendarPage = () => {
   useEffect(() => {
     fetchAppointments();
     fetchMedicines();
+    fetchUnavailableSlots(); // Fetch unavailable slots
   }, [currentDate]);
 
   const fetchAppointments = async () => {
@@ -136,6 +156,229 @@ const CalendarPage = () => {
     }
   };
 
+  const fetchUnavailableSlots = async () => {
+    try {
+      const response = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        UNAVAILABLESLOTS_COLLECTION_ID
+      );
+      setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
+    } catch (error) {
+      console.error("Error fetching unavailable slots:", error);
+    }
+  };
+
+// Function to generate time slots from 8:00 AM to 5:00 PM with 30-minute intervals
+const generateTimeSlots = () => {
+  const slots = [];
+  let currentTime = new Date();
+  currentTime.setHours(8, 0, 0); // Start at 8:00 AM
+
+  while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
+    const formattedTime = format(currentTime, 'h:mm a');
+    slots.push(formattedTime);
+    currentTime.setMinutes(currentTime.getMinutes() + 30); // Fixed 30-minute interval
+  }
+
+  return slots;
+};
+
+  const handleSlotSelection = (time: string) => {
+    if (selectedSlots.includes(time)) {
+      setSelectedSlots(selectedSlots.filter((slot) => slot !== time));
+    } else {
+      setSelectedSlots([...selectedSlots, time]);
+    }
+  };
+
+// Function to handle marking time slots as unavailable
+const handleMarkUnavailable = async () => {
+  if (!selectedDate || selectedSlots.length === 0) return;
+
+  try {
+    const startTime = selectedSlots[0];
+    const endTime = selectedSlots[selectedSlots.length - 1];
+    const timeRange = `${startTime} - ${endTime}`;
+
+    await databases.createDocument(
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      UNAVAILABLESLOTS_COLLECTION_ID,
+      ID.unique(),
+      {
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        timeRange: timeRange,
+        reason: unavailableReason,
+      }
+    );
+
+    fetchUnavailableSlots();
+    setShowUnavailableModal(false);
+    setSelectedSlots([]); // Reset selected slots
+    setMessage("Time slots marked as unavailable successfully!");
+    setMessageType("success");
+    setTimeout(() => setMessage(null), 3000);
+  } catch (error) {
+    console.error("Error marking time slots as unavailable:", error);
+    setMessage("Failed to mark time slots as unavailable. Please try again.");
+    setMessageType("error");
+    setTimeout(() => setMessage(null), 3000);
+  }
+};
+
+  const handleResetUnavailableSlots = async (date: Date) => {
+    try {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+
+      const response = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        UNAVAILABLESLOTS_COLLECTION_ID,
+        [Query.equal("date", [formattedDate])]
+      );
+
+      for (const slot of response.documents) {
+        await databases.deleteDocument(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          UNAVAILABLESLOTS_COLLECTION_ID,
+          slot.$id
+        );
+      }
+
+      fetchUnavailableSlots();
+      setMessage("Unavailable slots reset successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error resetting unavailable slots:", error);
+      setMessage("Failed to reset unavailable slots. Please try again.");
+      setMessageType("error");
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleDeleteUnavailableSlot = async (slotId: string) => {
+    try {
+      await databases.deleteDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        UNAVAILABLESLOTS_COLLECTION_ID,
+        slotId
+      );
+  
+      // Refresh the unavailable slots
+      fetchUnavailableSlots();
+      setMessage("Unavailable slot deleted successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error deleting unavailable slot:", error);
+      setMessage("Failed to delete unavailable slot. Please try again.");
+      setMessageType("error");
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+// Function to render the unavailable modal
+const renderUnavailableModal = () => {
+  if (!showUnavailableModal || !selectedDate) return null;
+
+  const timeSlots = generateTimeSlots();
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Mark Time Slots as Unavailable for {format(selectedDate, 'MMMM d, yyyy')}
+          </h2>
+          <button
+            onClick={() => {
+              setShowUnavailableModal(false);
+              setSelectedSlots([]); // Reset selected slots when closing the modal
+            }}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div className="space-y-2">
+            <Label className="text-blue-700">Select Time Slots</Label>
+            <div className="grid grid-cols-2 gap-2 text-black">
+              {timeSlots.map((time, index) => (
+                <div key={index} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`slot-${index}`}
+                    value={time}
+                    checked={selectedSlots.includes(time)}
+                    onChange={() => handleSlotSelection(time)}
+                    className="mr-2"
+                  />
+                  <label htmlFor={`slot-${index}`} className="text-sm">
+                    {time}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-blue-700" htmlFor="reason">Reason (Optional)</Label>
+            <Textarea
+              id="reason"
+              name="reason"
+              value={unavailableReason}
+              onChange={(e) => setUnavailableReason(e.target.value)}
+              placeholder="Enter a reason for unavailability"
+            />
+          </div>
+          <div className="flex justify-end pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowUnavailableModal(false);
+                setSelectedSlots([]); // Reset selected slots when closing the modal
+              }}
+              className="mr-2 hover:text-white text-blue-700 hover:bg-blue-700 border-blue-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-500 hover:bg-red-600 text-white"
+              onClick={handleMarkUnavailable}
+            >
+              Mark as Unavailable
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Define the list of chief complaints
+const chiefComplaints = [
+  { value: "Cough", label: "Cough" },
+  { value: "Fever", label: "Fever" },
+  { value: "Headache", label: "Headache" },
+  { value: "Stomachache", label: "Stomachache" },
+  { value: "Low Bowel Movement", label: "Low Bowel Movement" },
+  { value: "Sore Throat", label: "Sore Throat" },
+  { value: "Fatigue", label: "Fatigue" },
+  { value: "Dizziness", label: "Dizziness" },
+];
+
+// State for selected chief complaints
+const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
+  { value: string; label: string }[]
+>([]);
+
+// Handle multi-select change
+const handleChiefComplaintChange = (selectedOptions: any) => {
+  setSelectedChiefComplaints(selectedOptions);
+};
+
   const handleStatusChange = async (appointmentId: string, newStatus: string) => {
     if (newStatus === "Cancelled" || newStatus === "Completed") {
       setSelectedAppointmentId(appointmentId);
@@ -167,9 +410,14 @@ const CalendarPage = () => {
       } else if (selectedStatus === "Completed") {
         // Truncate the notes field to ensure the JSON string does not exceed 255 characters
         const truncatedNotes = notes.length > 500 ? notes.substring(0, 500) + "..." : notes;
+  
+        // Extract the values from the selectedChiefComplaints array
+        const chiefComplaintsArray = selectedChiefComplaints.map((complaint) => complaint.value);
+  
+        // Create the diagnosis data object
         const diagnosisData = JSON.stringify({
           bloodPressure,
-          chiefComplaint,
+          chiefComplaint: chiefComplaintsArray, // Store as an array
           notes: truncatedNotes,
         });
   
@@ -187,6 +435,7 @@ const CalendarPage = () => {
         selectedAppointmentId,
         updateData
       );
+  
       fetchAppointments();
     } catch (error) {
       console.error("Error updating appointment:", error);
@@ -196,7 +445,7 @@ const CalendarPage = () => {
       setSelectedAppointmentId(null);
       setSelectedStatus(null);
       setBloodPressure("");
-      setChiefComplaint("");
+      setSelectedChiefComplaints([]); // Reset the selected chief complaints
       setNotes("");
       setCancellationReason("");
     }
@@ -360,6 +609,11 @@ const CalendarPage = () => {
       return appointmentDate.toDateString() === selectedDate.toDateString();
     });
 
+  // Get unavailable slots for the selected day
+  const unavailableSlotsForDay = unavailableSlots.filter(
+    slot => slot.date === format(selectedDate, 'yyyy-MM-dd')
+  );
+
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-6">
@@ -427,21 +681,51 @@ const CalendarPage = () => {
                     {appointment.diagnosis && JSON.parse(appointment.diagnosis).medicines ? "Update Prescription" : "Add Prescription"}
                   </Button>
                 )}
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-red-700"
-                  onClick={() => openDeleteDialog(appointment.$id)}
-                >
-                  Delete
+               <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="bg-red-500 text-white hover:bg-red-600"
+                    onClick={() => openDeleteDialog(appointment.$id)}
+                    >
+                    Delete
                 </Button>
+
               </div>
             </div>
           ))}
-        </div>
+                  {/* Display Unavailable Slots */}
+        {unavailableSlotsForDay.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold text-gray-700 mb-4">Unavailable Time Slots</h3>
+            <div className="space-y-2">
+              {unavailableSlotsForDay.map(slot => (
+                <div
+                  key={slot.$id}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-100"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-black">{slot.timeRange}</p>
+                    {slot.reason && (
+                      <p className="text-sm text-black">Reason: {slot.reason}</p>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-100"
+                    onClick={() => handleDeleteUnavailableSlot(slot.$id)}
+                  >
+                      Delete
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   const filteredAppointments = appointments.filter(appointment => 
     statusFilter === "all" ? true : appointment.status === statusFilter
@@ -493,30 +777,35 @@ const CalendarPage = () => {
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   <div className="flex items-center gap-3">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={previousMonth} 
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={previousMonth}
                       className="text-black bg-white"
                     >
                       <ChevronLeft className="h-5 w-5" />
                     </Button>
-
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setCurrentDate(new Date())} 
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentDate(new Date())}
                       className="text-black bg-white"
                     >
                       Today
                     </Button>
-
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={nextMonth} 
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={nextMonth}
                       className="text-black bg-white"
                     >
                       <ChevronRight className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowUnavailableModal(true)}
+                      className="bg-red-500 text-white hover:bg-red-600"
+                    >
+                      Mark Unavailable Slot
                     </Button>
                   </div>
                 </div>
@@ -528,11 +817,11 @@ const CalendarPage = () => {
                       {day}
                     </div>
                   ))}
-                  
+
                   {Array.from({ length: getFirstDayOfMonth(currentDate) }).map((_, i) => (
                     <div key={`empty-${i}`} className="bg-white p-3 h-32" />
                   ))}
-                  
+
                   {Array.from({ length: getDaysInMonth(currentDate) }).map((_, i) => {
                     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1);
                     const dayAppointments = filteredAppointments.filter(appointment => {
@@ -541,6 +830,11 @@ const CalendarPage = () => {
                     });
                     const isToday = date.toDateString() === new Date().toDateString();
 
+                    // Get unavailable slots for the day
+                    const unavailableSlotsForDay = unavailableSlots.filter(
+                      slot => slot.date === format(date, 'yyyy-MM-dd')
+                    );
+
                     return (
                       <div
                         key={i}
@@ -548,13 +842,9 @@ const CalendarPage = () => {
                           setSelectedDate(date);
                           setView('day');
                         }}
-                        className={`bg-white p-3 h-32 hover:bg-gray-50 cursor-pointer border-t ${
-                          isToday ? 'bg-blue-50' : ''
-                        }`}
+                        className={`text-black bg-white p-3 h-32 hover:bg-gray-50 cursor-pointer border-t ${isToday ? 'bg-blue-50' : ''}`}
                       >
-                        <div className={`font-medium ${
-                          isToday ? 'text-blue-600' : 'text-gray-700'
-                        }`}>
+                        <div className={`font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
                           {i + 1}
                         </div>
                         <div className="mt-2 space-y-1">
@@ -571,6 +861,24 @@ const CalendarPage = () => {
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
+                          {unavailableSlotsForDay.map(slot => (
+                            <div
+                              key={slot.$id}
+                              className="text-xs p-1.5 rounded-md bg-gray-200 text-gray-500"
+                            >
+                              {slot.timeRange} - Unavailable
+                            </div>
+                          ))}
+                          <div
+                            className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent the day view from opening
+                              setSelectedDate(date);
+                              setShowUnavailableModal(true);
+                            }}
+                          >
+                            + Mark Unavailable
+                          </div>
                         </div>
                       </div>
                     );
@@ -618,16 +926,20 @@ const CalendarPage = () => {
                   className="bg-white border border-blue-700 text-black"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Chief Complaint</label>
-                <Input
-                  value={chiefComplaint}
-                  onChange={(e) => setChiefComplaint(e.target.value)}
-                  placeholder="Primary reason for visit"
-                  required
-                  className="bg-white border border-blue-700 text-black"
-                />
-              </div>
+
+    {/* Chief Complaint Field (Multi-Select) */}
+    <div className="space-y-2">
+      <label className="text-sm font-medium">Chief Complaint</label>
+      <ReactSelect
+        isMulti
+        options={chiefComplaints}
+        value={selectedChiefComplaints}
+        onChange={handleChiefComplaintChange}
+        className="react-select-container"
+        classNamePrefix="react-select"
+      />
+    </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Notes</label>
                 <Textarea
@@ -692,8 +1004,8 @@ const CalendarPage = () => {
                         <td className="px-4 py-2 text-sm">{medicine.brand}</td>
                         <td className="px-4 py-2 text-sm">{medicine.stock}</td>
                         <td className="px-4 py-2 text-sm">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border-blue-700"
                             variant="outline"
                             onClick={() => addMedicineToPrescription(medicine.$id, medicine.name)}
@@ -720,9 +1032,9 @@ const CalendarPage = () => {
                     <div key={medicine.id} className="flex items-center justify-between border border-blue-700 rounded-md p-2">
                       <span className="text-sm">{medicine.name}</span>
                       <div className="flex items-center gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity - 1)}
                           disabled={medicine.quantity <= 1}
@@ -730,18 +1042,18 @@ const CalendarPage = () => {
                           -
                         </Button>
                         <span className="text-sm w-6 text-center">{medicine.quantity}</span>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity + 1)}
                           disabled={medicine.quantity >= parseInt(medicines.find(med => med.$id === medicine.id)?.stock || "0")}
                         >
                           +
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
+                        <Button
+                          size="sm"
+                          variant="ghost"
                           className="text-red-500 h-7 w-7 p-0 ml-2"
                           onClick={() => removeMedicineFromPrescription(medicine.id)}
                         >
@@ -759,8 +1071,8 @@ const CalendarPage = () => {
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border border-red-700" type="button" variant="outline" onClick={() => setIsPrescriptionModalOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
               onClick={handlePrescriptionSubmit}
               disabled={selectedMedicines.length === 0}
@@ -798,6 +1110,9 @@ const CalendarPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Unavailable Time Slot Modal */}
+      {renderUnavailableModal()}
     </div>
   );
 };

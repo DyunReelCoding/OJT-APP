@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, User, Home, FileText, Calendar, ClipboardList } from "lucide-react";
+import { Menu, X, User, Home, FileText, Calendar, ClipboardList, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiArrowLeft } from 'react-icons/fi'; // Import the back arrow icon
