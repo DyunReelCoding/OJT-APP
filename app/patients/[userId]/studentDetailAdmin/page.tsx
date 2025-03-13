@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp } from "lucide-react"; // Icons for expand/colla
 import { Button } from "@/components/ui/button"; // Import the Button component
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import MedicalClearanceForm from "@/components/MedicalClearance";
+import MedicalRecord from "@/components/MedicalRecord";
 
 declare global {
   interface Window {
@@ -53,6 +54,9 @@ const StudentDetail = () => {
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpandedMedicalRecord, setIsExpandedMedicalRecord] = useState(false);
+
+  const toggleExpandMedicalRecord = () => setIsExpandedMedicalRecord(!isExpandedMedicalRecord);
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
 
@@ -597,6 +601,24 @@ const StudentDetail = () => {
           <MedicalClearanceForm />
         </div>
       )}
+      {/* Medical Record expandable section */}
+<div
+  className="border border-blue-700 p-4 rounded-lg cursor-pointer flex justify-between items-center"
+  onClick={toggleExpandMedicalRecord}
+>
+  <h3 className="text-blue-700 font-semibold">Medical Record</h3>
+  {isExpandedMedicalRecord ? (
+    <ChevronUp className="h-5 w-5 text-blue-700" />
+  ) : (
+    <ChevronDown className="h-5 w-5 text-blue-700" />
+  )}
+</div>
+
+{isExpandedMedicalRecord && (
+  <div className="mt-4">
+    <MedicalRecord />
+  </div>
+)}
 
       <EmailForm studentEmail={student.email} />
     </div>
