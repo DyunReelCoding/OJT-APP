@@ -38,7 +38,7 @@ interface Medicine {
   name: string;
   brand: string;
   category: string;
-  stock: string;
+  stock: number;
   location: string;
   expiryDate: string;
 }
@@ -120,8 +120,15 @@ const CalendarPage = () => {
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         MEDICINES_COLLECTION_ID
       );
-      setMedicines(response.documents as unknown as Medicine[]);
-      setFilteredMedicines(response.documents as unknown as Medicine[]);
+      
+      // Convert stock from string to number for each medicine
+      const medicinesWithNumberStock = response.documents.map(doc => ({
+        ...doc,
+        stock: Number(doc.stock)
+      }));
+      
+      setMedicines(medicinesWithNumberStock as unknown as Medicine[]);
+      setFilteredMedicines(medicinesWithNumberStock as unknown as Medicine[]);
     } catch (error) {
       console.error("Error fetching medicines:", error);
     }
@@ -597,15 +604,14 @@ useEffect(() => {
       for (const medicine of selectedMedicines) {
         const medicineDoc = medicines.find(med => med.$id === medicine.id);
         if (medicineDoc) {
-          // Convert stock to number, subtract quantity, and convert back to string
-          const currentStock = parseInt(medicineDoc.stock);
-          const newStock = Math.max(0, currentStock - medicine.quantity).toString();
+          // Convert stock to number, subtract quantity, and convert back to string for Appwrite
+          const newStock = Math.max(0, medicineDoc.stock - medicine.quantity);
           
           await databases.updateDocument(
             process.env.NEXT_PUBLIC_DATABASE_ID!,
             MEDICINES_COLLECTION_ID,
             medicine.id,
-            { stock: newStock }
+            { stock: String(newStock) }
           );
         }
       }
@@ -1057,7 +1063,7 @@ useEffect(() => {
                             className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border-blue-700"
                             variant="outline"
                             onClick={() => addMedicineToPrescription(medicine.$id, medicine.name)}
-                            disabled={selectedMedicines.some(med => med.id === medicine.$id) || parseInt(medicine.stock) <= 0}
+                            disabled={selectedMedicines.some(med => med.id === medicine.$id) || medicine.stock <= 0}
                           >
                             Add
                           </Button>
@@ -1095,7 +1101,7 @@ useEffect(() => {
                           variant="outline"
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity + 1)}
-                          disabled={medicine.quantity >= parseInt(medicines.find(med => med.$id === medicine.id)?.stock || "0")}
+                          disabled={medicine.quantity >= (medicines.find(med => med.$id === medicine.id)?.stock || 0)}
                         >
                           +
                         </Button>

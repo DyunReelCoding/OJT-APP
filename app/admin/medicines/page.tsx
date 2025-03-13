@@ -20,7 +20,7 @@ interface Medicine {
   name: string;
   brand: string;
   category: string;
-  stock: string;
+  stock: number;
   location: string;
   expiryDate: string;
 }
@@ -38,7 +38,7 @@ const MedicinesPage = () => {
     name: "",
     brand: "",
     category: "",
-    stock: "",
+    stock: 0,
     location: "",
     expiryDate: ""
   });
@@ -62,8 +62,15 @@ const MedicinesPage = () => {
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         "67b486f5000ff28439c6"
       );
-      setMedicines(response.documents);
-      setFilteredMedicines(response.documents);
+      
+      // Convert stock from string to number for each medicine
+      const medicinesWithNumberStock = response.documents.map(doc => ({
+        ...doc,
+        stock: Number(doc.stock)
+      }));
+      
+      setMedicines(medicinesWithNumberStock as unknown as Medicine[]);
+      setFilteredMedicines(medicinesWithNumberStock as unknown as Medicine[]);
     } catch (error) {
       console.error("Error fetching medicines:", error);
     }
@@ -82,7 +89,7 @@ const MedicinesPage = () => {
         name: newMedicine.name,
         brand: newMedicine.brand,
         category: newMedicine.category,
-        stock: newMedicine.stock,
+        stock: String(newMedicine.stock),
         location: newMedicine.location,
         expiryDate: newMedicine.expiryDate
       };
@@ -94,14 +101,14 @@ const MedicinesPage = () => {
         medicineData
       );
 
-      setMedicines([...medicines, response]);
-      setFilteredMedicines([...medicines, response]);
+      setMedicines([...medicines, response as unknown as Medicine]);
+      setFilteredMedicines([...medicines, response as unknown as Medicine]);
       setNewMedicine({
         $id: "",
         name: "",
         brand: "",
         category: "",
-        stock: "",
+        stock: 0,
         location: "",
         expiryDate: ""
       });
@@ -125,7 +132,7 @@ const MedicinesPage = () => {
           name: medicine.name,
           brand: medicine.brand,
           category: medicine.category,
-          stock: medicine.stock,
+          stock: String(medicine.stock),
           location: medicine.location,
           expiryDate: medicine.expiryDate
         }
@@ -262,10 +269,10 @@ const MedicinesPage = () => {
                 required
               />
               <Input
-                type="text"
+                type="number"
                 value={newMedicine.stock}
-                onChange={(e) => setNewMedicine({ ...newMedicine, stock: e.target.value })}
-                placeholder="Stock Level (low/medium/high)"
+                onChange={(e) => setNewMedicine({ ...newMedicine, stock: Number(e.target.value) })}
+                placeholder="Stock Quantity"
                 className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
                 required
               />
@@ -371,7 +378,7 @@ const MedicinesPage = () => {
                             className="bg-blue-50 border-blue-300"
                             value={medicine.stock}
                             onChange={(e) => setMedicines(medicines.map(m =>
-                              m.$id === medicine.$id ? { ...m, stock: e.target.value } : m
+                              m.$id === medicine.$id ? { ...m, stock: Number(e.target.value) } : m
                             ))}
                           />
                         ) : (
