@@ -359,8 +359,8 @@ const renderUnavailableModal = () => {
   );
 };
 
-// Define the list of chief complaints
-const chiefComplaints = [
+const [newChiefComplaint, setNewChiefComplaint] = useState("");
+const [chiefComplaintsList, setChiefComplaintsList] = useState([
   { value: "Cough", label: "Cough" },
   { value: "Fever", label: "Fever" },
   { value: "Headache", label: "Headache" },
@@ -369,8 +369,24 @@ const chiefComplaints = [
   { value: "Sore Throat", label: "Sore Throat" },
   { value: "Fatigue", label: "Fatigue" },
   { value: "Dizziness", label: "Dizziness" },
-];
+]);
 
+const handleAddChiefComplaint = () => {
+  if (newChiefComplaint.trim() === "") return;
+
+  const newComplaint = {
+    value: newChiefComplaint,
+    label: newChiefComplaint,
+  };
+
+  setChiefComplaintsList([...chiefComplaintsList, newComplaint]);
+  setNewChiefComplaint("");
+};
+
+const handleDeleteChiefComplaint = (value: string) => {
+  const updatedList = chiefComplaintsList.filter((complaint) => complaint.value !== value);
+  setChiefComplaintsList(updatedList);
+};
 // State for selected chief complaints
 const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
   { value: string; label: string }[]
@@ -380,6 +396,19 @@ const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
 const handleChiefComplaintChange = (selectedOptions: any) => {
   setSelectedChiefComplaints(selectedOptions);
 };
+
+// Save to local storage
+useEffect(() => {
+  localStorage.setItem("chiefComplaints", JSON.stringify(chiefComplaintsList));
+}, [chiefComplaintsList]);
+
+// Load from local storage on component mount
+useEffect(() => {
+  const savedComplaints = localStorage.getItem("chiefComplaints");
+  if (savedComplaints) {
+    setChiefComplaintsList(JSON.parse(savedComplaints));
+  }
+}, []);
 
   const handleStatusChange = async (appointmentId: string, newStatus: string) => {
     if (newStatus === "Cancelled" || newStatus === "Completed") {
@@ -934,18 +963,37 @@ const handleChiefComplaintChange = (selectedOptions: any) => {
                 />
               </div>
 
-    {/* Chief Complaint Field (Multi-Select) */}
-    <div className="space-y-2">
-      <label className="text-sm font-medium">Chief Complaint</label>
-      <ReactSelect
-        isMulti
-        options={chiefComplaints}
-        value={selectedChiefComplaints}
-        onChange={handleChiefComplaintChange}
-        className="react-select-container"
-        classNamePrefix="react-select"
-      />
-    </div>
+              <div className="space-y-2">
+  <label className="text-sm font-medium">Chief Complaint</label>
+
+  {/* Input field and button for adding a new chief complaint */}
+  <div className="flex gap-2">
+    <Input
+      value={newChiefComplaint}
+      onChange={(e) => setNewChiefComplaint(e.target.value)}
+      placeholder="Add new chief complaint"
+      className="bg-white border border-blue-700 text-black"
+    />
+    <Button
+      type="button"
+      className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
+      onClick={handleAddChiefComplaint}
+    >
+      Add
+    </Button>
+  </div>
+
+  {/* Multi-select dropdown for chief complaints */}
+  <ReactSelect
+    isMulti
+    options={chiefComplaintsList}
+    value={selectedChiefComplaints}
+    onChange={handleChiefComplaintChange}
+    className="react-select-container"
+    classNamePrefix="react-select"
+  />
+
+</div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Notes</label>

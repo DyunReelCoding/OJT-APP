@@ -11,7 +11,14 @@ import PrintButton from "@/components/PrintButton";
 import { ChevronDown, ChevronUp } from "lucide-react"; // Icons for expand/collapse
 import { Button } from "@/components/ui/button"; // Import the Button component
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import MedicalClearanceForm from "@/components/MedicalClearance";
+import MedicalRecord from "@/components/MedicalRecord";
 
+declare global {
+  interface Window {
+    activeStream?: MediaStream;
+  }
+}
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -45,6 +52,15 @@ const StudentDetail = () => {
 
   // Collapsible state for diet recommendation history
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpandedMedicalRecord, setIsExpandedMedicalRecord] = useState(false);
+
+  const toggleExpandMedicalRecord = () => setIsExpandedMedicalRecord(!isExpandedMedicalRecord);
+
+  const toggleExpand = () => setIsExpanded(!isExpanded);
+
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   
 
   const fetchStudent = async () => {
@@ -404,7 +420,16 @@ const StudentDetail = () => {
         type="button"
         onClick={async () => {
           try {
+            if (window.activeStream) {
+              window.activeStream.getTracks().forEach(track => track.stop());
+              window.activeStream = undefined;
+              document.querySelector('#camera-container')?.remove();
+              return;
+            }
+
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            window.activeStream = stream;
+
             const video = document.createElement('video');
             video.srcObject = stream;
             video.autoplay = true;
@@ -415,8 +440,9 @@ const StudentDetail = () => {
             video.style.border = '2px solid #1e3a8a';
             video.style.borderRadius = '8px';
             video.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-            
+
             const cameraContainer = document.createElement('div');
+            cameraContainer.id = 'camera-container';
             cameraContainer.style.display = 'flex';
             cameraContainer.style.flexDirection = 'column';
             cameraContainer.style.alignItems = 'center';
@@ -447,6 +473,7 @@ const StudentDetail = () => {
 
             // Cleanup
             stream.getTracks().forEach((track) => track.stop());
+            window.activeStream = undefined;
             cameraContainer.remove();
           } catch (error) {
             console.error('Error accessing camera:', error);
@@ -490,6 +517,8 @@ const StudentDetail = () => {
 
 {/* Diet Recommendation History */}
 <div className="bg-white border-2 border-blue-700 p-6 rounded-lg shadow-md">
+
+
   <div
     className="flex justify-between items-center cursor-pointer"
     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
@@ -551,7 +580,46 @@ const StudentDetail = () => {
       />
     </div>
   )}
+
+   
 </div>
+{/* Medical Clearance expandable section */}
+<div
+        className="border border-blue-700 p-4 rounded-lg cursor-pointer flex justify-between items-center"
+        onClick={toggleExpand}
+      >
+        <h3 className="text-blue-700 font-semibold">Medical Clearance</h3>
+        {isExpanded ? (
+          <ChevronUp className="h-5 w-5 text-blue-700" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-blue-700" />
+        )}
+      </div>
+
+      {isExpanded && (
+        <div className="mt-4">
+          <MedicalClearanceForm />
+        </div>
+      )}
+      {/* Medical Record expandable section */}
+<div
+  className="border border-blue-700 p-4 rounded-lg cursor-pointer flex justify-between items-center"
+  onClick={toggleExpandMedicalRecord}
+>
+  <h3 className="text-blue-700 font-semibold">Medical Record</h3>
+  {isExpandedMedicalRecord ? (
+    <ChevronUp className="h-5 w-5 text-blue-700" />
+  ) : (
+    <ChevronDown className="h-5 w-5 text-blue-700" />
+  )}
+</div>
+
+{isExpandedMedicalRecord && (
+  <div className="mt-4">
+    <MedicalRecord />
+  </div>
+)}
+
       <EmailForm studentEmail={student.email} />
     </div>
   );
