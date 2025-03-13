@@ -27,7 +27,7 @@ const OTPModal: React.FC<OTPModalProps> = ({ email, otp, onClose, onVerify }) =>
   const [inputOtp, setInputOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(20 * 60 * 1000); // 15 minutes in milliseconds
+  const [timeLeft, setTimeLeft] = useState(15 * 60 * 1000); // 15 minutes in milliseconds
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
