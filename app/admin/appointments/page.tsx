@@ -33,7 +33,7 @@ const AppointmentsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<{id: string, patientName: string} | null>(null);
   const [messageType, setMessageType] = useState(""); // "success" or "error"
   const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<any>(null);
@@ -90,8 +90,8 @@ const AppointmentsPage = () => {
     }
   };
 
-  const openDeleteDialog = (appointmentId: string) => {
-    setAppointmentToDelete(appointmentId);
+  const openDeleteDialog = (appointmentId: string, patientName: string) => {
+    setAppointmentToDelete({ id: appointmentId, patientName });
     setIsDeleteDialogOpen(true);
   };
 
@@ -102,7 +102,7 @@ const AppointmentsPage = () => {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         "67b96b0800349392bb1c",
-        appointmentToDelete
+        appointmentToDelete.id
       );
       fetchAppointments();
       setMessage("✅ Appointment deleted successfully!");
@@ -275,7 +275,7 @@ const AppointmentsPage = () => {
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-red-700">
                           <Button
-                            onClick={() => openDeleteDialog(appointment.$id)}
+                            onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
                             variant="destructive"
                             size="sm"
                             className=" hover:bg-red-700 hover:text-white px-5"
@@ -297,7 +297,7 @@ const AppointmentsPage = () => {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle className=" text-red-700">Delete Appointment</DialogTitle>
+            <DialogTitle className=" text-red-700">Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}</strong>?</DialogTitle>
             <DialogDescription className="text-gray-500">
               Are you sure you want to delete this appointment? This action cannot be undone.
             </DialogDescription>
