@@ -4,9 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
+import autoTable from "jspdf-autotable";
 
 export default function MedicalClearanceForm() {
   const [formData, setFormData] = useState({
+    date:'',
     name: '',
     age: '',
     civilStatus: '',
@@ -24,64 +26,199 @@ export default function MedicalClearanceForm() {
     convulsions: false,
     allergy: false,
     normalExam: false,
-    limitedParticipation: false,
+    limitedParticipation: '',
     light: false,
     moderate: false,
-    notFit: false,
+    notFit: '',
     recommendations: '',
   });
 
   const handleChange = (e: { target: any }) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: type === "checkbox" ? checked : value, // Prevent boolean assignment to text fields
+    }));
+  };
+  const getBase64 = (file: File, callback: (result: string | ArrayBuffer | null) => void): void => {
+    const reader = new FileReader();
+    
+    reader.readAsDataURL(file);
+
+    reader.onload = () => {
+        callback(reader.result);
+    };
+
+    reader.onerror = (error) => {
+        console.error("Error converting file to Base64:", error);
+    };
+};
+
+const generatePDF = () => {
+  const doc = new jsPDF();
+
+  // Load image from public folder
+  const imagePath = "/assets/images/university_clinic.png"; 
+  const img = new Image();
+  img.src = imagePath;
+
+  img.onload = () => {
+      doc.addImage(img, "PNG", 7, 5, 199, 31); // Adjust X, Y, Width, Height
+
+      doc.setFont("Helvetica");
+      doc.setFontSize(12);
+      doc.text("MEDICAL CLEARANCE", 85, 45);
+      doc.text(`Date: ${formData.date}`, 165, 50);
+      doc.text("__________", 175, 50);
+      doc.text(`This is to certify that I have seen and examined Mr/Ms. ${formData.name},`, 15, 70);
+      doc.text("________________________________.", 118, 70);
+      doc.text(`${formData.age} years old, (${formData.civilStatus}), and a resident of ${formData.resident}`, 15, 77);
+      doc.text("__                 _______                             ___________________________________________.", 15, 77.3);
+
+      // Table Data
+      const tableData = [
+        ["Purpose:", formData.purpose],
+        ["Schedule:", formData.schedule],
+        ["Destination:", formData.destination]
+      ];
+
+      // Table Options
+      autoTable(doc, {
+        body: tableData, // Table content
+        startY: 83, // Positioning (adjustable)
+        theme: "grid", // Table styling ("striped", "grid", or "plain")
+        styles: {
+            halign: "left", // Align text to the left
+            valign: "middle",
+            fontSize: 11,
+            lineColor: "black"
+        },
+        columnStyles: {
+          0: { cellWidth: 30, textColor: "black" }, // "Field" column width = 50
+          1: { cellWidth: 150, textColor: "black" } // "Details" column width = 100
+        }
+      });
+
+      doc.text("With the following Vital Signs:", 15, 115);
+
+      const tableData2 = [
+        [`BP:`, formData.bp],
+        [`PR:`, formData.pr],
+        [`Height:`, formData.height],
+        [`Weight:`, formData.weight]
+      ];
+
+      // Table Options
+      autoTable(doc, {
+        body: tableData2, // Table content
+        startY: 120, // Positioning (adjustable)
+        theme: "grid", // Table styling ("striped", "grid", or "plain")
+        styles: {
+            halign: "left", // Align text to the left
+            valign: "middle",
+            fontSize: 11,
+            lineColor: "black"
+        },
+        columnStyles: {
+          0: { cellWidth: 30, textColor: "black" }, // "Field" column width = 50
+          1: { cellWidth: 150, textColor: "black" } // "Details" column width = 100
+        }
+      });
+
+      doc.text("Health History:", 15, 160);
+      doc.rect(18, 165, 7, 7); 
+      doc.text("Asthma", 27, 170);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.asthma ? "4" : ""}`, 20, 170);
+      doc.rect(18, 175, 7, 7);
+      doc.setFont("Helvetica");
+      doc.text("Hearth Disease", 27, 180);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.heartDisease ? "4" : ""}`, 20, 180);
+      doc.rect(18, 185, 7, 7);
+      doc.setFont("Helvetica");
+      doc.text("Other Conditions:", 27, 190);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.otherConditions ? "4" : ""}`, 20, 190);
+      doc.setFont("Helvetica");
+      doc.text(`${formData.otherConditions}`, 63, 190);
+      doc.text("_________________________.",62.4,190);
+      doc.rect(68, 165, 7, 7); 
+      doc.setFont("Helvetica");
+      doc.text("Convulsions/Neurologic Problems:", 77, 170);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.convulsions ? "4" : ""}`, 70, 170);
+
+      doc.rect(68, 175, 7, 7); 
+      doc.setFont("Helvetica");
+      doc.text("Allergy", 77, 180);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.allergy ? "4" : ""}`, 70, 180);
+
+      doc.setFont("Helvetica");
+      doc.text("Assessment:", 15, 200);
+
+      doc.rect(18, 205, 7, 7); 
+      doc.setFont("Helvetica");
+      doc.text("Essentially Normal Physical Examination Findings on Time of Examination", 27, 210);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.normalExam ? "4" : ""}`, 20, 210);
+
+      doc.rect(18, 215, 7, 7); 
+      doc.setFont("Helvetica");
+      doc.text("Can participate but with limitation:", 27, 220);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.limitedParticipation ? "4" : ""}`, 20, 220);
+      doc.setFont("Helvetica");
+      doc.text(`${formData.limitedParticipation}`, 93, 220);
+      doc.text("_____________________________________________.", 92, 220);
+      doc.setFont("Helvetica");
+      doc.text("Level of Activity:", 27, 228);
+      doc.rect(60, 223, 7, 7); 
+      doc.text("Light", 69, 228);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.light ? "4" : ""}`, 62, 228);
+      doc.setFont("Helvetica");
+      doc.rect(85, 223, 7, 7); 
+      doc.text("Moderate", 94, 228);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.moderate ? "4" : ""}`, 87, 228);
+
+
+      doc.setFont("Helvetica");
+      doc.rect(18, 232, 7, 7); 
+      doc.text("Not fit to participate:", 27, 237);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.notFit ? "4" : ""}`, 20, 237);
+      doc.setFont("Helvetica");
+      doc.text(`${formData.notFit||" "}`, 67, 237);
+      doc.text("_____________________________________________.", 66, 237);
+
+      doc.text("Recommendations:", 15, 247)
+      const maxWidth = 175; // Adjust width based on page layout
+      const wrappedText = doc.splitTextToSize(`${formData.recommendations}`, maxWidth);
+
+      doc.text(wrappedText, 15, 253);
+
+      doc.save("Medical_Clearance.pdf");
   };
 
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    doc.setFont('Helvetica', '');
-    doc.setFontSize(12);
-
-    doc.text('CARAGA STATE UNIVERSITY', 20, 20);
-    doc.text('UNIVERSITY CENTER FOR HEALTH AND WELLNESS', 20, 30);
-    doc.text('MEDICAL CLEARANCE', 20, 40);
-
-    doc.text(`This is to certify that I have seen and examined Mr/Ms. ${formData.name},`, 20, 50);
-    doc.text(`${formData.age} years old, (${formData.civilStatus}), and a resident of ${formData.resident}`, 20, 60);
-
-    doc.text(`Purpose: ${formData.purpose}`, 20, 70);
-    doc.text(`Schedule: ${formData.schedule}`, 20, 80);
-    doc.text(`Destination: ${formData.destination}`, 20, 90);
-
-    doc.text('With the following Vital Signs:', 20, 100);
-    doc.text(`BP: ${formData.bp}`, 20, 110);
-    doc.text(`PR: ${formData.pr}`, 20, 120);
-    doc.text(`Height: ${formData.height}`, 20, 130);
-    doc.text(`Weight: ${formData.weight}`, 20, 140);
-
-    doc.text('Health History:', 20, 150);
-    doc.text(`Asthma: ${formData.asthma ? '✔' : '✘'}`, 20, 160);
-    doc.text(`Heart Disease: ${formData.heartDisease ? '✔' : '✘'}`, 20, 170);
-    doc.text(`Other Conditions: ${formData.otherConditions}`, 20, 180);
-    doc.text(`Convulsions/Neurologic Problems: ${formData.convulsions ? '✔' : '✘'}`, 20, 190);
-    doc.text(`Allergy: ${formData.allergy ? '✔' : '✘'}`, 20, 200);
-
-    doc.text('Assessment:', 20, 210);
-    doc.text(`Essentially Normal Physical Examination: ${formData.normalExam ? '✔' : '✘'}`, 20, 220);
-    doc.text(`Can participate but with limitation: ${formData.limitedParticipation ? '✔' : '✘'}`, 20, 230);
-    doc.text(`Light: ${formData.light ? '✔' : '✘'}   Moderate: ${formData.moderate ? '✔' : '✘'}`, 20, 240);
-    doc.text(`Not fit to participate: ${formData.notFit ? '✔' : '✘'}`, 20, 250);
-
-    doc.text(`Recommendations: ${formData.recommendations}`, 20, 260);
-
-    doc.save('Medical_Clearance.pdf');
+  img.onerror = () => {
+      console.error("Failed to load image:", imagePath);
   };
+};
+
 
   return (
     <div className="p-6 space-y-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-semibold text-black">Medical Clearance Form</h2>
+      <Input
+        type="date"
+        className="bg-white text-black placeholder-gray-500 border border-gray-300"
+        name="date"
+        placeholder="Date"
+        onChange={handleChange}
+      />
 
       <Input
         className="bg-white text-black placeholder-gray-500 border border-gray-300"
@@ -204,6 +341,12 @@ export default function MedicalClearanceForm() {
     />
     Can participate but with limitation:
   </label>
+  <Input
+    name="limitedParticipation"
+    placeholder="Reason"
+    className="bg-white text-black border border-black"
+    onChange={handleChange}
+  />
   <label className="ml-6 flex items-center gap-2 text-black">
     <Checkbox
       name="light"
@@ -232,8 +375,14 @@ export default function MedicalClearanceForm() {
         handleChange({ target: { name: 'notFit', type: 'checkbox', checked } })
       }
     />
-    Not fit to participate
+    Not fit to participate:
   </label>
+  <Input
+    name="notFit"
+    placeholder="Reason"
+    className="bg-white text-black border border-black"
+    onChange={handleChange}
+  />
 </div>
 
 

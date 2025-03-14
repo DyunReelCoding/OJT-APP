@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label"; // Import Label
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import ReactSelect from "react-select";
+import { useRouter } from "next/navigation";
 
 interface Appointment {
   $id: string;
@@ -79,7 +80,7 @@ const CalendarPage = () => {
 
   // Add these state variables with your other useState declarations
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<{id: string, patientName: string} | null>(null);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [unavailableDate, setUnavailableDate] = useState<Date | null>(null);
   const [unavailableTimeRange, setUnavailableTimeRange] = useState("");
@@ -95,6 +96,7 @@ const CalendarPage = () => {
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
   
   const databases = new Databases(client);
+  const router = useRouter();
 
   useEffect(() => {
     fetchAppointments();
@@ -481,8 +483,8 @@ useEffect(() => {
   };
 
   // Replace the handleDelete function with these two functions
-  const openDeleteDialog = (appointmentId: string) => {
-    setAppointmentToDelete(appointmentId);
+  const openDeleteDialog = (appointmentId: string, patientName: string) => {
+    setAppointmentToDelete({ id: appointmentId, patientName });
     setIsDeleteDialogOpen(true);
   };
 
@@ -493,7 +495,7 @@ useEffect(() => {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         "67b96b0800349392bb1c",
-        appointmentToDelete
+        appointmentToDelete.id
       );
       fetchAppointments();
       setMessage("✅ Appointment deleted successfully!");
@@ -661,9 +663,14 @@ useEffect(() => {
               className={`p-4 rounded-lg ${getStatusColor(appointment.status)} flex justify-between items-center`}
             >
               <div>
-                <h3 className="font-semibold">{appointment.patientName}</h3>
-                <p className="text-sm">Time: {appointment.time}</p>
-                <p className="text-sm mt-1">Reason: {appointment.reason}</p>
+                <Button 
+                  variant="ghost" 
+                  className="font-semibold text-blue-700 hover:text-blue-900 p-0 h-auto"
+                  onClick={() => router.push(`/patients/${appointment.userid}/studentDetailAdmin`)}
+                >
+                  {appointment.patientName}
+                </Button>
+                <p className="text-sm text-gray-500">{appointment.reason}</p>
                 <p className="text-sm">Status: {appointment.status}</p>
                 {appointment.status === "Cancelled" && appointment.cancellationReason && (
                   <p className="text-sm text-gray-500 mt-1">Reason: {appointment.cancellationReason}</p>
@@ -713,8 +720,8 @@ useEffect(() => {
                <Button 
                     size="sm" 
                     variant="ghost" 
-                    className="bg-red-500 text-white hover:bg-red-600"
-                    onClick={() => openDeleteDialog(appointment.$id)}
+                    className="text-red-700"
+                    onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
                     >
                     Delete
                 </Button>
@@ -1135,7 +1142,9 @@ useEffect(() => {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle className="text-red-700">Delete Appointment</DialogTitle>
+            <DialogTitle className="text-red-700">
+              Delete Appointment for {appointmentToDelete?.patientName}
+            </DialogTitle>
             <DialogDescription className="text-gray-500">
               Are you sure you want to delete this appointment? This action cannot be undone.
             </DialogDescription>
