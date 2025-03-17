@@ -25,7 +25,7 @@ interface Medicine {
   expiryDate: string;
 }
 
-const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6"; // Update this to match your medicines collection ID
+const MEDICINES_COLLECTION_ID = process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!; // Update to use env variable
 
 const MedicinesPage = () => {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -60,10 +60,12 @@ const MedicinesPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6"
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!
       );
-      setMedicines(response.documents);
-      setFilteredMedicines(response.documents);
+      
+      // Set medicines directly from the documents array with proper type conversion
+      setMedicines(response.documents as unknown as Medicine[]);
+      setFilteredMedicines(response.documents as unknown as Medicine[]);
     } catch (error) {
       console.error("Error fetching medicines:", error);
     }
@@ -89,13 +91,14 @@ const MedicinesPage = () => {
 
       const response = await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6",
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
         ID.unique(),
         medicineData
       );
 
-      setMedicines([...medicines, response]);
-      setFilteredMedicines([...medicines, response]);
+      // Add the new medicine directly to the state
+      setMedicines([...medicines, response as unknown as Medicine]);
+      setFilteredMedicines([...medicines, response as unknown as Medicine]);
       setNewMedicine({
         $id: "",
         name: "",
@@ -119,7 +122,7 @@ const MedicinesPage = () => {
     try {
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6",
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
         id,
         {
           name: medicine.name,
@@ -159,7 +162,7 @@ const MedicinesPage = () => {
   
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        MEDICINES_COLLECTION_ID,
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
         medicineToDelete
       );
   
@@ -266,13 +269,13 @@ const MedicinesPage = () => {
                 required
               />
               <Input
-            type="number"
-            value={newMedicine.stock}
-            onChange={(e) => setNewMedicine({ ...newMedicine, stock: e.target.value.replace(/\D/, '') })}
-            placeholder="100"
-            className="border-blue-700 bg-white focus:ring-0 focus:outline-none"
-            required
-          />
+                type="number"
+                value={newMedicine.stock}
+                onChange={(e) => setNewMedicine({ ...newMedicine, stock: e.target.value })}
+                placeholder="100"
+                className="border-blue-700 bg-white focus:ring-0 focus:outline-none"
+                required
+              />
 
               <Input
                 type="text"
