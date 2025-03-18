@@ -272,8 +272,8 @@ const MedicinesPage = () => {
                 type="number"
                 value={newMedicine.stock}
                 onChange={(e) => setNewMedicine({ ...newMedicine, stock: e.target.value })}
-                placeholder="100"
-                className="border-blue-700 bg-white focus:ring-0 focus:outline-none"
+                placeholder="Quatity"
+                className="border-blue-700 bg-white focus:ring-0 focus:outline-none text-black"
                 required
               />
 

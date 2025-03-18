@@ -291,7 +291,7 @@ const renderUnavailableModal = () => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-blue-700">
             Mark Time Slots as Unavailable for {format(selectedDate, 'MMMM d, yyyy')}
           </h2>
           <button
@@ -317,7 +317,7 @@ const renderUnavailableModal = () => {
                     value={time}
                     checked={selectedSlots.includes(time)}
                     onChange={() => handleSlotSelection(time)}
-                    className="mr-2"
+                    className="mr-2 "
                   />
                   <label htmlFor={`slot-${index}`} className="text-sm">
                     {time}
@@ -334,6 +334,7 @@ const renderUnavailableModal = () => {
               value={unavailableReason}
               onChange={(e) => setUnavailableReason(e.target.value)}
               placeholder="Enter a reason for unavailability"
+              className="bg-gray-100 border-blue-700 text-black"
             />
           </div>
           <div className="flex justify-end pt-4">
@@ -344,13 +345,13 @@ const renderUnavailableModal = () => {
                 setShowUnavailableModal(false);
                 setSelectedSlots([]); // Reset selected slots when closing the modal
               }}
-              className="mr-2 hover:text-white text-blue-700 hover:bg-blue-700 border-blue-700"
+              className="mr-2 hover:text-blue-700 text-white hover:bg-white border-blue-700 bg-blue-700"
             >
               Cancel
             </Button>
             <Button
               type="button"
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-red-700 hover:bg-white text-white hover:text-red-700 border border-red-700"
               onClick={handleMarkUnavailable}
             >
               Mark as Unavailable
@@ -842,7 +843,7 @@ useEffect(() => {
                     <Button
                       variant="outline"
                       onClick={() => setShowUnavailableModal(true)}
-                      className="bg-red-500 text-white hover:bg-red-600"
+                      className="bg-red-700 text-white hover:bg-white hover:text-red-700 border-red-700"
                     >
                       Mark Unavailable Slot
                     </Button>
@@ -903,7 +904,7 @@ useEffect(() => {
                           {unavailableSlotsForDay.map(slot => (
                             <div
                               key={slot.$id}
-                              className="text-xs p-1.5 rounded-md bg-gray-200 text-gray-500"
+                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-600"
                             >
                               {slot.timeRange} - Unavailable
                             </div>

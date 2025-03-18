@@ -430,3 +430,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1); /* Makes the icon black */
 }
 
+/* Hide default number input arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

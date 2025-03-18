@@ -59,7 +59,7 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
         ></textarea>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-md"
+          className="px-4 py-2 border-2 border-blue-700 bg-blue-700 hover:bg-white hover:text-blue-700 text-white font-semibold rounded-lg shadow-md"
         >
           Send Email
         </button>

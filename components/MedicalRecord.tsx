@@ -78,42 +78,42 @@ export default function MedicalRecord() {
   
   return (
    <div className="p-6 space-y-4 bg-white shadow-lg rounded-lg">
-  <h2 className="text-2xl font-semibold text-black">Medical Record Form</h2>
+  <h2 className="text-2xl font-semibold text-blue-700">Medical Record Form</h2>
 
   <Input
     name="name"
     placeholder="Full Name"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="address"
     placeholder="Home Address"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="age"
     placeholder="Age"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="sex"
     placeholder="Sex"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="contact"
     placeholder="Contact No."
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="office"
     placeholder="Office/College/Unit"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
 
@@ -121,25 +121,25 @@ export default function MedicalRecord() {
   <Input
     name="bp"
     placeholder="BP"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="pr"
     placeholder="PR"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="temp"
     placeholder="Temperature"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Input
     name="sat"
     placeholder="O2 Saturation"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
 
@@ -147,6 +147,7 @@ export default function MedicalRecord() {
 <div className="flex items-center gap-4">
   <label className="text-black flex items-center gap-2">
     <Checkbox
+    className='border-blue-700'
       name="allergies"
       checked={formData.allergies}
       onCheckedChange={(checked) =>
@@ -162,6 +163,7 @@ export default function MedicalRecord() {
   </label>
   <label className="text-black flex items-center gap-2">
     <Checkbox
+    className='border-blue-700'
       name="allergies"
       checked={!formData.allergies}
       onCheckedChange={(checked) =>
@@ -182,9 +184,10 @@ export default function MedicalRecord() {
     <div className="flex items-center gap-2">
       <span className="text-black">Food:</span>
       <Input
+      
         name="food"
         placeholder="Specify food allergy"
-        className="bg-white text-black border border-gray-300"
+        className="bg-white text-black border border-blue-700"
         value={formData.food}
         onChange={handleChange}
       />
@@ -195,7 +198,7 @@ export default function MedicalRecord() {
       <Input
         name="drugs"
         placeholder="Specify drug allergy"
-        className="bg-white text-black border border-gray-300"
+        className="bg-white text-black border border-blue-700"
         value={formData.drugs}
         onChange={handleChange}
       />
@@ -208,24 +211,24 @@ export default function MedicalRecord() {
   onChange={(date) => setSelectedDate(date)}
   showTimeSelect
   dateFormat="Pp"
-  className="bg-white text-black border border-gray-300 p-2 rounded-md"
+  className="bg-white text-black border border-blue-700 p-2 rounded-md"
 />
 
 
   <Textarea
     name="complaint"
     placeholder="Complaint and Assessment"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
   <Textarea
     name="diagnosis"
     placeholder="Diagnosis and Treatment"
-    className="bg-white text-black border border-gray-300"
+    className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
 
-<Button className="bg-black text-white hover:bg-gray-800" onClick={generatePDF}>
+<Button className="font-bold bg-red-700 text-white hover:text-red-700 hover:bg-white border-2 border-red-700" onClick={generatePDF}>
         Generate PDF
       </Button>
     </div>

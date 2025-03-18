@@ -299,7 +299,7 @@ const AppointmentsPage = () => {
           <DialogHeader>
             <DialogTitle className=" text-red-700">Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}</strong>?</DialogTitle>
             <DialogDescription className="text-gray-500">
-              Are you sure you want to delete this appointment? This action cannot be undone.
+              Are you sure you want to delete <strong className="text-black">{appointmentToDelete?.patientName}'s</strong> appointment? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2">

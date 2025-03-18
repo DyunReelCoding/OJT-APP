@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"; // Import the Button component
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import MedicalClearanceForm from "@/components/MedicalClearance";
 import MedicalRecord from "@/components/MedicalRecord";
+import { FaCamera } from "react-icons/fa";
 
 declare global {
   interface Window {
@@ -479,9 +480,9 @@ const StudentDetail = () => {
             console.error('Error accessing camera:', error);
           }
         }}
-        className="absolute top-0 right-0 m-3 p-2 border-2 border-blue-700 bg-white-600 hover:bg-blue-500 text-white rounded-full"
+        className="absolute top-0 right-0 m-3 p-2 border-2 border-white bg-white-600 hover:border-2 hover:border-blue-700 rounded-full"
       >
-        📷
+        <FaCamera className="text-xl text-blue-700"/>
       </button>
 
       {/* Image Preview Section */}
@@ -585,10 +586,10 @@ const StudentDetail = () => {
 </div>
 {/* Medical Clearance expandable section */}
 <div
-        className="border border-blue-700 p-4 rounded-lg cursor-pointer flex justify-between items-center"
+        className="border-2 border-blue-700 p-6 rounded-lg cursor-pointer flex justify-between items-center"
         onClick={toggleExpand}
       >
-        <h3 className="text-blue-700 font-semibold">Medical Clearance</h3>
+        <h3 className="text-2xl text-blue-700 font-semibold">Medical Clearance</h3>
         {isExpanded ? (
           <ChevronUp className="h-5 w-5 text-blue-700" />
         ) : (
@@ -603,10 +604,10 @@ const StudentDetail = () => {
       )}
       {/* Medical Record expandable section */}
 <div
-  className="border border-blue-700 p-4 rounded-lg cursor-pointer flex justify-between items-center"
+  className="border-2 border-blue-700 p-6 rounded-lg cursor-pointer flex justify-between items-center"
   onClick={toggleExpandMedicalRecord}
 >
-  <h3 className="text-blue-700 font-semibold">Medical Record</h3>
+  <h3 className="text-2xl text-blue-700 font-semibold">Medical Record</h3>
   {isExpandedMedicalRecord ? (
     <ChevronUp className="h-5 w-5 text-blue-700" />
   ) : (

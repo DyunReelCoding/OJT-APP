@@ -577,7 +577,7 @@ const StudentCalendarPage = () => {
                           {unavailableSlotsForDay.map(slot => (
                             <div
                               key={slot.$id}
-                              className="text-xs p-1.5 rounded-md bg-gray-200 text-gray-500"
+                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-500"
                             >
                               {slot.timeRange} - Unavailable
                             </div>
