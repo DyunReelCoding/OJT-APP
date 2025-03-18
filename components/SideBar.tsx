@@ -17,7 +17,7 @@ const SideBar = () => {
     { label: "Manage Appointments", href: "/admin/appointments", icon: <ClipboardList className="w-5 h-5" /> },
     { label: "Manage Medicines", href: "/admin/medicines", icon: <Stethoscope className="w-5 h-5" /> },
     { label: "Allergies and Current Medications", href: "/admin/allergies", icon: <Pill className="w-5 h-5" /> },
-    { label: "Occupation and Office Types", href: "/admin/occupation", icon: <Briefcase className="w-5 h-5" /> },
+    { label: "College and Office Types", href: "/admin/college", icon: <Briefcase className="w-5 h-5" /> },
     { label: "Program Types", href: "/admin/program", icon: <Briefcase className="w-5 h-5" /> },
     { label: "Past/Family Medical History", href: "/admin/MedicalHistory", icon: <Briefcase className="w-5 h-5" /> }
   ];
