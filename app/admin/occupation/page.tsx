@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Trash, Edit, CheckCircle, Search, XCircle } from "lucide-react";
 import SideBar from "@/components/SideBar";
 
-// Define Occupation and Office Type
-interface Occupation {
+// Define College and Office Type
+interface College {
   $id: string;
   name: string;
 }
@@ -16,7 +16,7 @@ interface Occupation {
 // Appwrite Environment Variables
 const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!;
 const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID!;
-const OCCUPATION_COLLECTION_ID = process.env.NEXT_PUBLIC_OCCUPATIONTYPE_COLLECTION_ID!;
+const COLLEGE_COLLECTION_ID = process.env.NEXT_PUBLIC_COLLEGE_COLLECTION_ID!;
 const OFFICETYPE_COLLECTION_ID = process.env.NEXT_PUBLIC_OFFICETYPE_COLLECTION_ID!;
 const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
 
@@ -25,20 +25,20 @@ const client = new Client();
 client.setEndpoint(ENDPOINT).setProject(PROJECT_ID);
 const databases = new Databases(client);
 
-const OccupationManagement = () => {
-  const [items, setItems] = useState<Occupation[]>([]);
-  const [filteredItems, setFilteredItems] = useState<Occupation[]>([]);
+const CollegeManagement = () => {
+  const [items, setItems] = useState<College[]>([]);
+  const [filteredItems, setFilteredItems] = useState<College[]>([]);
   const [newItem, setNewItem] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [updatedItem, setUpdatedItem] = useState("");
-  const [isOccupation, setIsOccupation] = useState(true); // Toggle between occupation and office
+  const [isCollege, setIsCollege] = useState(true); // Toggle between occupation and office
   const [message, setMessage] = useState<string | null>(null); // Status messages
   const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     fetchItems();
-  }, [isOccupation]);
+  }, [isCollege]);
 
   // Auto-clear messages after 3 seconds
   useEffect(() => {
@@ -51,9 +51,9 @@ const OccupationManagement = () => {
   // Fetch Occupation or Office Items
   const fetchItems = async () => {
     try {
-      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      const collectionId = isCollege ? COLLEGE_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       const response = await databases.listDocuments(DATABASE_ID, collectionId);
-      const formattedItems: Occupation[] = response.documents.map((doc) => ({
+      const formattedItems: College[] = response.documents.map((doc) => ({
         $id: doc.$id,
         name: doc.name,
       }));
@@ -80,7 +80,7 @@ const OccupationManagement = () => {
   const addItem = async () => {
     if (!newItem.trim()) return setMessage("Please enter a valid name.");
     try {
-      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      const collectionId = isCollege ? COLLEGE_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       const response = await databases.createDocument(DATABASE_ID, collectionId, ID.unique(), { name: newItem });
 
       const newEntry = { $id: response.$id, name: response.name };
@@ -88,7 +88,7 @@ const OccupationManagement = () => {
       setItems(updatedItems);
       setFilteredItems(updatedItems);
       setNewItem("");
-      setMessage(`✅ ${isOccupation ? "Occupation" : "Office type"} added successfully.`);
+      setMessage(`✅ ${isCollege ? "College" : "Office type"} added successfully.`);
       setMessageType("success");
     } catch (error) {
       console.error("Error adding item:", error);
@@ -101,7 +101,7 @@ const OccupationManagement = () => {
   const updateItem = async ($id: string) => {
     if (!updatedItem.trim()) return setMessage("Please enter a valid name.");
     try {
-      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      const collectionId = isCollege ? COLLEGE_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       await databases.updateDocument(DATABASE_ID, collectionId, $id, { name: updatedItem });
 
       const updatedList = items.map((item) =>
@@ -111,7 +111,7 @@ const OccupationManagement = () => {
       setFilteredItems(updatedList);
       setEditingId(null);
       setUpdatedItem("");
-      setMessage(`✅ ${isOccupation ? "Occupation" : "Office type"} updated successfully.`);
+      setMessage(`✅ ${isCollege ? "College" : "Office type"} updated successfully.`);
       setMessageType("success");
     } catch (error) {
       console.error("Error updating item:", error);
@@ -123,13 +123,13 @@ const OccupationManagement = () => {
   // Delete Item
   const deleteItem = async ($id: string) => {
     try {
-      const collectionId = isOccupation ? OCCUPATION_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
+      const collectionId = isCollege ? COLLEGE_COLLECTION_ID : OFFICETYPE_COLLECTION_ID;
       await databases.deleteDocument(DATABASE_ID, collectionId, $id);
 
       const filteredList = items.filter((item) => item.$id !== $id);
       setItems(filteredList);
       setFilteredItems(filteredList);
-      setMessage(`✅ ${isOccupation ? "Occupation" : "Office type"} deleted successfully.`);
+      setMessage(`✅ ${isCollege ? "College" : "Office type"} deleted successfully.`);
       setMessageType("success");
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -144,13 +144,13 @@ const OccupationManagement = () => {
       <div className="flex flex-col items-center justify-center w-full min-h-screen p-6 bg-gray-50">
         <div className="flex justify-between w-full max-w-lg">
           <h2 className="text-2xl font-bold mb-6 text-blue-700">
-            Manage {isOccupation ? "Occupations" : "Office Types"}
+            Manage {isCollege ? "Colleges" : "Office Types"}
           </h2>
           <Button
-            onClick={() => setIsOccupation(!isOccupation)}
+            onClick={() => setIsCollege(!isCollege)}
             className="bg-blue-700 hover:bg-blue-900 px-4"
           >
-            Switch to {isOccupation ? "Office Types" : "Occupations"}
+            Switch to {isCollege ? "Office Types" : "Colleges"}
           </Button>
         </div>
 
@@ -174,7 +174,7 @@ const OccupationManagement = () => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={`Search ${isOccupation ? "occupation" : "office type"}...`}
+            placeholder={`Search ${isCollege ? "college" : "office type"}...`}
             className="bg-white border-2 border-blue-700 pl-9 w-full text-black"
           />
         </div>
@@ -185,7 +185,7 @@ const OccupationManagement = () => {
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            placeholder={`Enter ${isOccupation ? "occupation" : "office type"} name`}
+            placeholder={`Enter ${isCollege ? "college" : "office type"} name`}
             className="border-blue-700 bg-white text-black"
           />
           <Button onClick={addItem} className="bg-blue-700 hover:bg-blue-900">
@@ -237,4 +237,4 @@ const OccupationManagement = () => {
   );
 };
 
-export default OccupationManagement;
+export default CollegeManagement;

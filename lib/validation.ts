@@ -66,8 +66,12 @@ suffix: z
     .max(50, "Religion must be at most 50 characters"),
   program: z
     .string()
-    .min(4, "Blood type must be at least 50 character")
-    .max(100, "Blood type must be at most 100 characters"),
+    .min(4, "program must be at least 50 character")
+    .max(100, "program must be at most 100 characters"),
+  college: z
+    .string()
+    .min(1, "College must be at least 50 character")
+    .max(100, "College must be at most 100 characters"),
   yearLevel: z
   .string()
   .min(1, "Year level must be at least 1 characters")
