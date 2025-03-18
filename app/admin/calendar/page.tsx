@@ -51,9 +51,8 @@ interface UnavailableSlot {
   reason?: string;
 }
 
-const MEDICINES_COLLECTION_ID = process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!;
-const UNAVAILABLESLOTS_COLLECTION_ID = process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!; 
-const APPOINTMENT_COLLECTION_ID = process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!;
+const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6";
+const UNAVAILABLESLOTS_COLLECTION_ID = "67cd8eaa000fac61575d"; // Replace with your collection ID
 
 const CalendarPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -109,7 +108,7 @@ const CalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
+        "67b96b0800349392bb1c"
       );
       setAppointments(response.documents as unknown as Appointment[]);
     } catch (error) {
@@ -123,8 +122,6 @@ const CalendarPage = () => {
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         MEDICINES_COLLECTION_ID
       );
-      
-      // Set medicines directly from the documents array with proper type conversion
       setMedicines(response.documents as unknown as Medicine[]);
       setFilteredMedicines(response.documents as unknown as Medicine[]);
     } catch (error) {
@@ -165,7 +162,7 @@ const CalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!
+        UNAVAILABLESLOTS_COLLECTION_ID
       );
       setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
     } catch (error) {
@@ -207,7 +204,7 @@ const handleMarkUnavailable = async () => {
 
     await databases.createDocument(
       process.env.NEXT_PUBLIC_DATABASE_ID!,
-      process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!,
+      UNAVAILABLESLOTS_COLLECTION_ID,
       ID.unique(),
       {
         date: format(selectedDate, 'yyyy-MM-dd'),
@@ -236,14 +233,14 @@ const handleMarkUnavailable = async () => {
 
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!,
+        UNAVAILABLESLOTS_COLLECTION_ID,
         [Query.equal("date", [formattedDate])]
       );
 
       for (const slot of response.documents) {
         await databases.deleteDocument(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!,
+          UNAVAILABLESLOTS_COLLECTION_ID,
           slot.$id
         );
       }
@@ -264,7 +261,7 @@ const handleMarkUnavailable = async () => {
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!,
+        UNAVAILABLESLOTS_COLLECTION_ID,
         slotId
       );
   
@@ -422,7 +419,7 @@ useEffect(() => {
       try {
         await databases.updateDocument(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
+          "67b96b0800349392bb1c",
           appointmentId,
           { status: newStatus }
         );
@@ -465,7 +462,7 @@ useEffect(() => {
   
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!, // Use the correct collection ID
+        "67b96b0800349392bb1c", // Use the correct collection ID
         selectedAppointmentId,
         updateData
       );
@@ -497,7 +494,7 @@ useEffect(() => {
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
+        "67b96b0800349392bb1c",
         appointmentToDelete.id
       );
       fetchAppointments();
@@ -593,7 +590,7 @@ useEffect(() => {
       // Update the appointment with prescription data in the diagnosis field
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
+        "67b96b0800349392bb1c",
         prescriptionAppointmentId,
         { diagnosis: JSON.stringify(diagnosisData) }
       );
@@ -608,7 +605,7 @@ useEffect(() => {
           
           await databases.updateDocument(
             process.env.NEXT_PUBLIC_DATABASE_ID!,
-            process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
+            MEDICINES_COLLECTION_ID,
             medicine.id,
             { stock: newStock }
           );
