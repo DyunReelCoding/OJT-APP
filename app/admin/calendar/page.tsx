@@ -50,8 +50,9 @@ interface UnavailableSlot {
   reason?: string;
 }
 
-const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6";
-const UNAVAILABLESLOTS_COLLECTION_ID = "67cd8eaa000fac61575d"; // Replace with your collection ID
+const MEDICINES_COLLECTION_ID = process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!;
+const UNAVAILABLESLOTS_COLLECTION_ID = process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!;
+const APPOINTMENT_COLLECTION_ID = "67b96b0800349392bb1c"; // Using the correct collection ID
 
 const CalendarPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
