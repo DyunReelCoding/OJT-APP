@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import autoTable from 'jspdf-autotable';
 
 
 export default function MedicalRecord() {
@@ -18,6 +19,7 @@ export default function MedicalRecord() {
     office: '',
     bp: '',
     pr: '',
+    rr: '',
     temp: '',
     sat: '',
     allergies: false,
@@ -39,41 +41,115 @@ export default function MedicalRecord() {
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.setFont('Helvetica', '');
+    doc.setFont('Helvetica', 'bold');
     doc.setFontSize(12);
   
     const formattedDate = selectedDate
       ? selectedDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
       : 'N/A';
+
+    const imagePath = "/assets/images/university_clinic.png"; 
+    const img = new Image();
+    img.src = imagePath;
   
-    doc.text('Republic of the Philippines', 20, 20);
-    doc.text('CARAGA STATE UNIVERSITY', 20, 30);
-    doc.text('UNIVERSITY CENTER FOR HEALTH AND WELLNESS', 20, 40);
-    doc.text('MEDICAL RECORD FORM', 20, 50);
-    doc.text(`Date: ${formattedDate}`, 140, 50);
-  
-    doc.text(`Name: ${formData.name || 'N/A'}`, 20, 70);
-    doc.text(`Home Address: ${formData.address || 'N/A'}`, 20, 80);
-    doc.text(`Age: ${formData.age || 'N/A'}`, 20, 90);
-    doc.text(`Sex: ${formData.sex || 'N/A'}`, 20, 100);
-    doc.text(`Contact No: ${formData.contact || 'N/A'}`, 20, 110);
-    doc.text(`Office/College/Unit: ${formData.office || 'N/A'}`, 20, 120);
-  
-    doc.text(`BP: ${formData.bp || 'N/A'}`, 20, 140);
-    doc.text(`PR: ${formData.pr || 'N/A'}`, 20, 150);
-    doc.text(`Temp: ${formData.temp || 'N/A'}`, 20, 160);
-    doc.text(`O2 Sat: ${formData.sat || 'N/A'}`, 20, 170);
-  
-    doc.text(`Allergies: ${formData.allergies ? 'YES' : 'NO'}`, 20, 190);
-    if (formData.allergies) {
-      doc.text(`Food: ${formData.food || 'N/A'}`, 20, 200);
-      doc.text(`Drugs: ${formData.drugs || 'N/A'}`, 20, 210);
-    }
-  
-    doc.text(`Complaint and Assessment: ${formData.complaint || 'N/A'}`, 20, 230);
-    doc.text(`Diagnosis and Treatment: ${formData.diagnosis || 'N/A'}`, 20, 240);
-  
-    doc.save('Medical_Record.pdf');
+    img.onload = () => {
+      doc.addImage(img, "PNG", 7, 5, 199, 31);
+
+      doc.text('MEDICAL RECORD FORM', 80, 50);
+      doc.setFont('Helvetica', 'normal');
+      // doc.text(`Date: ${formattedDate}`, 140, 50);
+    
+      const tableData1 = [
+        [
+          { content: `Name: ${formData.name}`, colSpan: 1 }, 
+          { content: `Age: ${formData.age}`, colSpan: 1 }, 
+          { content: `Sex: ${formData.sex}`, colSpan: 1 }
+        ],
+        [
+          { content: `Home Address: ${formData.address}`, colSpan: 3 } // Merging across 3 columns
+        ],
+        [
+          {content: `BP: ${formData.bp}   RR: ${formData.rr}        Temp: ${formData.temp}°C\n\nPR: ${formData.pr}    O2 Sat: ${formData.sat}`},
+          {content: `Contact No.: ${formData.contact}\n\nOffice/College/Unit: ${formData.office}`,colSpan: 3}
+        ],
+        [
+          {content: `Allergies: YES \t\tNO \t\t\t\t\t FOOD: \t\t\t\tDRUGS: `, colSpan:3}
+        ]
+      ];
+
+      autoTable(doc, {
+        body: tableData1, // Table content
+        startY: 60, // Positioning (adjustable)
+        theme: "grid", // Table styling ("striped", "grid", or "plain")
+        styles: {
+            halign: "left", // Align text to the left
+            valign: "middle",
+            fontSize: 10,
+            lineColor: "black"
+        },
+        columnStyles: {
+          0: { cellWidth: 111, textColor: "black" }, // "Field" column width = 50
+          1: { cellWidth: 35, textColor: "black" },
+          2: {cellWidth: 35, textColor: "black"},
+          3: {cellWidth: 181, textColor: "black"},
+          4: {cellWidth: 70, textColor: "black"},
+          5: {cellWidth: 40, textColor: "black"} // "Details" column width = 100
+        }
+      });
+
+      const tableData2 = [
+        ["Data/Time", "Complaint and Assessment", "Diagnosis and Treatment"],
+        [formattedDate, formData.complaint, formData.diagnosis]
+      ];
+
+      autoTable(doc, {
+        body: tableData2, // Table content
+        startY: 105, // Positioning (adjustable)
+        theme: "grid", // Table styling ("striped", "grid", or "plain")
+        styles: {
+            halign: "center", // Align text to the left
+            valign: "middle",
+            fontSize: 10,
+            lineColor: "black"
+        },
+        columnStyles: {
+          0: { cellWidth: 60.33, textColor: "black" }, // "Field" column width = 50
+          1: { cellWidth: 60.33, textColor: "black", halign: "left" },
+          2: {cellWidth: 60.33, textColor: "black", halign: "justify"}
+        }
+      });
+
+      doc.text("______       _____         ________",22,80);
+      doc.text("____            _____",22,87.8);
+      doc.text("_____________",113,96);
+      doc.text("______________",159,96);
+      doc.text("____________________",147,80);
+      doc.text("_______________",157,88);
+      doc.rect(42, 92, 5, 5);
+      doc.setFont("ZapfDingbats");
+      doc.text(`${formData.allergies ? "4" : ""}`,43,96);
+      doc.rect(63.5, 92, 5, 5);
+      doc.text(`${formData.allergies ? "" : "4"}`,64.5,96); 
+      if (formData.allergies) {
+        doc.setFont("Helvetica");
+        doc.text(`${formData.food || 'N/A'}`, 114, 96);
+        doc.text(`${formData.drugs || 'N/A'}`, 160, 96);
+      }
+    
+      doc.setFont("Helvetica");
+      doc.setFontSize(10);
+      doc.text("F-HAW-004",15,275);
+      doc.text("Rev 0. 08-10.2023",15,280);
+      doc.text("Seen and Examined by:", 90, 248);
+      doc.text("____________________________",130 , 252);
+      doc.text("University Physician / Nurse",136,257);
+      doc.text("Lic.No;______________",140,262);
+      doc.save('Medical_Record.pdf');
+      };
+      img.onerror = () => {
+        console.error("Failed to load image:", imagePath);
+      };
+    
   };
   
   return (
@@ -121,6 +197,12 @@ export default function MedicalRecord() {
   <Input
     name="bp"
     placeholder="BP"
+    className="bg-white text-black border border-blue-700"
+    onChange={handleChange}
+  />
+  <Input
+    name="rr"
+    placeholder="RR"
     className="bg-white text-black border border-blue-700"
     onChange={handleChange}
   />
