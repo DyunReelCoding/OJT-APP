@@ -25,7 +25,7 @@ interface Medicine {
   expiryDate: string;
 }
 
-const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6"; // Update this to match your medicines collection ID
+const MEDICINES_COLLECTION_ID = process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!; // Update to use env variable
 
 const MedicinesPage = () => {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -60,10 +60,12 @@ const MedicinesPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6"
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!
       );
-      setMedicines(response.documents);
-      setFilteredMedicines(response.documents);
+      
+      // Set medicines directly from the documents array with proper type conversion
+      setMedicines(response.documents as unknown as Medicine[]);
+      setFilteredMedicines(response.documents as unknown as Medicine[]);
     } catch (error) {
       console.error("Error fetching medicines:", error);
     }
@@ -89,13 +91,14 @@ const MedicinesPage = () => {
 
       const response = await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6",
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
         ID.unique(),
         medicineData
       );
 
-      setMedicines([...medicines, response]);
-      setFilteredMedicines([...medicines, response]);
+      // Add the new medicine directly to the state
+      setMedicines([...medicines, response as unknown as Medicine]);
+      setFilteredMedicines([...medicines, response as unknown as Medicine]);
       setNewMedicine({
         $id: "",
         name: "",
@@ -119,7 +122,7 @@ const MedicinesPage = () => {
     try {
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b486f5000ff28439c6",
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
         id,
         {
           name: medicine.name,
@@ -149,23 +152,26 @@ const MedicinesPage = () => {
   const handleDelete = async () => {
     console.log("Attempting to delete medicine:", medicineToDelete);
     if (!medicineToDelete) return;
-
+  
+    // Find the medicine's name before deleting
+    const medicine = medicines.find(m => m.$id === medicineToDelete);
+  
     try {
       console.log("Database ID:", process.env.NEXT_PUBLIC_DATABASE_ID);
       console.log("Collection ID:", MEDICINES_COLLECTION_ID);
-
+  
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        MEDICINES_COLLECTION_ID,
+        process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
         medicineToDelete
       );
-
+  
       // Update local state to remove the deleted medicine
       setMedicines(medicines.filter(m => m.$id !== medicineToDelete));
       setFilteredMedicines(filteredMedicines.filter(m => m.$id !== medicineToDelete));
-
+  
       console.log("Medicine deleted successfully");
-      setMessage("✅ Medicine deleted successfully!");
+      setMessage(`✅ Medicine "${medicine?.name || 'Unknown'}" deleted successfully!`);
       setMessageType("success");
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
@@ -177,6 +183,7 @@ const MedicinesPage = () => {
       setMedicineToDelete(null);
     }
   };
+  
 
   useEffect(() => {
     const filtered = medicines.filter(medicine =>
@@ -262,13 +269,14 @@ const MedicinesPage = () => {
                 required
               />
               <Input
-                type="text"
+                type="number"
                 value={newMedicine.stock}
                 onChange={(e) => setNewMedicine({ ...newMedicine, stock: e.target.value })}
-                placeholder="Stock Level (low/medium/high)"
-                className="border-blue-700 bg-white  focus:ring-0 focus:outline-none"
+                placeholder="100"
+                className="border-blue-700 bg-white focus:ring-0 focus:outline-none"
                 required
               />
+
               <Input
                 type="text"
                 value={newMedicine.location}
@@ -444,31 +452,38 @@ const MedicinesPage = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-red-700">Delete Medicine</DialogTitle>
-            <DialogDescription className="text-gray-500">
-              Are you sure you want to delete this medicine? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              className="border border-red-700 hover:bg-white hover:text-red-700 bg-red-700 text-white"
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  <DialogContent className="bg-white">
+    <DialogHeader>
+      <DialogTitle className="text-red-700">Delete Medicine  <span className="text-black">
+    {medicines.find((m) => m.$id === medicineToDelete)?.name || "this medicine"}
+  </span></DialogTitle>
+      <DialogDescription className="text-gray-500">
+        Are you sure you want to delete{" "}
+        <span className="font-semibold text-red-600">
+          {medicines.find((m) => m.$id === medicineToDelete)?.name || "this medicine"}
+        </span>
+        ? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter className="flex gap-2">
+      <Button
+        variant="outline"
+        onClick={() => setIsDeleteDialogOpen(false)}
+        className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
+      >
+        Cancel
+      </Button>
+      <Button
+        variant="destructive"
+        onClick={handleDelete}
+        className="border border-red-700 hover:bg-white hover:text-red-700 bg-red-700 text-white"
+      >
+        Delete
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>;
+
     </div>
   );
 };
