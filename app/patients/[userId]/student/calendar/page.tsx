@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Appointment {
   $id: string;
@@ -23,13 +23,18 @@ interface Appointment {
   cancellationReason?: string;
   diagnosis?: string;
   prescriptions?: string;
+  college: string; // New field
+  office: string; // New field
+  occupation: string; // New field
 }
 
 interface Student {
   $id: string;
   name: string;
   email: string;
-  // Add other student fields as needed
+  occupation: string; // New field
+  college: string; // New field
+  office: string; // New field
 }
 
 interface UnavailableSlot {
@@ -47,8 +52,8 @@ const StudentCalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'day'>('month');
   const [student, setStudent] = useState<Student | null>(null);
-  const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]); // State for unavailable slots
-  
+  const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
+
   // State for appointment scheduling
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [schedulingDate, setSchedulingDate] = useState<Date | null>(null);
@@ -56,7 +61,10 @@ const StudentCalendarPage = () => {
     patientName: "",
     time: "",
     reason: "",
-    status: "Scheduled" as const
+    status: "Scheduled" as const,
+    college: "", // New field
+    office: "", // New field
+    occupation: "", // New field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -65,13 +73,13 @@ const StudentCalendarPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
+
   const databases = new Databases(client);
 
   useEffect(() => {
     fetchStudentData();
     fetchAppointments();
-    fetchUnavailableSlots(); // Fetch unavailable slots
+    fetchUnavailableSlots();
   }, [currentDate]);
 
   const fetchUnavailableSlots = async () => {
@@ -103,7 +111,7 @@ const StudentCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Using the hardcoded appointment collection ID
+        "67b96b0800349392bb1c" // Appointment collection ID
       );
       // Filter appointments for the current user
       const userAppointments = response.documents.filter(
@@ -171,16 +179,18 @@ const StudentCalendarPage = () => {
     return slots;
   };
 
-  // Function to handle opening the schedule modal
   const handleScheduleClick = (date: Date) => {
     setSchedulingDate(date);
     setShowScheduleModal(true);
-    // Reset form state with student name pre-filled
+    // Reset form state with student details pre-filled
     setNewAppointment({
       patientName: student?.name || "",
       time: "",
       reason: "",
-      status: "Scheduled"
+      status: "Scheduled",
+      college: student?.college || "", // Pre-fill college
+      office: student?.office || "", // Pre-fill office
+      occupation: student?.occupation || "", // Pre-fill occupation
     });
     setSubmitSuccess(false);
     setSubmitError("");
@@ -197,22 +207,22 @@ const StudentCalendarPage = () => {
 
   const handleSubmitAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!schedulingDate) return;
-    
+
     // Check if the selected time slot is unavailable
     if (isSlotUnavailable(schedulingDate, newAppointment.time)) {
       setSubmitError("This time slot is unavailable. Please choose another time.");
       return;
     }
-    
+
     setIsSubmitting(true);
     setSubmitError("");
-    
+
     try {
       // Format the date as YYYY-MM-DD
       const formattedDate = format(schedulingDate, 'yyyy-MM-dd');
-      
+
       // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
@@ -224,21 +234,24 @@ const StudentCalendarPage = () => {
           time: newAppointment.time,
           reason: newAppointment.reason,
           status: newAppointment.status,
-          userid: userId
+          userid: userId,
+          college: newAppointment.college, // Include college
+          office: newAppointment.office, // Include office
+          occupation: newAppointment.occupation, // Include occupation
         }
       );
-      
+
       // Show success message
       setSubmitSuccess(true);
-      
+
       // Refresh appointments
       fetchAppointments();
-      
+
       // Close modal after a delay
       setTimeout(() => {
         setShowScheduleModal(false);
       }, 2000);
-      
+
     } catch (error) {
       console.error("Error creating appointment:", error);
       setSubmitError("Failed to create appointment. Please try again.");
@@ -324,16 +337,14 @@ const StudentCalendarPage = () => {
     );
   };
 
-  // Schedule appointment modal
+  // Render the schedule modal with the updated form fields
   const renderScheduleModal = () => {
     if (!showScheduleModal || !schedulingDate) return null;
 
-    // Get unavailable slots for the selected date
     const unavailableSlotsForDay = unavailableSlots.filter(
       slot => slot.date === format(schedulingDate, 'yyyy-MM-dd')
     );
 
-    // Generate time slots from 8:00 AM to 5:00 PM
     const timeSlots = generateTimeSlots();
 
     return (
@@ -350,7 +361,7 @@ const StudentCalendarPage = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <form onSubmit={handleSubmitAppointment} className="p-6 space-y-4">
             <div className="space-y-2 text-black">
               <Label className="text-blue-700" htmlFor="patientName">Patient Name</Label>
@@ -366,6 +377,55 @@ const StudentCalendarPage = () => {
               />
               <p className="text-xs text-gray-500">Name is automatically filled based on your account</p>
             </div>
+
+            <div className="space-y-2 text-black">
+              <Label className="text-blue-700" htmlFor="occupation">Occupation</Label>
+              <Input
+                id="occupation"
+                name="occupation"
+                value={newAppointment.occupation}
+                onChange={handleInputChange}
+                placeholder="Enter occupation"
+                required
+                readOnly
+                className="bg-gray-50 border-blue-700"
+              />
+              <p className="text-xs text-gray-500">Occupation is automatically filled based on your account</p>
+            </div>
+
+            {newAppointment.occupation === "Student" && (
+              <div className="space-y-2 text-black">
+                <Label className="text-blue-700" htmlFor="college">College</Label>
+                <Input
+                  id="college"
+                  name="college"
+                  value={newAppointment.college}
+                  onChange={handleInputChange}
+                  placeholder="Enter college"
+                  required
+                  readOnly
+                  className="bg-gray-50 border-blue-700"
+                />
+                <p className="text-xs text-gray-500">College is automatically filled based on your account</p>
+              </div>
+            )}
+
+            {newAppointment.occupation === "Employee" && (
+              <div className="space-y-2 text-black">
+                <Label className="text-blue-700" htmlFor="office">Office</Label>
+                <Input
+                  id="office"
+                  name="office"
+                  value={newAppointment.office}
+                  onChange={handleInputChange}
+                  placeholder="Enter office"
+                  required
+                  readOnly
+                  className="bg-gray-50 border-blue-700"
+                />
+                <p className="text-xs text-gray-500">Office is automatically filled based on your account</p>
+              </div>
+            )}
 
             {/* Display unavailable slots for the selected date */}
             {unavailableSlotsForDay.length > 0 && (
@@ -384,28 +444,28 @@ const StudentCalendarPage = () => {
             <div className="space-y-2">
               <Label className="text-blue-700" htmlFor="time">Time</Label>
               <Select
-  name="time"
-  value={newAppointment.time}
-  onValueChange={(value) => setNewAppointment(prev => ({ ...prev, time: value }))}
-  required
->
-  <SelectTrigger className="bg-gray-50 text-black border-blue-700">
-    <SelectValue placeholder="Select a time slot" />
-  </SelectTrigger>
-  <SelectContent className="bg-white border border-blue-700 text-black">
-    {timeSlots.map((time, index) => (
-      <SelectItem
-        key={index}
-        value={time}
-        disabled={isSlotUnavailable(schedulingDate, time)}
-      >
-        {time}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+                name="time"
+                value={newAppointment.time}
+                onValueChange={(value) => setNewAppointment(prev => ({ ...prev, time: value }))}
+                required
+              >
+                <SelectTrigger className="bg-gray-50 text-black border-blue-700">
+                  <SelectValue placeholder="Select a time slot" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-blue-700 text-black">
+                  {timeSlots.map((time, index) => (
+                    <SelectItem
+                      key={index}
+                      value={time}
+                      disabled={isSlotUnavailable(schedulingDate, time)}
+                    >
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label className="text-blue-700" htmlFor="reason">Reason for Appointment</Label>
               <Textarea
@@ -419,19 +479,19 @@ const StudentCalendarPage = () => {
                 className="bg-gray-50 text-black border-blue-700"
               />
             </div>
-            
+
             {submitError && (
               <div className="p-3 bg-red-100 text-red-700 rounded-md">
                 {submitError}
               </div>
             )}
-            
+
             {submitSuccess && (
               <div className="p-3 bg-green-100 text-green-700 rounded-md">
                 Appointment scheduled successfully!
               </div>
             )}
-            
+
             <div className="flex justify-end pt-4">
               <Button
                 type="button"
@@ -455,6 +515,7 @@ const StudentCalendarPage = () => {
       </div>
     );
   };
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -601,7 +662,7 @@ const StudentCalendarPage = () => {
         </div>
       </div>
       
-      {/* Render the schedule modal */}
+      { /* Render the schedule modal */ }
       {renderScheduleModal()}
     </div>
   );
