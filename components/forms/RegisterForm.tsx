@@ -93,14 +93,17 @@ const RegisterForm = ({ user }: { user: User }) => {
     if (isStudent) {
       form.setValue("program", "");
       form.setValue("yearLevel", "");
+      form.setValue("college", "");
       form.setValue("office", "None");
     } else if (isEmployee) {
       form.setValue("program", "None");
       form.setValue("yearLevel", "None");
+      form.setValue("college", "None");
       form.setValue("office", "");
     } else {
       form.setValue("program", "None");
       form.setValue("yearLevel", "None");
+      form.setValue("college", "None");
       form.setValue("office", "");
     }
   }, [isStudent, isEmployee, form]);

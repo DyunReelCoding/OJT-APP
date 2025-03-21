@@ -6,6 +6,7 @@ import { Databases, Client } from "appwrite";
 import { Button } from "@/components/ui/button";
 import EmployeeSideBar from "@/components/EmployeeSideBar";
 import { ChevronDown, ChevronUp } from "lucide-react"; // Icons for expand/collapse
+import MedicalClearancePatient from "@/components/MedicalClearancePatient";
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -23,6 +24,9 @@ const EmployeePage = () => {
   // State for collapsible sections
   const [isDiagnosisExpanded, setIsDiagnosisExpanded] = useState(false);
   const [isDietExpanded, setIsDietExpanded] = useState(true); // Expanded by default
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleExpand = () => setIsExpanded(!isExpanded);
 
   
 
@@ -149,6 +153,28 @@ const EmployeePage = () => {
                       <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
                     </div>
                   ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={toggleExpand}
+            >
+              <h2 className="text-2xl font-semibold text-blue-700">Make a Medical Clearance</h2>
+              <div>
+                {isExpanded ? (
+                  <ChevronUp className="h-6 w-6 text-gray-600" />
+                ) : (
+                  <ChevronDown className="h-6 w-6 text-gray-600" />
+                )}
+              </div>
+            </div>
+          
+            {isExpanded && (
+              <div className="mt-4">
+                <MedicalClearancePatient />
               </div>
             )}
           </div>
