@@ -174,7 +174,11 @@ const EmployeePage = () => {
           
             {isExpanded && (
               <div className="mt-4">
-                <MedicalClearancePatient />
+                <MedicalClearancePatient 
+                patientName={employee.name} 
+                patientCivilStatus={employee.civilStatus}
+                patientAge={employee.age} 
+                patientAddress={employee.address}/>
               </div>
             )}
           </div>

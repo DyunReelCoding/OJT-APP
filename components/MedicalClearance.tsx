@@ -6,13 +6,16 @@ import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from "jspdf-autotable";
 
-export default function MedicalClearanceForm() {
+export default function MedicalClearanceForm({ patientName = "", 
+  patientAge = "", 
+  patientAddress = "",
+  patientCivilStatus= ""  }) {
   const [formData, setFormData] = useState({
     date:'',
-    name: '',
-    age: '',
-    civilStatus: '',
-    resident: '',
+    name: patientName, 
+    age: patientAge,
+    civilStatus: patientCivilStatus,
+    resident: patientAddress,
     purpose: '',
     schedule: '',
     destination: '',
@@ -40,6 +43,8 @@ export default function MedicalClearanceForm() {
       [name]: type === "checkbox" ? checked : value, // Prevent boolean assignment to text fields
     }));
   };
+
+  
 
 const generatePDF = () => {
   const doc = new jsPDF();
@@ -230,28 +235,32 @@ const generatePDF = () => {
         onChange={handleChange}
       />
 
-      <Input
-        className="bg-white text-black placeholder-gray-500 border border-blue-700"
-        name="name"
-        placeholder="Full Name"
-        onChange={handleChange}
-      />
+<Input
+      className="bg-white text-black placeholder-gray-500 border border-blue-700"
+      name="name"
+      placeholder="Full Name"
+      value={formData.name} // Prefilled and editable
+      onChange={handleChange}
+    />
       <Input
         className="bg-white text-black placeholder-gray-500 border border-blue-700"
         name="age"
         placeholder="Age"
+        value={formData.age}
         onChange={handleChange}
       />
       <Input
         className="bg-white text-black placeholder-gray-500 border border-blue-700"
         name="civilStatus"
         placeholder="Civil Status"
+        value={formData.civilStatus}
         onChange={handleChange}
       />
       <Input
         className="bg-white text-black placeholder-gray-500 border border-blue-700"
         name="resident"
         placeholder="Resident Address"
+        value={formData.resident}
         onChange={handleChange}
       />
       <Input
