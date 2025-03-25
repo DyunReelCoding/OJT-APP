@@ -218,7 +218,9 @@ const StudentPage = () => {
 
   {isExpanded && (
     <div className="mt-4">
-      <MedicalClearancePatient />
+      <MedicalClearancePatient patientName={student.name} 
+  patientAge={student.age} 
+  patientAddress={student.address}/>
     </div>
   )}
 </div>
