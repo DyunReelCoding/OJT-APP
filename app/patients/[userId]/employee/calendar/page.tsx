@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Appointment {
   $id: string;
@@ -29,10 +29,18 @@ interface Employee {
   $id: string;
   name: string;
   email: string;
-  // Add other employee fields as needed
+  occupation: string; // Employee-specific field
+  office: string; // Employee-specific field
 }
 
+interface UnavailableSlot {
+  $id: string;
+  date: string;
+  timeRange: string;
+  reason?: string;
+}
 const EmployeeCalendarPage = () => {
+
   const params = useParams();
   const userId = params.userId as string;
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -40,15 +48,19 @@ const EmployeeCalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'day'>('month');
   const [employee, setEmployee] = useState<Employee | null>(null);
-  
-  // New state for appointment scheduling
+  const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
+
+  // State for appointment scheduling
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [schedulingDate, setSchedulingDate] = useState<Date | null>(null);
   const [newAppointment, setNewAppointment] = useState({
     patientName: "",
     time: "",
     reason: "",
-    status: "Scheduled" as const
+    status: "Scheduled" as const,
+    college: "", // New field
+    office: "", // New field
+    occupation: "", // New field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -57,14 +69,27 @@ const EmployeeCalendarPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
+
   const databases = new Databases(client);
 
   useEffect(() => {
     fetchEmployeeData();
     fetchAppointments();
+    fetchUnavailableSlots();
   }, [currentDate]);
 
+  const fetchUnavailableSlots = async () => {
+    try {
+      const response = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        "67cd8eaa000fac61575d" // Unavailable slots collection ID
+      );
+      setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
+    } catch (error) {
+      console.error("Error fetching unavailable slots:", error);
+    }
+  };
+  
   const fetchEmployeeData = async () => {
     try {
       const response = await databases.getDocument(
@@ -72,7 +97,7 @@ const EmployeeCalendarPage = () => {
         process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
         userId
       );
-      setEmployee(response as unknown as Employee);
+      setEmployee(response as unknown as Employee); // Update the state to use `Employee`
     } catch (error) {
       console.error("Error fetching employee data:", error);
     }
@@ -82,7 +107,7 @@ const EmployeeCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Using the hardcoded appointment collection ID
+        "67b96b0800349392bb1c" // Appointment collection ID
       );
       // Filter appointments for the current user
       const userAppointments = response.documents.filter(
@@ -123,22 +148,51 @@ const EmployeeCalendarPage = () => {
     }
   };
 
-  // New function to handle opening the schedule modal
+  const isSlotUnavailable = (date: Date, time: string) => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    return unavailableSlots.some((slot) => {
+      const [startTime, endTime] = slot.timeRange.split(" - ");
+      return (
+        slot.date === formattedDate &&
+        time >= startTime &&
+        time <= endTime
+      );
+    });
+  };
+
+  // Function to generate time slots from 8:00 AM to 5:00 PM with 15-30 minute intervals
+  const generateTimeSlots = () => {
+    const slots = [];
+    let currentTime = new Date();
+    currentTime.setHours(8, 0, 0); // Start at 8:00 AM
+
+    while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
+      const formattedTime = format(currentTime, 'h:mm a');
+      slots.push(formattedTime);
+      // Add 15-30 minutes randomly
+      currentTime.setMinutes(currentTime.getMinutes() + 30);     }
+
+    return slots;
+  };
+
   const handleScheduleClick = (date: Date) => {
     setSchedulingDate(date);
     setShowScheduleModal(true);
-    // Reset form state with employee name pre-filled
+    // Reset form state with student details pre-filled
     setNewAppointment({
       patientName: employee?.name || "",
       time: "",
       reason: "",
-      status: "Scheduled"
+      status: "Scheduled",
+      college: "", // Pre-fill college
+      office: employee?.office || "", // Pre-fill office
+      occupation: employee?.occupation || "", // Pre-fill occupation
     });
     setSubmitSuccess(false);
     setSubmitError("");
   };
 
-  // New function to handle appointment form input changes
+  // Function to handle appointment form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setNewAppointment(prev => ({
@@ -147,23 +201,28 @@ const EmployeeCalendarPage = () => {
     }));
   };
 
-  // New function to handle appointment submission
   const handleSubmitAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!schedulingDate) return;
-    
+
+    // Check if the selected time slot is unavailable
+    if (isSlotUnavailable(schedulingDate, newAppointment.time)) {
+      setSubmitError("This time slot is unavailable. Please choose another time.");
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError("");
-    
+
     try {
       // Format the date as YYYY-MM-DD
       const formattedDate = format(schedulingDate, 'yyyy-MM-dd');
-      
+
       // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        "67b96b0800349392bb1c", // Appointment collection ID
         ID.unique(),
         {
           patientName: newAppointment.patientName,
@@ -171,21 +230,24 @@ const EmployeeCalendarPage = () => {
           time: newAppointment.time,
           reason: newAppointment.reason,
           status: newAppointment.status,
-          userid: userId
+          userid: userId,
+          college: newAppointment.college, // Include college
+          office: newAppointment.office, // Include office
+          occupation: newAppointment.occupation, // Include occupation
         }
       );
-      
+
       // Show success message
       setSubmitSuccess(true);
-      
+
       // Refresh appointments
       fetchAppointments();
-      
+
       // Close modal after a delay
       setTimeout(() => {
         setShowScheduleModal(false);
       }, 2000);
-      
+
     } catch (error) {
       console.error("Error creating appointment:", error);
       setSubmitError("Failed to create appointment. Please try again.");
@@ -271,9 +333,15 @@ const EmployeeCalendarPage = () => {
     );
   };
 
-  // Schedule appointment modal
+  // Render the schedule modal with the updated form fields
   const renderScheduleModal = () => {
     if (!showScheduleModal || !schedulingDate) return null;
+
+    const unavailableSlotsForDay = unavailableSlots.filter(
+      slot => slot.date === format(schedulingDate, 'yyyy-MM-dd')
+    );
+
+    const timeSlots = generateTimeSlots();
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -289,7 +357,7 @@ const EmployeeCalendarPage = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <form onSubmit={handleSubmitAppointment} className="p-6 space-y-4">
             <div className="space-y-2 text-black">
               <Label className="text-blue-700" htmlFor="patientName">Patient Name</Label>
@@ -301,24 +369,99 @@ const EmployeeCalendarPage = () => {
                 placeholder="Enter patient name"
                 required
                 readOnly
-                className="bg-gray-50 border-blue-700 text-black"
+                className="bg-gray-50 border-blue-700"
               />
               <p className="text-xs text-gray-500">Name is automatically filled based on your account</p>
             </div>
-            
+
+            <div className="space-y-2 text-black">
+              <Label className="text-blue-700" htmlFor="occupation">Occupation</Label>
+              <Input
+                id="occupation"
+                name="occupation"
+                value={newAppointment.occupation}
+                onChange={handleInputChange}
+                placeholder="Enter occupation"
+                required
+                readOnly
+                className="bg-gray-50 border-blue-700"
+              />
+              <p className="text-xs text-gray-500">Occupation is automatically filled based on your account</p>
+            </div>
+
+            {newAppointment.occupation === "Student" && (
+              <div className="space-y-2 text-black">
+                <Label className="text-blue-700" htmlFor="college">College</Label>
+                <Input
+                  id="college"
+                  name="college"
+                  value={newAppointment.college}
+                  onChange={handleInputChange}
+                  placeholder="Enter college"
+                  required
+                  readOnly
+                  className="bg-gray-50 border-blue-700"
+                />
+                <p className="text-xs text-gray-500">College is automatically filled based on your account</p>
+              </div>
+            )}
+
+            {newAppointment.occupation === "Employee" && (
+              <div className="space-y-2 text-black">
+                <Label className="text-blue-700" htmlFor="office">Office</Label>
+                <Input
+                  id="office"
+                  name="office"
+                  value={newAppointment.office}
+                  onChange={handleInputChange}
+                  placeholder="Enter office"
+                  required
+                  readOnly
+                  className="bg-gray-50 border-blue-700"
+                />
+                <p className="text-xs text-gray-500">Office is automatically filled based on your account</p>
+              </div>
+            )}
+
+            {/* Display unavailable slots for the selected date */}
+            {unavailableSlotsForDay.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-blue-700">Unavailable Time Slots</Label>
+                <div className="bg-gray-100 p-3 rounded-md">
+                  {unavailableSlotsForDay.map(slot => (
+                    <div key={slot.$id} className="text-sm text-gray-600">
+                      {slot.timeRange} - {slot.reason || "No reason provided"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label className="text-blue-700" htmlFor="time">Time</Label>
-              <Input
-                id="time"
+              <Select
                 name="time"
-                type="time"
                 value={newAppointment.time}
-                onChange={handleInputChange}
+                onValueChange={(value) => setNewAppointment(prev => ({ ...prev, time: value }))}
                 required
-                className="text-black bg-gray-50 border-blue-700"
-              />
+              >
+                <SelectTrigger className="bg-gray-50 text-black border-blue-700">
+                  <SelectValue placeholder="Select a time slot" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-blue-700 text-black">
+                  {timeSlots.map((time, index) => (
+                    <SelectItem
+                      key={index}
+                      value={time}
+                      disabled={isSlotUnavailable(schedulingDate, time)}
+                    >
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label className="text-blue-700" htmlFor="reason">Reason for Appointment</Label>
               <Textarea
@@ -332,19 +475,19 @@ const EmployeeCalendarPage = () => {
                 className="bg-gray-50 text-black border-blue-700"
               />
             </div>
-            
+
             {submitError && (
               <div className="p-3 bg-red-100 text-red-700 rounded-md">
                 {submitError}
               </div>
             )}
-            
+
             {submitSuccess && (
               <div className="p-3 bg-green-100 text-green-700 rounded-md">
                 Appointment scheduled successfully!
               </div>
             )}
-            
+
             <div className="flex justify-end pt-4">
               <Button
                 type="button"
@@ -357,7 +500,7 @@ const EmployeeCalendarPage = () => {
               </Button>
               <Button 
                 type="submit"
-                className="hover:bg-green-700 bg-green-500 text-white"
+                className="bg-green-500 hover:bg-green-700 text-white"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Scheduling..." : "Schedule Appointment"}
@@ -368,6 +511,7 @@ const EmployeeCalendarPage = () => {
       </div>
     );
   };
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -439,6 +583,11 @@ const EmployeeCalendarPage = () => {
                     });
                     const isToday = date.toDateString() === new Date().toDateString();
 
+                    // Check if the date has any unavailable slots
+                    const unavailableSlotsForDay = unavailableSlots.filter(
+                      slot => slot.date === format(date, 'yyyy-MM-dd')
+                    );
+
                     return (
                       <div
                         key={i}
@@ -481,6 +630,15 @@ const EmployeeCalendarPage = () => {
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
+                          {/* Display unavailable slots */}
+                          {unavailableSlotsForDay.map(slot => (
+                            <div
+                              key={slot.$id}
+                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-500"
+                            >
+                              {slot.timeRange} - Unavailable
+                            </div>
+                          ))}
                           <div 
                             className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
                             onClick={() => handleScheduleClick(date)}
@@ -500,7 +658,7 @@ const EmployeeCalendarPage = () => {
         </div>
       </div>
       
-      {/* Render the schedule modal */}
+      { /* Render the schedule modal */ }
       {renderScheduleModal()}
     </div>
   );

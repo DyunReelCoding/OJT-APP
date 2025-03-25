@@ -54,6 +54,7 @@ const AppointmentsPage = () => {
   const [collegeFilter, setCollegeFilter] = useState("");
   const [officeFilter, setOfficeFilter] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -93,21 +94,40 @@ const AppointmentsPage = () => {
   };
 
   const handleFilter = () => {
+    setIsFiltering(true);
+    
     const filtered = appointments.filter((appointment) => {
-      // Apply filters based on appointment data
+      // Basic filters
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
       const collegeMatch = !collegeFilter || appointment.college === collegeFilter;
       const officeMatch = !officeFilter || appointment.office === officeFilter;
-  
-      // Parse the diagnosis field to check for chief complaint
+      
+      // Chief complaint filter
       let chiefComplaintMatch = true;
-      if (chiefComplaintFilter && appointment.diagnosis) {
-        try {
-          const diagnosisData = JSON.parse(appointment.diagnosis);
-          chiefComplaintMatch = diagnosisData.chiefComplaint === chiefComplaintFilter;
-        } catch (error) {
-          console.error("Error parsing diagnosis:", error);
+      if (chiefComplaintFilter) {
+        if (!appointment.diagnosis) {
           chiefComplaintMatch = false;
+        } else {
+          try {
+            const diagnosisData = JSON.parse(appointment.diagnosis);
+            
+            // Debugging
+            console.log("Diagnosis data:", diagnosisData);
+            
+            if (!diagnosisData.chiefComplaint) {
+              chiefComplaintMatch = false;
+            } else if (Array.isArray(diagnosisData.chiefComplaint)) {
+              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
+                cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
+              );
+            } else {
+              chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
+                .includes(chiefComplaintFilter.toLowerCase());
+            }
+          } catch (error) {
+            console.error("Error parsing diagnosis:", error);
+            chiefComplaintMatch = false;
+          }
         }
       }
   
@@ -115,6 +135,7 @@ const AppointmentsPage = () => {
     });
   
     setFilteredAppointments(filtered);
+    setIsFiltering(false);
   };
 
   const resetFilters = () => {
@@ -268,7 +289,7 @@ const AppointmentsPage = () => {
                     <SelectItem value="Stomachache">Stomachache</SelectItem>
                     <SelectItem value="Headache">Headache</SelectItem>
                     <SelectItem value="Fever">Fever</SelectItem>
-                    <SelectItem value="LBM">LBM</SelectItem>
+                    <SelectItem value="Low Bowel Movement">Low Bowel Movement</SelectItem>
                   </SelectContent>
                 </Select>
 
