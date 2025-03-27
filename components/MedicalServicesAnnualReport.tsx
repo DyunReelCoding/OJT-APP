@@ -233,7 +233,7 @@ const MedicalServicesAnnualReport = () => {
             ))}
 
             {/* Bar for Faculty Complaints (stacked with student complaints) */}
-            <Bar dataKey="Faculty & Staff" stackId="complaints" fill="#FF5733" /> 
+            <Bar dataKey="Faculty & Staff" stackId="complaints" fill="#FF5733" />
           </BarChart>
         </ResponsiveContainer>
       </div>
