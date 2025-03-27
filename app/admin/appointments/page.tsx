@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ReactSelect from "react-select";
+import MedicalServicesAnnualReport from "@/components/MedicalServicesAnnualReport";
 
 interface Appointment {
   $id: string;
@@ -57,16 +58,6 @@ const AppointmentsPage = () => {
   const [officeFilter, setOfficeFilter] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isFiltering, setIsFiltering] = useState(false);
-  
-  // Status change dialog states
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-  const [bloodPressure, setBloodPressure] = useState("");
-  const [chiefComplaint, setChiefComplaint] = useState("");
-  const [notes, setNotes] = useState("");
-  const [cancellationReason, setCancellationReason] = useState("");
-  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -107,12 +98,13 @@ const AppointmentsPage = () => {
 
   const handleFilter = () => {
     setIsFiltering(true);
-    
+  
     const filtered = appointments.filter((appointment) => {
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
       const collegeMatch = !collegeFilter || appointment.college === collegeFilter;
       const officeMatch = !officeFilter || appointment.office === officeFilter;
       
+      // Chief complaint filter
       let chiefComplaintMatch = true;
       if (chiefComplaintFilter) {
         if (!appointment.diagnosis) {
@@ -121,6 +113,7 @@ const AppointmentsPage = () => {
           try {
             const diagnosisData = JSON.parse(appointment.diagnosis);
             
+            // Debugging
             console.log("Diagnosis data:", diagnosisData);
             
             if (!diagnosisData.chiefComplaint) {
@@ -146,6 +139,7 @@ const AppointmentsPage = () => {
     setFilteredAppointments(filtered);
     setIsFiltering(false);
   };
+  
 
   const resetFilters = () => {
     setBpFilter("");
@@ -321,59 +315,84 @@ const AppointmentsPage = () => {
 
               {/* Filter Options */}
               <div className="flex gap-4 mb-6 text-black">
-                <Select onValueChange={setOccupationFilter} value={occupationFilter}>
-                  <SelectTrigger className="w-48 text-black">
-                    <SelectValue placeholder="Filter by Occupation" />
-                  </SelectTrigger>
-                  <SelectContent className="text-black">
-                    <SelectItem value="Student">Student</SelectItem>
-                    <SelectItem value="Employee">Employee</SelectItem>
-                  </SelectContent>
-                </Select>
+                {/* Occupation Filter */}
+<Select onValueChange={setOccupationFilter} value={occupationFilter}>
+  <SelectTrigger className="w-48 text-black">
+    <SelectValue placeholder="Filter by Occupation" />
+  </SelectTrigger>
+  <SelectContent className="text-black">
+    <SelectItem value="Student">Student</SelectItem>
+    <SelectItem value="Employee">Employee</SelectItem>
+  </SelectContent>
+</Select>
 
-                {occupationFilter === "Student" && (
-                  <Select onValueChange={setCollegeFilter} value={collegeFilter}>
-                    <SelectTrigger className="w-48 text-black">
-                      <SelectValue placeholder="Filter by College" />
-                    </SelectTrigger>
-                    <SelectContent className="text-black">
-                      <SelectItem value="CCIS">CCIS</SelectItem>
-                      <SelectItem value="CHASS">CHASS</SelectItem>
-                      <SelectItem value="CEGS">CEGS</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+{/* Student → College Filter */}
+{occupationFilter === "Student" && (
+  <Select onValueChange={setCollegeFilter} value={collegeFilter}>
+    <SelectTrigger className="w-48 text-black">
+      <SelectValue placeholder="Filter by College" />
+    </SelectTrigger>
+    <SelectContent className="text-black">
+      <SelectItem value="All">All Colleges</SelectItem>
+      <SelectItem value="CCIS">CCIS</SelectItem>
+      <SelectItem value="CHASS">CHASS</SelectItem>
+      <SelectItem value="CEGS">CEGS</SelectItem>
+    </SelectContent>
+  </Select>
+)}
 
-                {occupationFilter === "Employee" && (
-                  <Select onValueChange={setOfficeFilter} value={officeFilter}>
-                    <SelectTrigger className="w-48 text-black">
-                      <SelectValue placeholder="Filter by Office" />
-                    </SelectTrigger>
-                    <SelectContent className="text-black">
-                      <SelectItem value="MIS OFFICE">MIS OFFICE</SelectItem>
-                      <SelectItem value="CLINIC OFFICE">CLINIC OFFICE</SelectItem>
-                      <SelectItem value="CCIS OFFICE">CCIS OFFICE</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+{/* Employee → Office Filter */}
+{occupationFilter === "Employee" && (
+  <Select onValueChange={setOfficeFilter} value={officeFilter}>
+    <SelectTrigger className="w-48 text-black">
+      <SelectValue placeholder="Filter by Office" />
+    </SelectTrigger>
+    <SelectContent className="text-black">
+      <SelectItem value="All">All Offices</SelectItem>
+      <SelectItem value="MIS OFFICE">MIS OFFICE</SelectItem>
+      <SelectItem value="CLINIC OFFICE">CLINIC OFFICE</SelectItem>
+      <SelectItem value="CCIS OFFICE">CCIS OFFICE</SelectItem>
+    </SelectContent>
+  </Select>
+)}
 
-                <Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
-                  <SelectTrigger className="w-48 text-black">
-                    <SelectValue placeholder="Filter by Chief Complaint" />
-                  </SelectTrigger>
-                  <SelectContent className="text-black">
-                    <SelectItem value="Cough">Cough</SelectItem>
-                    <SelectItem value="Stomachache">Stomachache</SelectItem>
-                    <SelectItem value="Headache">Headache</SelectItem>
-                    <SelectItem value="Fever">Fever</SelectItem>
-                    <SelectItem value="Low Bowel Movement">Low Bowel Movement</SelectItem>
-                  </SelectContent>
-                </Select>
+{/* Chief Complaint Filter */}
+<Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
+  <SelectTrigger className="w-48 text-black">
+    <SelectValue placeholder="Filter by Chief Complaint" />
+  </SelectTrigger>
+  <SelectContent className="text-black">
+    <SelectItem value="Cough">Cough</SelectItem>
+    <SelectItem value="Stomachache">Stomachache</SelectItem>
+    <SelectItem value="Headache">Headache</SelectItem>
+    <SelectItem value="Fever">Fever</SelectItem>
+    <SelectItem value="Low Bowel Movement">Low Bowel Movement</SelectItem>
+  </SelectContent>
+</Select>
 
-                <Button onClick={handleFilter}>Apply Filter</Button>
-                <Button onClick={resetFilters} variant="outline">
-                  Reset Filter
-                </Button>
+<Button onClick={handleFilter}>Apply Filter</Button>
+<Button onClick={resetFilters} variant="outline">Reset Filter</Button>
+<button
+        onClick={() => setShowReport(true)}
+        className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700"
+      >
+        View Annual Report
+      </button>
+
+      {showReport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+            <button
+              onClick={() => setShowReport(false)}
+              className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+            >
+              ✕
+            </button>
+            <MedicalServicesAnnualReport />
+          </div>
+        </div>
+      )}
+
               </div>
 
               <div className="overflow-x-auto">

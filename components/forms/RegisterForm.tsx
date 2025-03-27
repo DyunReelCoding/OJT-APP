@@ -26,6 +26,8 @@ import SuccessMessage from "../SuccessMessage";
 import { Client, Databases } from "appwrite";
 import { useSearchParams } from "next/navigation";
 
+import dayjs from "dayjs";
+
 // Load environment variables
 const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!;
 const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID!;
@@ -84,6 +86,17 @@ const RegisterForm = ({ user }: { user: User }) => {
       college: "",
     },
   });
+
+  const birthDate = form.watch("birthDate");
+
+  useEffect(() => {
+    if (birthDate) {
+      const birthYear = dayjs(birthDate).year();
+      const currentYear = dayjs().year();
+      const calculatedAge = currentYear - birthYear;
+      form.setValue("age", calculatedAge.toString(), { shouldValidate: true });
+    }
+  }, [birthDate, form]);
 
   const occupation = form.watch("occupation", "").toLowerCase().replace(/\s+$/, "");
   const isStudent = occupation === "student";
@@ -345,14 +358,14 @@ const RegisterForm = ({ user }: { user: User }) => {
             required={true}
           />
           <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="age"
-            label="Age"
-            placeholder="21"
-            backgroundColor="bg-gray-50"
-            required={true}
-          />
+        fieldType={FormFieldType.DATE_PICKER}
+        control={form.control}
+        name="birthDate"
+        label="Date of Birth"
+        backgroundColor="bg-gray-50"
+        required={true}
+      />
+           
         </div>
 
         <div className="flex flex-col gap-6 xl:flex-row">
@@ -379,14 +392,16 @@ const RegisterForm = ({ user }: { user: User }) => {
           />
         </div>
         <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.DATE_PICKER}
-            control={form.control}
-            name="birthDate"
-            label="Date of Birth"
-            backgroundColor="bg-gray-50"
-            required={true}
-          />
+        <CustomFormField
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="age"
+        label="Age"
+        placeholder="21"
+        backgroundColor="bg-gray-50"
+        required={true}
+        readOnly={true} // Prevent manual input
+      />
           <CustomFormField
             fieldType={FormFieldType.SKELETON}
             control={form.control}

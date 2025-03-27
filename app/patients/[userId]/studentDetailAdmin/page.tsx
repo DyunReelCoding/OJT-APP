@@ -14,6 +14,7 @@ import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import MedicalClearanceForm from "@/components/MedicalClearance";
 import MedicalRecord from "@/components/MedicalRecord";
 import { FaCamera } from "react-icons/fa";
+import dayjs from "dayjs";
 
 declare global {
   interface Window {
@@ -62,6 +63,10 @@ const StudentDetail = () => {
   const toggleExpand = () => setIsExpanded(!isExpanded);
 
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+  const calculateAge = (birthDate: string | number | dayjs.Dayjs | Date | null | undefined) => {
+    return birthDate ? dayjs().diff(dayjs(birthDate), "year") : "N/A";
+  };
   
 
   const fetchStudent = async () => {
@@ -225,39 +230,43 @@ const StudentDetail = () => {
 
       {/* Personal Information */}
       <div className="bg-white p-6 rounded-lg shadow-md border-2 border-blue-700 text-black">
-        <h2 className="text-2xl font-semibold text-blue-700 mb-5">Personal Information</h2>
-        <table className="w-full border-collapse">
-          <tbody>
-            {[
-              ["Email", "email"],
-              ["Phone", "phone"],
-              ["Gender", "gender"],
-              ["Birth Date", "birthDate"],
-              ["Age", "age"],
-              ["Suffix", "suffix"],
-              ["Civil Status", "civilStatus"],
-              ["Person with Disability", "personWithDisability"],
-              ["Address", "address"],
-              ["Occupation", "occupation"],
-              ["Office", "office"],
-              ["Emergency Contact Name", "emergencyContactName"],
-              ["Emergency Contact Number", "emergencyContactNumber"],
-            ].map(([label, field]) => (
-              <tr key={field} className="border border-gray-700">
-                <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
-                <td className="p-3">
-                  <EditableField
-                    label={label}
-                    value={student[field]}
-                    userId={userId}
-                    fieldName={field}
-                    onUpdate={handleUpdate}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <h2 className="text-2xl font-semibold text-blue-700 mb-5">Personal Information</h2>
+    <table className="w-full border-collapse">
+      <tbody>
+        {[
+          ["Email", "email"],
+          ["Phone", "phone"],
+          ["Gender", "gender"],
+          ["Birth Date", "birthDate"],
+          ["Age", "age"], // Age will be handled separately
+          ["Suffix", "suffix"],
+          ["Civil Status", "civilStatus"],
+          ["Person with Disability", "personWithDisability"],
+          ["Address", "address"],
+          ["Occupation", "occupation"],
+          ["Office", "office"],
+          ["Emergency Contact Name", "emergencyContactName"],
+          ["Emergency Contact Number", "emergencyContactNumber"],
+        ].map(([label, field]) => (
+          <tr key={field} className="border border-gray-700">
+            <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
+            <td className="p-3">
+              {field === "age" ? (
+                calculateAge(student["birthDate"]) // Use calculated age
+              ) : (
+                <EditableField
+                  label={label}
+                  value={student[field]}
+                  userId={userId}
+                  fieldName={field}
+                  onUpdate={handleUpdate}
+                />
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
       </div>
 
       {/* Medical Information */}
