@@ -111,11 +111,9 @@ const AppointmentsPage = () => {
     setIsFiltering(true);
   
     const filtered = appointments.filter((appointment) => {
+      // Basic filters
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
-      const collegeMatch = !collegeFilter || appointment.college === collegeFilter;
-      const officeMatch = !officeFilter || appointment.office === officeFilter;
       
-  
       // Allow "All Colleges" for Students and "All Offices" for Employees
       const collegeMatch = occupationFilter === "Student" 
         ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
@@ -150,22 +148,6 @@ const AppointmentsPage = () => {
             console.error("Error parsing diagnosis:", error);
             chiefComplaintMatch = false;
           }
-        try {
-          const diagnosisData = JSON.parse(appointment.diagnosis);
-  
-          if (!diagnosisData?.chiefComplaint) {
-            chiefComplaintMatch = false;
-          } else if (Array.isArray(diagnosisData.chiefComplaint)) {
-            chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
-              cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
-            );
-          } else {
-            chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
-              .includes(chiefComplaintFilter.toLowerCase());
-          }
-        } catch (error) {
-          console.error("Error parsing diagnosis:", error);
-          chiefComplaintMatch = false;
         }
       }
   
