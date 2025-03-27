@@ -68,7 +68,7 @@ const StudentDetail = () => {
             ["Person with Disability", student.personWithDisability],
             ["Address", student.address],
             ["Occupation", student.occupation],
-            ["Office", student.office],
+            ["College", student.college],
             ["Emergency Contact Name", student.emergencyContactName],
             ["Emergency Contact Number", student.emergencyContactNumber],
           ],
