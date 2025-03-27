@@ -121,16 +121,40 @@ const MedicalServicesAnnualReport = () => {
 
   const generatePDF = () => {
     if (reportRef.current) {
-      html2canvas(reportRef.current).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 190;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-        pdf.save("Medical_Services_Annual_Report.pdf");
-      });
+        html2canvas(reportRef.current).then((canvas) => {
+            const currentYear = new Date().getFullYear();
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("l", "mm", [215.9, 330.2]);
+
+            const pageWidth = pdf.internal.pageSize.getWidth(); // Get landscape width
+            const imgWidth = 270; // Slightly smaller than page width for margins
+            const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+            // Calculate centered positions
+            const x = (pageWidth - imgWidth) / 2; // Center X
+
+            const imagePath = "/assets/images/University_Annual.png"; 
+            const img = new Image();
+            img.src = imagePath;
+
+            img.onload = () => {
+              pdf.addImage(img, "PNG", 71, 5, 199, 31);
+              pdf.setFont("Helvetica", "Bold");
+              pdf.setFontSize(11);
+              pdf.text("Medical Services Annual Report",140,45);
+              pdf.text(`January - December ${currentYear}`,146,53);
+              pdf.addImage(imgData, "PNG", x, 55, imgWidth, imgHeight);
+              pdf.save("Medical_Services_Annual_Report.pdf");
+            };
+            img.onerror = () => {
+              console.error("Failed to load image:", imagePath);
+            };
+
+            
+        });
     }
-  };
+};
+
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">

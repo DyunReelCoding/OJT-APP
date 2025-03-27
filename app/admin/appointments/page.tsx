@@ -305,7 +305,7 @@ const AppointmentsPage = () => {
 <Button onClick={resetFilters} variant="outline">Reset Filter</Button>
 <button
         onClick={() => setShowReport(true)}
-        className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700"
+        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
       >
         View Annual Report
       </button>

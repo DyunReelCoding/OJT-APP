@@ -240,9 +240,12 @@ const StudentDetail = () => {
               ["Address", "address"],
               ["Occupation", "occupation"],
               ["Office", "office"],
+              ["College", "college"],
               ["Emergency Contact Name", "emergencyContactName"],
               ["Emergency Contact Number", "emergencyContactNumber"],
-            ].map(([label, field]) => (
+            ]
+            .filter(([_, field]) => student[field] && student[field] !== "None")
+            .map(([label, field]) => (
               <tr key={field} className="border border-gray-700">
                 <td className="p-3 font-semibold w-1/2 text-blue-700 bg-blue-50">{label}</td>
                 <td className="p-3">
