@@ -58,6 +58,17 @@ const AppointmentsPage = () => {
   const [officeFilter, setOfficeFilter] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isFiltering, setIsFiltering] = useState(false);
+  
+  // Status change dialog states
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [chiefComplaint, setChiefComplaint] = useState("");
+  const [notes, setNotes] = useState("");
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
+  const [showReport, setShowReport] = useState(false);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -104,7 +115,17 @@ const AppointmentsPage = () => {
       const collegeMatch = !collegeFilter || appointment.college === collegeFilter;
       const officeMatch = !officeFilter || appointment.office === officeFilter;
       
-      // Chief complaint filter
+  
+      // Allow "All Colleges" for Students and "All Offices" for Employees
+      const collegeMatch = occupationFilter === "Student" 
+        ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
+        : true;
+  
+      const officeMatch = occupationFilter === "Employee" 
+        ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter 
+        : true;
+  
+      // Chief Complaint filtering
       let chiefComplaintMatch = true;
       if (chiefComplaintFilter) {
         if (!appointment.diagnosis) {
@@ -113,7 +134,6 @@ const AppointmentsPage = () => {
           try {
             const diagnosisData = JSON.parse(appointment.diagnosis);
             
-            // Debugging
             console.log("Diagnosis data:", diagnosisData);
             
             if (!diagnosisData.chiefComplaint) {
@@ -130,6 +150,22 @@ const AppointmentsPage = () => {
             console.error("Error parsing diagnosis:", error);
             chiefComplaintMatch = false;
           }
+        try {
+          const diagnosisData = JSON.parse(appointment.diagnosis);
+  
+          if (!diagnosisData?.chiefComplaint) {
+            chiefComplaintMatch = false;
+          } else if (Array.isArray(diagnosisData.chiefComplaint)) {
+            chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
+              cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
+            );
+          } else {
+            chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
+              .includes(chiefComplaintFilter.toLowerCase());
+          }
+        } catch (error) {
+          console.error("Error parsing diagnosis:", error);
+          chiefComplaintMatch = false;
         }
       }
   
