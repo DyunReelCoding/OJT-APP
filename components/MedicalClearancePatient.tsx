@@ -44,8 +44,6 @@ export default function MedicalClearanceForm({ patientName = "",
     }));
   };
 
-  
-
 const generatePDF = () => {
   const doc = new jsPDF();
 
@@ -235,13 +233,13 @@ const generatePDF = () => {
         onChange={handleChange}
       />
 
-<Input
-      className="bg-white text-black placeholder-gray-500 border border-blue-700"
-      name="name"
-      placeholder="Full Name"
-      value={formData.name} // Prefilled and editable
-      onChange={handleChange}
-    />
+      <Input
+        className="bg-white text-black placeholder-gray-500 border border-blue-700"
+        name="name"
+        placeholder="Full Name"
+        value={formData.name}
+        onChange={handleChange}
+      />
       <Input
         className="bg-white text-black placeholder-gray-500 border border-blue-700"
         name="age"
@@ -283,8 +281,7 @@ const generatePDF = () => {
       />
 
       <div className="grid grid-cols-2 gap-4">
-        <Input className="bg-white text-black border-blue-700" name="bp" placeholder="BP" onChange={handleChange} />
-        <Input className="bg-white text-black border-blue-700" name="pr" placeholder="PR" onChange={handleChange} />
+        
         <Input className="bg-white text-black border-blue-700" name="height" placeholder="Height" onChange={handleChange} />
         <Input className="bg-white text-black border-blue-700" name="weight" placeholder="Weight" onChange={handleChange} />
       </div>
@@ -339,69 +336,7 @@ const generatePDF = () => {
     onChange={handleChange}
   />
 
-  <h3 className="font-semibold mt-4 text-black">Level of Activity:</h3>
-  <label className="flex items-center gap-2 text-black">
-    <Checkbox
-      name="normalExam"
-      className="bg-white border-blue-700 checked:bg-black checked:border-black checked:!text-white"
-      onCheckedChange={(checked) =>
-        handleChange({ target: { name: 'normalExam', type: 'checkbox', checked } })
-      }
-    />
-    Essentially Normal Physical Examination findings on time of Examination
-  </label>
-  <label className="flex items-center gap-2 text-black">
-    <Checkbox
-      name="limitedParticipation"
-      className="bg-white border-blue-700 checked:bg-black checked:border-black checked:!text-white"
-      onCheckedChange={(checked) =>
-        handleChange({ target: { name: 'limitedParticipation', type: 'checkbox', checked } })
-      }
-    />
-    Can participate but with limitation:
-  </label>
-  <Input
-    name="limitedParticipation"
-    placeholder="Reason"
-    className="bg-white text-black border-blue-700"
-    onChange={handleChange}
-  />
-  <label className="ml-6 flex items-center gap-2 text-black">
-    <Checkbox
-      name="light"
-      className="bg-white border-blue-700 checked:bg-black checked:border-black checked:!text-white"
-      onCheckedChange={(checked) =>
-        handleChange({ target: { name: 'light', type: 'checkbox', checked } })
-      }
-    />
-    Light
-  </label>
-  <label className="ml-6 flex items-center gap-2 text-black">
-    <Checkbox
-      name="moderate"
-      className="bg-white border-blue-700 checked:bg-black checked:border-black checked:!text-white"
-      onCheckedChange={(checked) =>
-        handleChange({ target: { name: 'moderate', type: 'checkbox', checked } })
-      }
-    />
-    Moderate
-  </label>
-  <label className="flex items-center gap-2 text-black">
-    <Checkbox
-      name="notFit"
-      className="bg-white border-blue-700 checked:bg-black checked:border-black checked:!text-white"
-      onCheckedChange={(checked) =>
-        handleChange({ target: { name: 'notFit', type: 'checkbox', checked } })
-      }
-    />
-    Not fit to participate:
-  </label>
-  <Input
-    name="notFit"
-    placeholder="Reason"
-    className="bg-white text-black border-blue-700"
-    onChange={handleChange}
-  />
+  
 </div>
 
 

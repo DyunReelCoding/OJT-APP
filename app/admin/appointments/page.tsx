@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MedicalServicesAnnualReport from "@/components/MedicalServicesAnnualReport";
 
 interface Appointment {
   $id: string;
@@ -25,6 +26,17 @@ interface Appointment {
   status: "Scheduled" | "Completed" | "Cancelled";
   userid: string;
   diagnosis?: string;
+  college: string; // New field
+  office: string; // New field
+  occupation: string; // New field
+}
+
+interface Patient {
+  $id: string;
+  name: string;
+  occupation: string;
+  college: string;
+  office: string;
 }
 
 const AppointmentsPage = () => {
@@ -33,12 +45,18 @@ const AppointmentsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [appointmentToDelete, setAppointmentToDelete] = useState<{id: string, patientName: string} | null>(null);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<{ id: string; patientName: string } | null>(null);
   const [messageType, setMessageType] = useState(""); // "success" or "error"
   const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<any>(null);
   const [bpFilter, setBpFilter] = useState("");
   const [chiefComplaintFilter, setChiefComplaintFilter] = useState("");
+  const [occupationFilter, setOccupationFilter] = useState("");
+  const [collegeFilter, setCollegeFilter] = useState("");
+  const [officeFilter, setOfficeFilter] = useState("");
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -48,13 +66,14 @@ const AppointmentsPage = () => {
 
   useEffect(() => {
     fetchAppointments();
+    fetchPatients(); // Fetch patients data
   }, []);
 
   const fetchAppointments = async () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c"
+        "67b96b0800349392bb1c" // Appointment collection ID
       );
       setAppointments(response.documents as Appointment[]);
       setFilteredAppointments(response.documents as Appointment[]);
@@ -64,57 +83,71 @@ const AppointmentsPage = () => {
     }
   };
 
-  useEffect(() => {
-    const filtered = appointments.filter(appointment =>
-      appointment.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.reason.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const fetchPatients = async () => {
+    try {
+      const response = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!
+      );
+      setPatients(response.documents as Patient[]);
+    } catch (error) {
+      console.error("❌ Error fetching patients:", error);
+    }
+  };
+
+  const handleFilter = () => {
+    setIsFiltering(true);
+  
+    const filtered = appointments.filter((appointment) => {
+      const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
+  
+      // Allow "All Colleges" for Students and "All Offices" for Employees
+      const collegeMatch = occupationFilter === "Student" 
+        ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
+        : true;
+  
+      const officeMatch = occupationFilter === "Employee" 
+        ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter 
+        : true;
+  
+      // Chief Complaint filtering
+      let chiefComplaintMatch = true;
+      if (chiefComplaintFilter) {
+        try {
+          const diagnosisData = JSON.parse(appointment.diagnosis);
+  
+          if (!diagnosisData?.chiefComplaint) {
+            chiefComplaintMatch = false;
+          } else if (Array.isArray(diagnosisData.chiefComplaint)) {
+            chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
+              cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
+            );
+          } else {
+            chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
+              .includes(chiefComplaintFilter.toLowerCase());
+          }
+        } catch (error) {
+          console.error("Error parsing diagnosis:", error);
+          chiefComplaintMatch = false;
+        }
+      }
+  
+      return occupationMatch && collegeMatch && officeMatch && chiefComplaintMatch;
+    });
+  
     setFilteredAppointments(filtered);
-  }, [searchTerm, appointments]);
-
-  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
-    try {
-      await databases.updateDocument(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
-        appointmentId,
-        { status: newStatus }
-      );
-      fetchAppointments();
-      setMessage("✅ Appointment status updated successfully!");
-      setMessageType("success");
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error("❌ Error updating appointment status:", error);
-      setMessageType("error");
-    }
+    setIsFiltering(false);
   };
+  
 
-  const openDeleteDialog = (appointmentId: string, patientName: string) => {
-    setAppointmentToDelete({ id: appointmentId, patientName });
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDelete = async () => {
-    if (!appointmentToDelete) return;
-
-    try {
-      await databases.deleteDocument(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
-        appointmentToDelete.id
-      );
-      fetchAppointments();
-      setMessage("✅ Appointment deleted successfully!");
-      setMessageType("success");
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error("❌ Error deleting appointment:", error);
-      setMessageType("error");
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setAppointmentToDelete(null);
-    }
+  const resetFilters = () => {
+    setBpFilter("");
+    setChiefComplaintFilter("");
+    setSearchTerm("");
+    setOccupationFilter("");
+    setCollegeFilter("");
+    setOfficeFilter("");
+    fetchAppointments(); // Re-fetch appointments to show the full list
   };
 
   const getStatusColor = (status: string) => {
@@ -140,24 +173,31 @@ const AppointmentsPage = () => {
     }
   };
 
-  const handleFilter = () => {
-    const filtered = appointments.filter(appointment => {
-      if (appointment.diagnosis) {
-        const diagnosis = JSON.parse(appointment.diagnosis);
-        const bpMatch = !bpFilter || diagnosis.bloodPressure === bpFilter;
-        const complaintMatch = !chiefComplaintFilter || diagnosis.chiefComplaint === chiefComplaintFilter;
-        return bpMatch && complaintMatch;
-      }
-      return false;
-    });
-    setFilteredAppointments(filtered);
+  const openDeleteDialog = (appointmentId: string, patientName: string) => {
+    setAppointmentToDelete({ id: appointmentId, patientName });
+    setIsDeleteDialogOpen(true);
   };
 
-  const resetFilters = () => {
-    setBpFilter(""); // Reset BP filter
-    setChiefComplaintFilter(""); // Reset chief complaint filter
-    setSearchTerm(""); // Reset search term
-    fetchAppointments(); // Re-fetch appointments to show the full list
+  const handleDelete = async () => {
+    if (!appointmentToDelete) return;
+
+    try {
+      await databases.deleteDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        "67b96b0800349392bb1c", // Appointment collection ID
+        appointmentToDelete.id
+      );
+      fetchAppointments();
+      setMessage("✅ Appointment deleted successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("❌ Error deleting appointment:", error);
+      setMessageType("error");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setAppointmentToDelete(null);
+    }
   };
 
   return (
@@ -166,26 +206,24 @@ const AppointmentsPage = () => {
 
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-blue-700">Manage Appointments</h1>
               <p className="text-gray-600 mt-2">View and manage all appointments</p>
             </div>
-            <Button
-              onClick={fetchAppointments}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
+            <Button onClick={fetchAppointments} variant="outline" className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4" /> Refresh
             </Button>
           </div>
 
           {message && (
             <div
-              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success"
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
+                messageType === "success"
                   ? " bg-green-100 border-green-400 text-green-700"
                   : " bg-red-100 border-red-400 text-red-700"
-                }`}
+              }`}
             >
               {message}
             </div>
@@ -208,40 +246,117 @@ const AppointmentsPage = () => {
 
               {/* Filter Options */}
               <div className="flex gap-4 mb-6 text-black">
-                <Input
-                  type="text"
-                  value={bpFilter}
-                  onChange={(e) => setBpFilter(e.target.value)}
-                  placeholder="Filter by BP (e.g., 120/80)"
-                  className="w-48 text-white"
-                />
-                <Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
-                  <SelectTrigger className="w-48 text-black">
-                    <SelectValue placeholder="Filter by Chief Complaint" />
-                  </SelectTrigger>
-                  <SelectContent className="text-black">
-                    <SelectItem value="Cough">Cough</SelectItem>
-                    <SelectItem value="Stomachache">Stomachache</SelectItem>
-                    <SelectItem value="Headache">Headache</SelectItem>
-                    <SelectItem value="Fever">Fever</SelectItem>
-                    <SelectItem value="LBM">LBM</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleFilter}>Apply Filter</Button>
-                <Button onClick={resetFilters} variant="outline">Reset Filter</Button> {/* Add this button */}
+                {/* Occupation Filter */}
+<Select onValueChange={setOccupationFilter} value={occupationFilter}>
+  <SelectTrigger className="w-48 text-black">
+    <SelectValue placeholder="Filter by Occupation" />
+  </SelectTrigger>
+  <SelectContent className="text-black">
+    <SelectItem value="Student">Student</SelectItem>
+    <SelectItem value="Employee">Employee</SelectItem>
+  </SelectContent>
+</Select>
+
+{/* Student → College Filter */}
+{occupationFilter === "Student" && (
+  <Select onValueChange={setCollegeFilter} value={collegeFilter}>
+    <SelectTrigger className="w-48 text-black">
+      <SelectValue placeholder="Filter by College" />
+    </SelectTrigger>
+    <SelectContent className="text-black">
+      <SelectItem value="All">All Colleges</SelectItem>
+      <SelectItem value="CCIS">CCIS</SelectItem>
+      <SelectItem value="CHASS">CHASS</SelectItem>
+      <SelectItem value="CEGS">CEGS</SelectItem>
+    </SelectContent>
+  </Select>
+)}
+
+{/* Employee → Office Filter */}
+{occupationFilter === "Employee" && (
+  <Select onValueChange={setOfficeFilter} value={officeFilter}>
+    <SelectTrigger className="w-48 text-black">
+      <SelectValue placeholder="Filter by Office" />
+    </SelectTrigger>
+    <SelectContent className="text-black">
+      <SelectItem value="All">All Offices</SelectItem>
+      <SelectItem value="MIS OFFICE">MIS OFFICE</SelectItem>
+      <SelectItem value="CLINIC OFFICE">CLINIC OFFICE</SelectItem>
+      <SelectItem value="CCIS OFFICE">CCIS OFFICE</SelectItem>
+    </SelectContent>
+  </Select>
+)}
+
+{/* Chief Complaint Filter */}
+<Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
+  <SelectTrigger className="w-48 text-black">
+    <SelectValue placeholder="Filter by Chief Complaint" />
+  </SelectTrigger>
+  <SelectContent className="text-black">
+    <SelectItem value="Cough">Cough</SelectItem>
+    <SelectItem value="Stomachache">Stomachache</SelectItem>
+    <SelectItem value="Headache">Headache</SelectItem>
+    <SelectItem value="Fever">Fever</SelectItem>
+    <SelectItem value="Low Bowel Movement">Low Bowel Movement</SelectItem>
+  </SelectContent>
+</Select>
+
+<Button onClick={handleFilter}>Apply Filter</Button>
+<Button onClick={resetFilters} variant="outline">Reset Filter</Button>
+<button
+        onClick={() => setShowReport(true)}
+        className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700"
+      >
+        View Annual Report
+      </button>
+
+      {showReport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+            <button
+              onClick={() => setShowReport(false)}
+              className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+            >
+              ✕
+            </button>
+            <MedicalServicesAnnualReport />
+          </div>
+        </div>
+      )}
+
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnosis</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Patient Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Reason
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Diagnosis
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Occupation
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        College/Office
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -273,6 +388,10 @@ const AppointmentsPage = () => {
                             </Button>
                           )}
                         </td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">{appointment.occupation}</td>
+                        <td className="px-6 py-4 text-black whitespace-nowrap">
+                          {appointment.occupation === "Student" ? appointment.college : appointment.office}
+                        </td>
                         <td className="px-4 py-4 whitespace-nowrap text-red-700">
                           <Button
                             onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
@@ -297,7 +416,9 @@ const AppointmentsPage = () => {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle className=" text-red-700">Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}</strong>?</DialogTitle>
+            <DialogTitle className=" text-red-700">
+              Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}</strong>?
+            </DialogTitle>
             <DialogDescription className="text-gray-500">
               Are you sure you want to delete <strong className="text-black">{appointmentToDelete?.patientName}'s</strong> appointment? This action cannot be undone.
             </DialogDescription>

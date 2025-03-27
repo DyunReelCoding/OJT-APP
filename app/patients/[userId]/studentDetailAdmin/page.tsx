@@ -599,7 +599,14 @@ const StudentDetail = () => {
 
       {isExpanded && (
         <div className="mt-4">
-          <MedicalClearanceForm />
+         <MedicalClearanceForm 
+  patientName={student.name} 
+  patientAge={student.age} 
+  patientAddress={student.address}
+  patientCivilStatus={student.civilStatus}
+/>
+
+
         </div>
       )}
       {/* Medical Record expandable section */}
@@ -617,7 +624,11 @@ const StudentDetail = () => {
 
 {isExpandedMedicalRecord && (
   <div className="mt-4">
-    <MedicalRecord />
+    <MedicalRecord patientName={student.name} 
+  patientAge={student.age} 
+  patientAddress={student.address}
+  patientGender={student.gender}
+  patientContactNumber={student.phone}/>
   </div>
 )}
 

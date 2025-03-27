@@ -9,13 +9,17 @@ import "react-datepicker/dist/react-datepicker.css";
 import autoTable from 'jspdf-autotable';
 
 
-export default function MedicalRecord() {
+export default function MedicalRecord({ patientName = "", 
+  patientAge = "", 
+  patientAddress = "",
+  patientGender = "",
+  patientContactNumber = ""  }) {
   const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    age: '',
-    sex: '',
-    contact: '',
+    name: patientName,
+    address: patientAddress,
+    age: patientAge,
+    sex: patientGender,
+    contact: patientContactNumber,
     office: '',
     bp: '',
     pr: '',
@@ -160,30 +164,35 @@ export default function MedicalRecord() {
     name="name"
     placeholder="Full Name"
     className="bg-white text-black border border-blue-700"
+    value={formData.name}
     onChange={handleChange}
   />
   <Input
     name="address"
     placeholder="Home Address"
     className="bg-white text-black border border-blue-700"
+    value={formData.address}
     onChange={handleChange}
   />
   <Input
     name="age"
     placeholder="Age"
     className="bg-white text-black border border-blue-700"
+    value={formData.age}
     onChange={handleChange}
   />
   <Input
     name="sex"
     placeholder="Sex"
     className="bg-white text-black border border-blue-700"
+    value={formData.sex}
     onChange={handleChange}
   />
   <Input
     name="contact"
     placeholder="Contact No."
     className="bg-white text-black border border-blue-700"
+    value={formData.contact}
     onChange={handleChange}
   />
   <Input
