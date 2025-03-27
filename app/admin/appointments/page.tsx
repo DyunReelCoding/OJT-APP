@@ -5,6 +5,7 @@ import { Client, Databases } from "appwrite";
 import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Search, RefreshCw, CheckCircle } from "lucide-react";
 import {
   Dialog,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ReactSelect from "react-select";
 import MedicalServicesAnnualReport from "@/components/MedicalServicesAnnualReport";
 
 interface Appointment {
@@ -26,9 +28,9 @@ interface Appointment {
   status: "Scheduled" | "Completed" | "Cancelled";
   userid: string;
   diagnosis?: string;
-  college: string; // New field
-  office: string; // New field
-  occupation: string; // New field
+  college: string;
+  office: string;
+  occupation: string;
 }
 
 interface Patient {
@@ -46,7 +48,7 @@ const AppointmentsPage = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<{ id: string; patientName: string } | null>(null);
-  const [messageType, setMessageType] = useState(""); // "success" or "error"
+  const [messageType, setMessageType] = useState("");
   const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<any>(null);
   const [bpFilter, setBpFilter] = useState("");
@@ -56,6 +58,16 @@ const AppointmentsPage = () => {
   const [officeFilter, setOfficeFilter] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isFiltering, setIsFiltering] = useState(false);
+  
+  // Status change dialog states
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [chiefComplaint, setChiefComplaint] = useState("");
+  const [notes, setNotes] = useState("");
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
   const [showReport, setShowReport] = useState(false);
 
   const client = new Client()
@@ -66,14 +78,14 @@ const AppointmentsPage = () => {
 
   useEffect(() => {
     fetchAppointments();
-    fetchPatients(); // Fetch patients data
+    fetchPatients();
   }, []);
 
   const fetchAppointments = async () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Appointment collection ID
+        "67b96b0800349392bb1c"
       );
       setAppointments(response.documents as Appointment[]);
       setFilteredAppointments(response.documents as Appointment[]);
@@ -99,8 +111,9 @@ const AppointmentsPage = () => {
     setIsFiltering(true);
   
     const filtered = appointments.filter((appointment) => {
+      // Basic filters
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
-  
+      
       // Allow "All Colleges" for Students and "All Offices" for Employees
       const collegeMatch = occupationFilter === "Student" 
         ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
@@ -113,22 +126,28 @@ const AppointmentsPage = () => {
       // Chief Complaint filtering
       let chiefComplaintMatch = true;
       if (chiefComplaintFilter) {
-        try {
-          const diagnosisData = JSON.parse(appointment.diagnosis);
-  
-          if (!diagnosisData?.chiefComplaint) {
-            chiefComplaintMatch = false;
-          } else if (Array.isArray(diagnosisData.chiefComplaint)) {
-            chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
-              cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
-            );
-          } else {
-            chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
-              .includes(chiefComplaintFilter.toLowerCase());
-          }
-        } catch (error) {
-          console.error("Error parsing diagnosis:", error);
+        if (!appointment.diagnosis) {
           chiefComplaintMatch = false;
+        } else {
+          try {
+            const diagnosisData = JSON.parse(appointment.diagnosis);
+            
+            console.log("Diagnosis data:", diagnosisData);
+            
+            if (!diagnosisData.chiefComplaint) {
+              chiefComplaintMatch = false;
+            } else if (Array.isArray(diagnosisData.chiefComplaint)) {
+              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
+                cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
+              );
+            } else {
+              chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
+                .includes(chiefComplaintFilter.toLowerCase());
+            }
+          } catch (error) {
+            console.error("Error parsing diagnosis:", error);
+            chiefComplaintMatch = false;
+          }
         }
       }
   
@@ -147,7 +166,7 @@ const AppointmentsPage = () => {
     setOccupationFilter("");
     setCollegeFilter("");
     setOfficeFilter("");
-    fetchAppointments(); // Re-fetch appointments to show the full list
+    fetchAppointments();
   };
 
   const getStatusColor = (status: string) => {
@@ -178,13 +197,81 @@ const AppointmentsPage = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    if (newStatus === "Cancelled" || newStatus === "Completed") {
+      setSelectedAppointmentId(appointmentId);
+      setSelectedStatus(newStatus);
+      setIsStatusDialogOpen(true);
+    } else {
+      try {
+        await databases.updateDocument(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          "67b96b0800349392bb1c",
+          appointmentId,
+          { status: newStatus }
+        );
+        fetchAppointments();
+        setMessage("✅ Appointment status updated successfully!");
+        setMessageType("success");
+        setTimeout(() => setMessage(null), 3000);
+      } catch (error) {
+        console.error("❌ Error updating appointment status:", error);
+        setMessageType("error");
+      }
+    }
+  };
+
+  const handleStatusDialogSubmit = async () => {
+    if (!selectedAppointmentId || !selectedStatus) return;
+
+    try {
+      const updateData: any = { status: selectedStatus };
+      if (selectedStatus === "Cancelled") {
+        updateData.cancellationReason = cancellationReason;
+      } else if (selectedStatus === "Completed") {
+        const diagnosisData = JSON.stringify({
+          bloodPressure,
+          chiefComplaint: selectedChiefComplaints.map(cc => cc.value),
+          notes
+        });
+
+        updateData.diagnosis = diagnosisData;
+      }
+
+      await databases.updateDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        "67b96b0800349392bb1c",
+        selectedAppointmentId,
+        updateData
+      );
+
+      fetchAppointments();
+      setMessage("✅ Appointment status updated successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("❌ Error updating appointment:", error);
+      setMessage("Failed to update appointment status");
+      setMessageType("error");
+    } finally {
+      setIsStatusDialogOpen(false);
+      setSelectedAppointmentId(null);
+      setSelectedStatus(null);
+      setBloodPressure("");
+      setChiefComplaint("");
+      setNotes("");
+      setCancellationReason("");
+      setSelectedChiefComplaints([]);
+    }
+  };
+
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
 
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c", // Appointment collection ID
+        "67b96b0800349392bb1c",
         appointmentToDelete.id
       );
       fetchAppointments();
@@ -478,6 +565,90 @@ const AppointmentsPage = () => {
               className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Status Change Dialog */}
+      <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-white text-black">
+          <DialogHeader>
+            <DialogTitle className="text-blue-700">
+              {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedStatus === "Cancelled" ? (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-black">Reason for Cancellation</label>
+                <Textarea
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  placeholder="Please provide a reason for cancellation"
+                  required
+                  className="bg-gray-50 border-blue-700"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Blood Pressure</label>
+                <Input
+                  value={bloodPressure}
+                  onChange={(e) => setBloodPressure(e.target.value)}
+                  placeholder="e.g. 120/80"
+                  required
+                  className="bg-white border border-blue-700 text-black"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Chief Complaint</label>
+                <ReactSelect
+                  isMulti
+                  options={[
+                    { value: "Cough", label: "Cough" },
+                    { value: "Fever", label: "Fever" },
+                    { value: "Headache", label: "Headache" },
+                    { value: "Stomachache", label: "Stomachache" },
+                    { value: "Low Bowel Movement", label: "Low Bowel Movement" }
+                  ]}
+                  value={selectedChiefComplaints}
+                  onChange={(selectedOptions: any) => setSelectedChiefComplaints(selectedOptions)}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Notes</label>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Diagnosis notes and recommendations"
+                  required
+                  className="bg-white border border-blue-700 text-black"
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsStatusDialogOpen(false)}
+              className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleStatusDialogSubmit}
+              className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
+            >
+              {selectedStatus === "Cancelled" ? "Confirm Cancellation" : "Complete Appointment"}
             </Button>
           </DialogFooter>
         </DialogContent>
