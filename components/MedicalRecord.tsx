@@ -13,14 +13,15 @@ export default function MedicalRecord({ patientName = "",
   patientAge = "", 
   patientAddress = "",
   patientGender = "",
-  patientContactNumber = ""  }) {
+  patientContactNumber = "",
+  office = ""  }) {
   const [formData, setFormData] = useState({
     name: patientName,
     address: patientAddress,
     age: patientAge,
     sex: patientGender,
     contact: patientContactNumber,
-    office: '',
+    office: office,
     bp: '',
     pr: '',
     rr: '',
@@ -199,6 +200,7 @@ export default function MedicalRecord({ patientName = "",
     name="office"
     placeholder="Office/College/Unit"
     className="bg-white text-black border border-blue-700"
+    value={formData.office}
     onChange={handleChange}
   />
 

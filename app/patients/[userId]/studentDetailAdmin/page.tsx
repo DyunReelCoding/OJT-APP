@@ -636,11 +636,14 @@ const StudentDetail = () => {
 
 {isExpandedMedicalRecord && (
   <div className="mt-4">
-    <MedicalRecord patientName={student.name} 
-  patientAge={student.age} 
-  patientAddress={student.address}
-  patientGender={student.gender}
-  patientContactNumber={student.phone}/>
+    <MedicalRecord
+    patientName={student.name}
+    patientAge={student.age}
+    patientAddress={student.address}
+    patientGender={student.gender}
+    patientContactNumber={student.phone}
+    office={student.college && student.college !== "None" ? student.college : student.office || ""}
+  />
   </div>
 )}
 
