@@ -423,11 +423,15 @@
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1); /* Makes the icon black */
+  filter: invert(32%) sepia(91%) saturate(6600%) hue-rotate(200deg) brightness(100%) contrast(100%);
 }
 
 input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1); /* Makes the icon black */
+  filter: invert(32%) sepia(91%) saturate(6600%) hue-rotate(200deg) brightness(100%) contrast(100%);
+}
+
+input[type="month"]::-webkit-calendar-picker-indicator {
+  filter: invert(32%) sepia(91%) saturate(6600%) hue-rotate(200deg) brightness(100%) contrast(100%);
 }
 
 /* Hide default number input arrows */

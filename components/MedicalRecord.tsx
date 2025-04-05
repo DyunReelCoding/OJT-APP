@@ -104,7 +104,7 @@ export default function MedicalRecord({ patientName = "",
 
       const tableData2 = [
         ["Data/Time", "Complaint and Assessment", "Diagnosis and Treatment"],
-        [formattedDate, formData.complaint, formData.diagnosis]
+        [formattedDate, "", ""]
       ];
 
       autoTable(doc, {
@@ -119,9 +119,16 @@ export default function MedicalRecord({ patientName = "",
         },
         columnStyles: {
           0: { cellWidth: 60.33, textColor: "black" }, // "Field" column width = 50
-          1: { cellWidth: 60.33, textColor: "black", halign: "left" },
+          1: { cellWidth: 60.33, textColor: "black", halign: "center" },
           2: {cellWidth: 60.33, textColor: "black", halign: "justify"}
+        },
+        didParseCell: function (data) {
+          // Apply increased height ONLY to the last row (index 1 in this case)
+          if (data.section === 'body' && data.row.index === 1) {
+            data.cell.styles.minCellHeight = 126; // You can adjust the value here
+          }
         }
+        
       });
 
       doc.text("______       _____         ________",22,80);
@@ -307,21 +314,7 @@ export default function MedicalRecord({ patientName = "",
   className="bg-white text-black border border-blue-700 p-2 rounded-md"
 />
 
-
-  <Textarea
-    name="complaint"
-    placeholder="Complaint and Assessment"
-    className="bg-white text-black border border-blue-700"
-    onChange={handleChange}
-  />
-  <Textarea
-    name="diagnosis"
-    placeholder="Diagnosis and Treatment"
-    className="bg-white text-black border border-blue-700"
-    onChange={handleChange}
-  />
-
-<Button className="font-bold bg-red-700 text-white hover:text-red-700 hover:bg-white border-2 border-red-700" onClick={generatePDF}>
+<Button className="flex font-bold bg-red-700 text-white hover:text-red-700 hover:bg-white border-2 border-red-700" onClick={generatePDF}>
         Generate PDF
       </Button>
     </div>
