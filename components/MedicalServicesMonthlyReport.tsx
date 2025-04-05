@@ -18,6 +18,11 @@ const MedicalServicesAnnualReport = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const [colleges, setColleges] = useState<string[]>([]);
 
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
+
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
@@ -53,23 +58,31 @@ const MedicalServicesAnnualReport = () => {
 
   const getChiefComplaintCounts = (college: string | null, occupation: string | null) => {
     const complaintsCount: Record<string, number> = {};
-
+    const [year, month] = selectedMonth.split("-");
+  
     appointments.forEach((appointment) => {
+      const appointmentDate = new Date(appointment.$createdAt);
+      if (
+        appointmentDate.getFullYear() !== Number(year) ||
+        appointmentDate.getMonth() + 1 !== Number(month)
+      ) return;
+  
       const complaints = JSON.parse(appointment.diagnosis)?.chiefComplaint || [];
       if (
         (college === null || appointment.college === college) &&
         (occupation === null || appointment.occupation === occupation)
       ) {
         complaints
-          .filter((complaint: string) => complaint.trim() !== "") // Skip empty complaints
+          .filter((complaint: string) => complaint.trim() !== "")
           .forEach((complaint: string) => {
             complaintsCount[complaint] = (complaintsCount[complaint] || 0) + 1;
           });
       }
     });
-
+  
     return complaintsCount;
   };
+  
   const allComplaints = Array.from(
     new Set(
       appointments.flatMap((a) => JSON.parse(a.diagnosis)?.chiefComplaint || [])
@@ -176,14 +189,16 @@ const MedicalServicesAnnualReport = () => {
           pdf.addImage(img, "PNG", 71, 5, 199, 31);
           pdf.setFont("Helvetica", "Bold");
           pdf.setFontSize(11);
-          pdf.text("Medical Services Annual Report", 140, 45);
-          pdf.text(`January - December ${new Date().getFullYear()}`, 146, 50);
+          const selectedMonthText = new Date(selectedMonth).toLocaleString('default', { month: 'long', year: 'numeric' });
+          pdf.text("Medical Services Monthly Report", 140, 45);
+          pdf.text(selectedMonthText, 160, 50);
+          
   
           pdf.addImage(reportImgData, "PNG", x, 55, imgWidth, imgHeight);
   
           let newY = 60 + imgHeight;
           pdf.addImage(chartImgData, "PNG", x, newY, imgWidth, chartHeight);
-          pdf.save("Medical_Services_Annual_Report.pdf");
+          pdf.save("Medical_Services_Monthly_Report.pdf");
         };
   
         img.onerror = (err) => {
@@ -200,8 +215,19 @@ const MedicalServicesAnnualReport = () => {
   };
 
   return (
+    
     <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">Medical Services Annual Report</h1>
+      <div className="mb-4">
+        <label htmlFor="month" className="mr-2 font-semibold">Select Month:</label>
+        <input
+          type="month"
+          id="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="border px-2 py-1 rounded bg-white"
+        />
+      </div>
+      <h1 className="text-2xl font-bold mb-4">Medical Services Monthly Report - <b className="text-blue-700">{new Date(selectedMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}</b> </h1>
       <div ref={reportRef} className="mb-4">
         <table className="table-auto w-full border-collapse border">
           <thead>
