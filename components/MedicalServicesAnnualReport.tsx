@@ -16,7 +16,7 @@ const MedicalServicesAnnualReport = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const reportRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
-  const colleges = ["CMNS", "CHaSS", "CAA", "CCIS", "COFES", "CEGS", "CED"];
+  const [colleges, setColleges] = useState<string[]>([]);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -26,8 +26,19 @@ const MedicalServicesAnnualReport = () => {
 
   useEffect(() => {
     fetchAppointments();
+    fetchColleges();
   }, []);
-
+  const fetchColleges = async () => {
+    try {
+      const response = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_COLLEGE_COLLECTION_ID!
+      );
+      setColleges(response.documents.map((doc: any) => doc.name));
+    } catch (error) {
+      console.error("Error fetching colleges:", error);
+    }
+  };
   const fetchAppointments = async () => {
     try {
       const response = await databases.listDocuments(

@@ -70,6 +70,9 @@ const AppointmentsPage = () => {
   const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
   const [showReport, setShowReport] = useState(false);
 
+  const [offices, setOffices] = useState<string[]>([]);
+  const [colleges, setColleges] = useState<string[]>([]);
+
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
@@ -79,6 +82,28 @@ const AppointmentsPage = () => {
   useEffect(() => {
     fetchAppointments();
     fetchPatients();
+
+    const fetchData = async () => {
+      try {
+        // Fetch offices
+        const officeRes = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_OFFICETYPE_COLLECTION_ID!
+        );
+        setOffices(officeRes.documents.map((doc) => doc.name));
+
+        // Fetch colleges
+        const collegeRes = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_COLLEGE_COLLECTION_ID!
+        );
+        setColleges(collegeRes.documents.map((doc) => doc.name));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const fetchAppointments = async () => {
@@ -338,7 +363,7 @@ const AppointmentsPage = () => {
   <SelectTrigger className="w-48 text-black">
     <SelectValue placeholder="Filter by Occupation" />
   </SelectTrigger>
-  <SelectContent className="text-black">
+  <SelectContent className="text-black bg-white">
     <SelectItem value="Student">Student</SelectItem>
     <SelectItem value="Employee">Employee</SelectItem>
   </SelectContent>
@@ -350,36 +375,41 @@ const AppointmentsPage = () => {
     <SelectTrigger className="w-48 text-black">
       <SelectValue placeholder="Filter by College" />
     </SelectTrigger>
-    <SelectContent className="text-black">
+    <SelectContent className="text-black bg-white">
       <SelectItem value="All">All Colleges</SelectItem>
-      <SelectItem value="CCIS">CCIS</SelectItem>
-      <SelectItem value="CHASS">CHASS</SelectItem>
-      <SelectItem value="CEGS">CEGS</SelectItem>
+      {colleges.map((college) => (
+        <SelectItem key={college} value={college}>
+          {college}
+        </SelectItem>
+      ))}
     </SelectContent>
   </Select>
 )}
 
+
 {/* Employee → Office Filter */}
 {occupationFilter === "Employee" && (
-  <Select onValueChange={setOfficeFilter} value={officeFilter}>
-    <SelectTrigger className="w-48 text-black">
-      <SelectValue placeholder="Filter by Office" />
-    </SelectTrigger>
-    <SelectContent className="text-black">
-      <SelectItem value="All">All Offices</SelectItem>
-      <SelectItem value="MIS OFFICE">MIS OFFICE</SelectItem>
-      <SelectItem value="CLINIC OFFICE">CLINIC OFFICE</SelectItem>
-      <SelectItem value="CCIS OFFICE">CCIS OFFICE</SelectItem>
-    </SelectContent>
-  </Select>
-)}
+        <Select onValueChange={setOfficeFilter} value={officeFilter}>
+          <SelectTrigger className="w-48 text-black">
+            <SelectValue placeholder="Filter by Office" />
+          </SelectTrigger>
+          <SelectContent className="text-black bg-white">
+            <SelectItem value="All">All Offices</SelectItem>
+            {offices.map((office) => (
+              <SelectItem key={office} value={office}>
+                {office}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
 {/* Chief Complaint Filter */}
 <Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
   <SelectTrigger className="w-48 text-black">
     <SelectValue placeholder="Filter by Chief Complaint" />
   </SelectTrigger>
-  <SelectContent className="text-black">
+  <SelectContent className="text-black bg-white">
     <SelectItem value="Cough">Cough</SelectItem>
     <SelectItem value="Stomachache">Stomachache</SelectItem>
     <SelectItem value="Headache">Headache</SelectItem>
