@@ -24,6 +24,8 @@ const ComboBox = ({ filterType, setFilterType }: ComboBoxProps) => {
       <option value="civilStatus">Civil Status</option>
       <option value="personWithDisability">PWD</option>
       <option value="occupation">Occupation</option>
+      <option value="college">College</option>
+      <option value="office">Office</option>
       <option value="disabilityType">PWD - Disability Type</option>
       <option value="disabilityDetails">PWD - Disability Details</option>
     </select>
