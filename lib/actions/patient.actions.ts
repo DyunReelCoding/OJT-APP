@@ -100,3 +100,26 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
     throw error;
   }
 };
+
+export const createUnavailableSlot = async (slot: {
+  date: string;
+  timeRange: string;
+  reason?: string;
+}) => {
+  try {
+    const newSlot = await databases.createDocument(
+      DATABASE_ID!,
+      "67cd8eaa000fac61575d", // Unavailable slots collection ID
+      ID.unique(),
+      {
+        date: slot.date,
+        timeRange: slot.timeRange,
+        reason: slot.reason || "Appointment scheduled",
+      }
+    );
+    return parseStringify(newSlot);
+  } catch (error) {
+    console.error("Error creating unavailable slot:", error);
+    throw error;
+  }
+};

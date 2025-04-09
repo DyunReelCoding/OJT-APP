@@ -154,28 +154,47 @@ const StudentCalendarPage = () => {
 
   const isSlotUnavailable = (date: Date, time: string) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
+    
+    // Convert time to minutes since midnight for easier comparison
+    const timeToMinutes = (timeStr: string) => {
+      const [timePart, period] = timeStr.split(' ');
+      const [hours, minutes] = timePart.split(':').map(Number);
+      let total = hours * 60 + minutes;
+      if (period === 'PM' && hours < 12) total += 12 * 60;
+      if (period === 'AM' && hours === 12) total -= 12 * 60;
+      return total;
+    };
+  
+    const selectedTime = timeToMinutes(time);
+    
     return unavailableSlots.some((slot) => {
-      const [startTime, endTime] = slot.timeRange.split(" - ");
-      return (
-        slot.date === formattedDate &&
-        time >= startTime &&
-        time <= endTime
-      );
+      if (slot.date !== formattedDate) return false;
+      
+      const [startTimeStr, endTimeStr] = slot.timeRange.split(' - ');
+      const startTime = timeToMinutes(startTimeStr);
+      const endTime = timeToMinutes(endTimeStr);
+      
+      // Check if selected time is within any unavailable slot
+      return selectedTime >= startTime && selectedTime < endTime;
     });
   };
 
   // Function to generate time slots from 8:00 AM to 5:00 PM with 15-30 minute intervals
   const generateTimeSlots = () => {
     const slots = [];
-    let currentTime = new Date();
-    currentTime.setHours(8, 0, 0); // Start at 8:00 AM
-
-    while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
-      const formattedTime = format(currentTime, 'h:mm a');
-      slots.push(formattedTime);
-      // Add 15-30 minutes randomly
-      currentTime.setMinutes(currentTime.getMinutes() + 30);     }
-
+    const startHour = 8; // 8 AM
+    const endHour = 17; // 5 PM
+    const interval = 30; // 30 minutes
+  
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += interval) {
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+        const timeString = `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+        slots.push(timeString);
+      }
+    }
+  
     return slots;
   };
 
@@ -204,25 +223,24 @@ const StudentCalendarPage = () => {
       [name]: value
     }));
   };
-
   const handleSubmitAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!schedulingDate) return;
-
+  
     // Check if the selected time slot is unavailable
     if (isSlotUnavailable(schedulingDate, newAppointment.time)) {
       setSubmitError("This time slot is unavailable. Please choose another time.");
       return;
     }
-
+  
     setIsSubmitting(true);
     setSubmitError("");
-
+  
     try {
       // Format the date as YYYY-MM-DD
       const formattedDate = format(schedulingDate, 'yyyy-MM-dd');
-
+  
       // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
@@ -235,23 +253,62 @@ const StudentCalendarPage = () => {
           reason: newAppointment.reason,
           status: newAppointment.status,
           userid: userId,
-          college: newAppointment.college, // Include college
-          office: newAppointment.office, // Include office
-          occupation: newAppointment.occupation, // Include occupation
+          college: newAppointment.college,
+          office: newAppointment.office,
+          occupation: newAppointment.occupation,
         }
       );
-
+  
+      // Mark the time slot as unavailable
+      // Calculate end time (assuming 30-minute appointments)
+      const timeParts = newAppointment.time.split(':');
+      const hours = parseInt(timeParts[0]);
+      const minutes = parseInt(timeParts[1].split(' ')[0]);
+      let period = newAppointment.time.includes('PM') && hours < 12 ? 'PM' : 'AM';
+      
+      let endHours = hours;
+      let endMinutes = minutes + 30;
+      
+      if (endMinutes >= 60) {
+        endHours += 1;
+        endMinutes -= 60;
+      }
+      
+      // Handle AM/PM transition if needed
+      if (endHours >= 12 && period === 'AM') {
+        period = 'PM';
+      }
+      
+      const endTime = `${endHours}:${endMinutes.toString().padStart(2, '0')} ${period}`;
+      const timeRange = `${newAppointment.time} - ${endTime}`;
+  
+      await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'createUnavailableSlot',
+          data: {
+            date: formattedDate,
+            timeRange: timeRange,
+            reason: `Appointment scheduled for ${newAppointment.patientName}`,
+          },
+        }),
+      });
+  
       // Show success message
       setSubmitSuccess(true);
-
-      // Refresh appointments
+  
+      // Refresh appointments and unavailable slots
       fetchAppointments();
-
+      fetchUnavailableSlots();
+  
       // Close modal after a delay
       setTimeout(() => {
         setShowScheduleModal(false);
       }, 2000);
-
+  
     } catch (error) {
       console.error("Error creating appointment:", error);
       setSubmitError("Failed to create appointment. Please try again.");

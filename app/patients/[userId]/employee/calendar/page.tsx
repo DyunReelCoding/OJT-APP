@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases, ID, Models } from "appwrite";
+import { Client, Databases, ID } from "appwrite";
 import { useParams } from "next/navigation";
 import EmployeeSideBar from "@/components/EmployeeSideBar";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -29,8 +29,8 @@ interface Employee {
   $id: string;
   name: string;
   email: string;
-  occupation: string; // Employee-specific field
-  office: string; // Employee-specific field
+  occupation: string;
+  office: string;
 }
 
 interface UnavailableSlot {
@@ -39,8 +39,8 @@ interface UnavailableSlot {
   timeRange: string;
   reason?: string;
 }
-const EmployeeCalendarPage = () => {
 
+const EmployeeCalendarPage = () => {
   const params = useParams();
   const userId = params.userId as string;
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -50,7 +50,6 @@ const EmployeeCalendarPage = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
 
-  // State for appointment scheduling
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [schedulingDate, setSchedulingDate] = useState<Date | null>(null);
   const [newAppointment, setNewAppointment] = useState({
@@ -58,9 +57,8 @@ const EmployeeCalendarPage = () => {
     time: "",
     reason: "",
     status: "Scheduled" as const,
-    college: "", // New field
-    office: "", // New field
-    occupation: "", // New field
+    office: "",
+    occupation: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -97,7 +95,7 @@ const EmployeeCalendarPage = () => {
         process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
         userId
       );
-      setEmployee(response as unknown as Employee); // Update the state to use `Employee`
+      setEmployee(response as unknown as Employee);
     } catch (error) {
       console.error("Error fetching employee data:", error);
     }
@@ -109,7 +107,6 @@ const EmployeeCalendarPage = () => {
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         "67b96b0800349392bb1c" // Appointment collection ID
       );
-      // Filter appointments for the current user
       const userAppointments = response.documents.filter(
         (doc: any) => doc.userid === userId
       ) as unknown as Appointment[];
@@ -150,27 +147,43 @@ const EmployeeCalendarPage = () => {
 
   const isSlotUnavailable = (date: Date, time: string) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
+    
+    const timeToMinutes = (timeStr: string) => {
+      const [timePart, period] = timeStr.split(' ');
+      const [hours, minutes] = timePart.split(':').map(Number);
+      let total = hours * 60 + minutes;
+      if (period === 'PM' && hours < 12) total += 12 * 60;
+      if (period === 'AM' && hours === 12) total -= 12 * 60;
+      return total;
+    };
+
+    const selectedTime = timeToMinutes(time);
+    
     return unavailableSlots.some((slot) => {
-      const [startTime, endTime] = slot.timeRange.split(" - ");
-      return (
-        slot.date === formattedDate &&
-        time >= startTime &&
-        time <= endTime
-      );
+      if (slot.date !== formattedDate) return false;
+      
+      const [startTimeStr, endTimeStr] = slot.timeRange.split(' - ');
+      const startTime = timeToMinutes(startTimeStr);
+      const endTime = timeToMinutes(endTimeStr);
+      
+      return selectedTime >= startTime && selectedTime < endTime;
     });
   };
 
-  // Function to generate time slots from 8:00 AM to 5:00 PM with 15-30 minute intervals
   const generateTimeSlots = () => {
     const slots = [];
-    let currentTime = new Date();
-    currentTime.setHours(8, 0, 0); // Start at 8:00 AM
+    const startHour = 8; // 8 AM
+    const endHour = 17; // 5 PM
+    const interval = 30; // 30 minutes
 
-    while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
-      const formattedTime = format(currentTime, 'h:mm a');
-      slots.push(formattedTime);
-      // Add 15-30 minutes randomly
-      currentTime.setMinutes(currentTime.getMinutes() + 30);     }
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += interval) {
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+        const timeString = `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+        slots.push(timeString);
+      }
+    }
 
     return slots;
   };
@@ -178,21 +191,18 @@ const EmployeeCalendarPage = () => {
   const handleScheduleClick = (date: Date) => {
     setSchedulingDate(date);
     setShowScheduleModal(true);
-    // Reset form state with student details pre-filled
     setNewAppointment({
       patientName: employee?.name || "",
       time: "",
       reason: "",
       status: "Scheduled",
-      college: "", // Pre-fill college
-      office: employee?.office || "", // Pre-fill office
-      occupation: employee?.occupation || "", // Pre-fill occupation
+      office: employee?.office || "",
+      occupation: employee?.occupation || "",
     });
     setSubmitSuccess(false);
     setSubmitError("");
   };
 
-  // Function to handle appointment form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setNewAppointment(prev => ({
@@ -206,7 +216,6 @@ const EmployeeCalendarPage = () => {
 
     if (!schedulingDate) return;
 
-    // Check if the selected time slot is unavailable
     if (isSlotUnavailable(schedulingDate, newAppointment.time)) {
       setSubmitError("This time slot is unavailable. Please choose another time.");
       return;
@@ -216,13 +225,11 @@ const EmployeeCalendarPage = () => {
     setSubmitError("");
 
     try {
-      // Format the date as YYYY-MM-DD
       const formattedDate = format(schedulingDate, 'yyyy-MM-dd');
 
-      // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c", // Appointment collection ID
+        "67b96b0800349392bb1c",
         ID.unique(),
         {
           patientName: newAppointment.patientName,
@@ -231,19 +238,56 @@ const EmployeeCalendarPage = () => {
           reason: newAppointment.reason,
           status: newAppointment.status,
           userid: userId,
-          college: newAppointment.college, // Include college
-          office: newAppointment.office, // Include office
-          occupation: newAppointment.occupation, // Include occupation
+          office: newAppointment.office,
+          occupation: newAppointment.occupation,
         }
       );
 
-      // Show success message
+      // Calculate end time (30 minutes after start time)
+      const timeParts = newAppointment.time.split(':');
+      const hours = parseInt(timeParts[0]);
+      const minutes = parseInt(timeParts[1].split(' ')[0]);
+      let period = newAppointment.time.includes('PM') && hours < 12 ? 'PM' : 'AM';
+      
+      let endHours = hours;
+      let endMinutes = minutes + 30;
+      
+      if (endMinutes >= 60) {
+        endHours += 1;
+        endMinutes -= 60;
+      }
+      
+      if (endHours >= 12 && period === 'AM') {
+        period = 'PM';
+      }
+      
+      const endTime = `${endHours}:${endMinutes.toString().padStart(2, '0')} ${period}`;
+      const timeRange = `${newAppointment.time} - ${endTime}`;
+
+      // Mark time slot as unavailable
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'createUnavailableSlot',
+          data: {
+            date: formattedDate,
+            timeRange: timeRange,
+            reason: `Appointment scheduled for ${newAppointment.patientName}`,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark time slot as unavailable');
+      }
+
       setSubmitSuccess(true);
-
-      // Refresh appointments
       fetchAppointments();
+      fetchUnavailableSlots();
 
-      // Close modal after a delay
       setTimeout(() => {
         setShowScheduleModal(false);
       }, 2000);
@@ -333,7 +377,6 @@ const EmployeeCalendarPage = () => {
     );
   };
 
-  // Render the schedule modal with the updated form fields
   const renderScheduleModal = () => {
     if (!showScheduleModal || !schedulingDate) return null;
 
@@ -389,23 +432,6 @@ const EmployeeCalendarPage = () => {
               <p className="text-xs text-gray-500">Occupation is automatically filled based on your account</p>
             </div>
 
-            {newAppointment.occupation === "Student" && (
-              <div className="space-y-2 text-black">
-                <Label className="text-blue-700" htmlFor="college">College</Label>
-                <Input
-                  id="college"
-                  name="college"
-                  value={newAppointment.college}
-                  onChange={handleInputChange}
-                  placeholder="Enter college"
-                  required
-                  readOnly
-                  className="bg-gray-50 border-blue-700"
-                />
-                <p className="text-xs text-gray-500">College is automatically filled based on your account</p>
-              </div>
-            )}
-
             {newAppointment.occupation === "Employee" && (
               <div className="space-y-2 text-black">
                 <Label className="text-blue-700" htmlFor="office">Office</Label>
@@ -423,7 +449,6 @@ const EmployeeCalendarPage = () => {
               </div>
             )}
 
-            {/* Display unavailable slots for the selected date */}
             {unavailableSlotsForDay.length > 0 && (
               <div className="space-y-2">
                 <Label className="text-blue-700">Unavailable Time Slots</Label>
@@ -512,24 +537,20 @@ const EmployeeCalendarPage = () => {
     );
   };
 
-
   return (
     <div className="flex h-screen bg-gray-100">
       <EmployeeSideBar userId={userId} />
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-blue-700">My Calendar</h1>
             <p className="text-gray-600 mt-2">View and schedule your appointments</p>
             {employee && <p className="text-gray-600">Welcome, {employee.name}</p>}
           </div>
 
-          {/* Calendar Container */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {view === 'month' ? (
               <div className="p-6">
-                {/* Month Navigation */}
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-semibold text-gray-800">
                     {format(currentDate, 'MMMM yyyy')}
@@ -563,7 +584,6 @@ const EmployeeCalendarPage = () => {
                   </div>
                 </div>
 
-                {/* Calendar Grid */}
                 <div className="grid grid-cols-7 gap-1">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <div key={day} className="bg-gray-50 p-3 text-center text-sm font-semibold text-gray-600">
@@ -583,7 +603,6 @@ const EmployeeCalendarPage = () => {
                     });
                     const isToday = date.toDateString() === new Date().toDateString();
 
-                    // Check if the date has any unavailable slots
                     const unavailableSlotsForDay = unavailableSlots.filter(
                       slot => slot.date === format(date, 'yyyy-MM-dd')
                     );
@@ -630,7 +649,6 @@ const EmployeeCalendarPage = () => {
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
-                          {/* Display unavailable slots */}
                           {unavailableSlotsForDay.map(slot => (
                             <div
                               key={slot.$id}
@@ -658,10 +676,9 @@ const EmployeeCalendarPage = () => {
         </div>
       </div>
       
-      { /* Render the schedule modal */ }
       {renderScheduleModal()}
     </div>
   );
 };
 
-export default EmployeeCalendarPage; 
+export default EmployeeCalendarPage;
