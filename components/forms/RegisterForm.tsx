@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -41,7 +41,7 @@ const FAMILYMEDICALHISTORY_COLLECTION_ID = process.env.NEXT_PUBLIC_FAMILYMEDICAL
 const PASTMEDICALHISTORY_COLLECTION_ID = process.env.NEXT_PUBLIC_PASTMEDICALHISTORY_COLLECTION_ID!;
 const COLLEGE_COLLECTION_ID = process.env.NEXT_PUBLIC_COLLEGE_COLLECTION_ID!;
 
-const RegisterForm = ({ user }: { user: User }) => {
+const RegisterForm = ({ user }: { user: User }) => { 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -80,7 +80,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       phone: "",
       weight: "",
       height: "",
-      bmi: "",
+      bmi: "", 
       bmiCategory: "",
       occupation: "",
       college: "",
@@ -152,7 +152,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         console.error("Error fetching occupations:", error);
       }
     };
-
+    
     const fetchProgramTypes = async () => {
       try {
         const response = await databases.listDocuments(
@@ -173,7 +173,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         console.error("Error fetching office types:", error);
       }
     };
-
+  
     const fetchFamilyHistories = async () => {
       try {
         const response = await databases.listDocuments(DATABASE_ID, FAMILYMEDICALHISTORY_COLLECTION_ID);
@@ -253,7 +253,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       formData.append("blobFile", blobFile);
       formData.append("fileName", values.identificationDocument[0].name);
     }
-
+  
     try {
       const patientData = {
         ...values,
@@ -287,89 +287,89 @@ const RegisterForm = ({ user }: { user: User }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-12 flex-1">
-        {successMessage && <SuccessMessage message={successMessage} />}
-        <section className="space-y-4">
-          <h1 className="header text-green-400">Welcome!👋</h1>
-          <p className="text-dark-600">Let us know about yourself.</p>
-        </section>
+    <form onSubmit={form.handleSubmit(onSubmit)} 
+    className="space-y-12 flex-1">
+      {successMessage && <SuccessMessage message={successMessage} />}
+      <section className="space-y-4">
+        <h1 className="header text-green-400">Welcome!👋</h1>
+        <p className="text-dark-600">Let us know about yourself.</p>
+      </section>
 
-        <section className="space-y-6">
+      <section className="space-y-6">
           <div className="mb-9 space-y-1">
-            <h2 className="sub-header text-blue-700">Personal Information</h2>
+            <h2 className="sub-header text-blue-700">Personal Information</h2> 
           </div>
-        </section>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="firstName"
-            label="First Name"
-            placeholder="John"
-            iconSrc="/assets/icons/user.svg"
-            iconAlt="user"
+      </section>
+      <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="firstName"
+          label="First Name"
+          placeholder="John"
+          iconSrc="/assets/icons/user.svg"
+          iconAlt="user"
             backgroundColor="bg-gray-50"
             required={true}
-          />
+        />
+          
+        
 
-
-
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="middleName"
-            label="Middle Name"
-            placeholder="Michael"
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="middleName"
+          label="Middle Name"
+          placeholder="Michael"
             backgroundColor="bg-gray-50"
-            iconAlt="user"
-          />
+          iconAlt="user"
+        />
 
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="lastName"
-            label="Last Name"
-            placeholder="Doe"
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="lastName"
+          label="Last Name"
+          placeholder="Doe"
             backgroundColor="bg-gray-50"
-            iconAlt="user"
+          iconAlt="user"
             required={true}
-          />
+        />
 
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="suffix"
-            label="Suffix (if any)"
-            placeholder="Jr., Sr., III, etc."
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="suffix"
+          label="Suffix (if any)"
+          placeholder="Jr., Sr., III, etc."
             backgroundColor="bg-gray-50"
-            iconAlt="user"
-          />
+          iconAlt="user"
+        />
 
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="idNumber"
-            label="ID number"
-            placeholder="211-01338"
+      </div>
+       <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="idNumber"
+          label="ID number"
+          placeholder="211-01338"
             backgroundColor="bg-gray-50"
             required={true}
-          />
-          <CustomFormField
+        />
+        <CustomFormField
         fieldType={FormFieldType.DATE_PICKER}
-        control={form.control}
+            control={form.control}
         name="birthDate"
         label="Date of Birth"
         backgroundColor="bg-gray-50"
         required={true}
       />
            
-        </div>
-
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
+     </div>
+      
+      <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="email"
@@ -380,191 +380,191 @@ const RegisterForm = ({ user }: { user: User }) => {
             backgroundColor="bg-gray-50"
             readOnly={true} // ✅ This makes the input read-only
             required={true}
-          />
+        />
 
-          <CustomFormField
+        <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
             control={form.control}
             name="phone"
             label="Phone Number"
             placeholder="091234567"
             required={true}
-          />
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
+        />
+      </div>
+      <div className="flex flex-col gap-6 xl:flex-row">
         <CustomFormField
         fieldType={FormFieldType.INPUT}
-        control={form.control}
+                control={form.control}
         name="age"
         label="Age"
         placeholder="21"
         backgroundColor="bg-gray-50"
         required={true}
         readOnly={true} // Prevent manual input
-      />
-          <CustomFormField
-            fieldType={FormFieldType.SKELETON}
-            control={form.control}
-            name="gender"
-            label="Gender"
+            />
+        <CustomFormField
+                fieldType={FormFieldType.SKELETON}
+                control={form.control}
+                name="gender"
+                label="Gender"
             backgroundColor="bg-gray-50"
             required={true}
             renderSkeleton={(field) => (
-              <FormControl>
+                    <FormControl>
                 <RadioGroup className="flex flex-11 gap-6 xl:justify-between text-black"
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}>
-                  {GenderOptions.map((option) => (
-                    <div key={option} className="radio-group">
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}>
+                            {GenderOptions.map((option) => (
+                                <div key={option} className="radio-group">
                       <RadioGroupItem value={option} id={option} />
-                      <Label htmlFor={option} className="cursor-pointer">{option}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-            )}
-          />
-        </div>
-
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="address"
-            label="Address"
-            placeholder="Ampayon, Butuan City"
+                                    <Label htmlFor={option} className="cursor-pointer">{option}</Label>
+                                </div>
+                         ))}
+                        </RadioGroup>
+                    </FormControl>
+                )}
+            />
+      </div>
+      
+       <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="address"
+                label="Address"
+                placeholder="Ampayon, Butuan City"
             required={true}
-          />
-          <CustomFormField
-            fieldType={FormFieldType.SKELETON}
-            control={form.control}
-            name="occupation"
-            label="Occupation"
+            />
+       <CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="occupation"
+  label="Occupation"
             required={true}
-            renderSkeleton={(field) => (
-              <div className="text-black">
-                <FormControl>
-                  <Select
-                    onValueChange={(value) => {
-                      setSelectedOccupation(value);
-                      form.setValue("occupation", value); // Set the selected value in the form
-                    }}
-                    value={field.value || ""} // Clear the value if field.value is undefined or null
-                  >
+  renderSkeleton={(field) => (
+    <div className="text-black">
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setSelectedOccupation(value);
+            form.setValue("occupation", value); // Set the selected value in the form
+          }}
+          value={field.value || ""} // Clear the value if field.value is undefined or null
+        >
                     <SelectTrigger className="w-full bg-gray-50">
-                      <SelectValue placeholder="Select Occupation" />
-                    </SelectTrigger>
+            <SelectValue placeholder="Select Occupation" />
+          </SelectTrigger>
                     <SelectContent className="bg-white text-black border-2 border-blue-700">
-                      {occupations.map((occupation) => (
+            {occupations.map((occupation) => (
                         <SelectItem className="hover:bg-blue-100" key={occupation} value={occupation}>
-                          {occupation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-              </div>
-            )}
-          />
+                {occupation}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+    </div>
+  )}
+/>
 
 
-
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.SKELETON}
-            control={form.control}
-            name="civilStatus"
-            label="Civil Status"
+    
+      </div>
+      <div className="flex flex-col gap-6 xl:flex-row">
+      <CustomFormField
+    fieldType={FormFieldType.SKELETON}
+    control={form.control}
+    name="civilStatus"
+    label="Civil Status"
             required={true}
-            renderSkeleton={(field) => (
-              <FormControl>
-                <RadioGroup
+    renderSkeleton={(field) => (
+        <FormControl>
+            <RadioGroup
                   className="flex flex-wrap gap-6 xl:justify-between text-black"
-                  onValueChange={field.onChange}
-                  value={field.value || ""} // Ensure it resets to empty
-                >
-                  {["Single", "Married", "Solo Parent", "Widowed", "Divorced"].map((status) => (
+                onValueChange={field.onChange}
+                value={field.value || ""} // Ensure it resets to empty
+            >
+                {["Single", "Married", "Solo Parent", "Widowed", "Divorced"].map((status) => (
                     <div key={status} className="radio-group flex items-center gap-2">
-                      <RadioGroupItem value={status} id={status} />
-                      <Label htmlFor={status} className="cursor-pointer">
-                        {status}
-                      </Label>
+                        <RadioGroupItem value={status} id={status} />
+                        <Label htmlFor={status} className="cursor-pointer">
+                            {status}
+                        </Label>
                     </div>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-            )}
-          />
+                ))}
+            </RadioGroup>
+        </FormControl>
+    )}
+/>
 
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="bloodType"
-            label="Blood Type"
-            placeholder="0"
+</div>
+      <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="bloodType"
+          label="Blood Type"
+          placeholder="0"
             required={true}
-          />
-          <CustomFormField
+        />
+        <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="religion"
             label="Religion"
             placeholder="Roman Catholic"
             required={true}
-          />
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          {/* Weight Field */}
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="weight"
-            label="Weight (kg)"
-            placeholder="70"
+      />
+     </div>
+     <div className="flex flex-col gap-6 xl:flex-row">
+      {/* Weight Field */}
+      <CustomFormField
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="weight"
+        label="Weight (kg)"
+        placeholder="70"
             required={true}
-          />
+      />
 
-          {/* Height Field */}
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="height"
-            label="Height (m)"
-            placeholder="1.75"
+      {/* Height Field */}
+      <CustomFormField
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="height"
+        label="Height (m)"
+        placeholder="1.75"
             required={true}
-          />
+      />
 
-
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          {/* BMI Field - Readonly */}
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="bmi"
-            label="BMI"
-            placeholder="Calculated BMI"
+  
+</div>
+<div className="flex flex-col gap-6 xl:flex-row">
+      {/* BMI Field - Readonly */}
+      <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="bmi"
+          label="BMI"
+          placeholder="Calculated BMI"
             readOnly={true}
-          />
+        />
 
-          {/* Add BMI category field */}
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="bmiCategory"
-            label="BMI Category"
-            placeholder="Normal weight"
+      {/* Add BMI category field */}
+      <CustomFormField
+        fieldType={FormFieldType.INPUT}
+        control={form.control}
+        name="bmiCategory"
+        label="BMI Category"
+        placeholder="Normal weight"
             readOnly={true}  // Disable it since it's auto-calculated
-          />
+      />
 
-        </div>
+</div>
 
-        {isStudent && (
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
+{isStudent && (
+        <div className="flex flex-col gap-6 xl:flex-row">
+          <CustomFormField
   fieldType={FormFieldType.SKELETON}
   control={form.control}
   name="college"
@@ -597,9 +597,9 @@ const RegisterForm = ({ user }: { user: User }) => {
 />
             <CustomFormField
               fieldType={FormFieldType.SKELETON}
-              control={form.control}
-              name="program"
-              label="Program"
+            control={form.control}
+            name="program"
+            label="Program"
               required={true}
               renderSkeleton={(field) => (
                 <div className="text-black">
@@ -627,95 +627,95 @@ const RegisterForm = ({ user }: { user: User }) => {
               )}
             />
 
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="yearLevel"
-              label="Year Level"
-              placeholder="4"
-              required={true}
-            />
-          </div>
-        )}
-
-        {isEmployee && (
-          <div className="flex flex-col gap-6 xl:flex-row">
-            {/* Office dropdown */}
-            <CustomFormField
-              fieldType={FormFieldType.SKELETON}
-              control={form.control}
-              name="office"
-              label="Office"
-              required={true}
-              renderSkeleton={(field) => (
-                <div>
-                  <FormControl>
-                    <Select
-                      onValueChange={(value) => {
-                        setSelectedOffice(value);
-                        form.setValue("office", value);
-                      }}
-                      value={field.value || ""} // Clear the value if field.value is undefined or null
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Office Type" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-black border-2 border-blue-700">
-                        {/* Check if officeTypes has data before rendering the dropdown */}
-                        {officeTypes.length > 0 ? (
-                          officeTypes.map((officeType, index) => (
-                            <SelectItem className="hover:bg-blue-100" key={index} value={officeType}>
-                              {officeType}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem disabled value={""}>
-                            No office types available
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </div>
-              )}
-            />
-          </div>
-        )}
-
-        <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
-            name="emergencyContactName"
-            label="Emergency contact name"
-            placeholder="Guardian's name"
-            required={true}
-          />
-          <CustomFormField
-            fieldType={FormFieldType.PHONE_INPUT}
-            control={form.control}
-            name="emergencyContactNumber"
-            label="Emergency contact number"
-            placeholder="091234567"
-            required={true}
+            name="yearLevel"
+            label="Year Level"
+            placeholder="4"
+              required={true}
           />
         </div>
+      )}
 
-        <section className="space-y-6">
+{isEmployee && (
+  <div className="flex flex-col gap-6 xl:flex-row">
+    {/* Office dropdown */}
+    <CustomFormField
+      fieldType={FormFieldType.SKELETON}
+      control={form.control}
+      name="office"
+      label="Office"
+              required={true}
+      renderSkeleton={(field) => (
+        <div>
+          <FormControl>
+            <Select
+              onValueChange={(value) => {
+                setSelectedOffice(value);
+                form.setValue("office", value);
+              }}
+              value={field.value || ""} // Clear the value if field.value is undefined or null
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Office Type" />
+              </SelectTrigger>
+                      <SelectContent className="bg-white text-black border-2 border-blue-700">
+                {/* Check if officeTypes has data before rendering the dropdown */}
+                {officeTypes.length > 0 ? (
+                  officeTypes.map((officeType, index) => (
+                            <SelectItem className="hover:bg-blue-100" key={index} value={officeType}>
+                      {officeType}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem disabled value={""}>
+                    No office types available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </FormControl>
+        </div>
+      )}
+    />
+  </div>
+)}
+
+       <div className="flex flex-col gap-6 xl:flex-row">
+        <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="emergencyContactName"
+                label="Emergency contact name"
+                placeholder="Guardian's name"
+            required={true}
+            />
+            <CustomFormField
+                fieldType={FormFieldType.PHONE_INPUT}
+                control={form.control}
+                name="emergencyContactNumber"
+                label="Emergency contact number"
+                placeholder="091234567"
+            required={true}
+            />
+      </div>
+
+      <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header text-blue-700">Medical Information</h2>
           </div>
-        </section>
+      </section>
 
-        <div className="flex flex-col gap-6 xl:flex-row">
+      <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="insuranceProvider"
             label="Insurance Provider"
             placeholder="Palawan Insurance"
-
-
+                    
+                    
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -723,156 +723,156 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="insurancePolicyNumber"
             label="Insurance policy number"
             placeholder="ABC123456789"
-
-
+          
+          
           />
-        </div>
+      </div>
 
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.SKELETON}
-            control={form.control}
-            name="allergies"
-            label="Allergies (if any)"
+      <div className="flex flex-col gap-6 xl:flex-row">
+      <CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="allergies"
+  label="Allergies (if any)"
             required={true}
-            renderSkeleton={(field) => (
-              <div className="text-black">
-                <FormControl>
-                  <Select
-                    onValueChange={(value) => {
-                      setAllergy(value);
-                      form.setValue("allergies", value);
-                    }}
-                    defaultValue={field.value}
-                  >
+  renderSkeleton={(field) => (
+    <div className="text-black">
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setAllergy(value);
+            form.setValue("allergies", value);
+          }}
+          defaultValue={field.value}
+        >
                     <SelectTrigger className="w-full bg-gray-50">
-                      <SelectValue placeholder="Select Allergy" />
-                    </SelectTrigger>
+            <SelectValue placeholder="Select Allergy" />
+          </SelectTrigger>
                     <SelectContent className="bg-white text-black border-2 border-blue-700 ">
-                      {allergies.map((allergy) => (
+            {allergies.map((allergy) => (
                         <SelectItem className="hover:bg-blue-100" key={allergy} value={allergy}>
-                          {allergy}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-              </div>
-            )}
-          />
+                {allergy}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+    </div>
+  )}
+/>
 
-          <CustomFormField
-            fieldType={FormFieldType.SKELETON}
-            control={form.control}
-            name="currentMedication"
-            label="Current Medication (if any)"
+<CustomFormField
+  fieldType={FormFieldType.SKELETON}
+  control={form.control}
+  name="currentMedication"
+  label="Current Medication (if any)"
             required={true}
-            renderSkeleton={(field) => (
-              <div className="text-black">
-                <FormControl>
-                  <Select
-                    onValueChange={(value) => {
-                      setMedication(value);
-                      form.setValue("currentMedication", value);
-                    }}
-                    defaultValue={field.value}
-                  >
+  renderSkeleton={(field) => (
+    <div className="text-black">
+      <FormControl>
+        <Select
+          onValueChange={(value) => {
+            setMedication(value);
+            form.setValue("currentMedication", value);
+          }}
+          defaultValue={field.value}
+        >
                     <SelectTrigger className="w-full bg-gray-50">
-                      <SelectValue placeholder="Select Medication" />
-                    </SelectTrigger>
+            <SelectValue placeholder="Select Medication" />
+          </SelectTrigger>
                     <SelectContent className="bg-white text-black border-2 border-blue-700">
                       <SelectItem className="hover:bg-blue-100" key="None" value="None">
-                        None
-                      </SelectItem>
-                      {medications.map((medication) => (
+              None
+            </SelectItem>
+            {medications.map((medication) => (
                         <SelectItem className="hover:bg-blue-100" key={medication} value={medication}>
-                          {medication}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-              </div>
-            )}
-          />
+                {medication}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+    </div>
+  )}
+/>
 
 
-        </div>
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.SKELETON}
-            control={form.control}
-            name="personWithDisability"
-            label="Person with Disability"
+      </div>
+      <div className="flex flex-col gap-6 xl:flex-row">
+      <CustomFormField
+    fieldType={FormFieldType.SKELETON}
+    control={form.control}
+    name="personWithDisability"
+    label="Person with Disability"
             required={true}
-            renderSkeleton={(field) => (
-              <FormControl>
-                <RadioGroup
-                  className="flex gap-6 xl:justify-between"
-                  onValueChange={(value) => {
+    renderSkeleton={(field) => (
+        <FormControl>
+            <RadioGroup
+                className="flex gap-6 xl:justify-between"
+                onValueChange={(value) => {
                     field.onChange(value);
                     if (value === "No") {
-                      form.setValue("disabilityType", ""); // Clear selection if "No"
-                      form.setValue("disabilityDetails", ""); // Clear details
+                        form.setValue("disabilityType", ""); // Clear selection if "No"
+                        form.setValue("disabilityDetails", ""); // Clear details
                     }
-                  }}
-                  value={field.value || ""} // Ensure it resets to empty
-                >
-                  {["Yes", "No"].map((option) => (
+                }}
+                value={field.value || ""} // Ensure it resets to empty
+            >
+                {["Yes", "No"].map((option) => (
                     <div key={option} className="radio-group flex items-center gap-2 text-black">
-                      <RadioGroupItem value={option} id={option} />
-                      <Label htmlFor={option} className="cursor-pointer">
-                        {option}
-                      </Label>
+                        <RadioGroupItem value={option} id={option} />
+                        <Label htmlFor={option} className="cursor-pointer">
+                            {option}
+                        </Label>
                     </div>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-            )}
-          />
+                ))}
+            </RadioGroup>
+        </FormControl>
+    )}
+/>
 
 
-          {/* Show disability type selection only if "Yes" is selected */}
-          {form.watch("personWithDisability") === "Yes" && (
-            <CustomFormField
-              fieldType={FormFieldType.SKELETON}
-              control={form.control}
-              name="disabilityType"
-              label="Type of Disability"
-              renderSkeleton={(field) => (
-                <FormControl>
-                  <RadioGroup
+{/* Show disability type selection only if "Yes" is selected */}
+{form.watch("personWithDisability") === "Yes" && (
+    <CustomFormField
+        fieldType={FormFieldType.SKELETON}
+        control={form.control}
+        name="disabilityType"
+        label="Type of Disability"
+        renderSkeleton={(field) => (
+            <FormControl>
+                <RadioGroup
                     className="flex gap-6 xl:justify-between"
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                  >
+                >
                     {["Physical Disabilities", "Intellectual Disabilities", "Mental Illnesses"].map((option) => (
                       <div key={option} className="radio-group flex items-center gap-2 text-black">
-                        <RadioGroupItem value={option} id={option} />
-                        <Label htmlFor={option} className="cursor-pointer">
-                          {option}
-                        </Label>
-                      </div>
+                            <RadioGroupItem value={option} id={option} />
+                            <Label htmlFor={option} className="cursor-pointer">
+                                {option}
+                            </Label>
+                        </div>
                     ))}
-                  </RadioGroup>
-                </FormControl>
-              )}
-            />
-          )}
+                </RadioGroup>
+            </FormControl>
+        )}
+    />
+)}
 
-          {/* Show textarea if a disability type is selected */}
-          {form.watch("disabilityType") && (
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="disabilityDetails"
-              label="Specify Disability Details"
-            />
-          )}
+{/* Show textarea if a disability type is selected */}
+{form.watch("disabilityType") && (
+    <CustomFormField
+        fieldType={FormFieldType.TEXTAREA}
+        control={form.control}
+        name="disabilityDetails"
+        label="Specify Disability Details"
+    />
+)}
 
-        </div>
+</div>
 
-        <div className="flex flex-col gap-6 xl:flex-row">
+      <div className="flex flex-col gap-6 xl:flex-row">
           {/* Family Medical History */}
           {/* Past Medical History */}
           <CustomFormField
@@ -976,10 +976,10 @@ const RegisterForm = ({ user }: { user: User }) => {
 
                   {/* Show Textarea if "Others" is selected */}
                   {showPastOtherField && (
-                    <CustomFormField
-                      fieldType={FormFieldType.TEXTAREA}
-                      control={form.control}
-                      name="pastMedicalHistory"
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="pastMedicalHistory"
                       label="Specify Past Medical History"
                       placeholder="Please specify..."
                       renderSkeleton={() => (
@@ -1122,45 +1122,45 @@ const RegisterForm = ({ user }: { user: User }) => {
 
 
 
-        </div>
+      </div>
 
-        <section className="space-y-6">
+      <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header text-blue-700">Identification and Verification</h2>
           </div>
-        </section>
+      </section>
+       
+      <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="identificationType"
+            label="Identification Type"
 
-        <CustomFormField
-          fieldType={FormFieldType.SELECT}
-          control={form.control}
-          name="identificationType"
-          label="Identification Type"
-
-          placeholder="Select identification type"
+            placeholder="Select identification type"
           required={true}
-        >
-          {IdentificationTypes.map((type) => (
+            >
+                {IdentificationTypes.map((type) => (
             <SelectItem className="hover:bg-blue-100" key={type} value={type}>
-              {type}
+                    {type}
 
-            </SelectItem>
-          ))}
-
+                    </SelectItem>
+                ))}
+                
         </CustomFormField>
         <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="identificationNumber"
-          label="Identification Number"
-          placeholder="1234556789"
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="identificationNumber"
+            label="Identification Number"
+            placeholder="1234556789"
           required={true}
-
-        />
+                    
+          />
         <CustomFormField
-          fieldType={FormFieldType.SKELETON}
-          control={form.control}
-          name="identificationDocument"
-          label="Scanned copy of identification document"
+                fieldType={FormFieldType.SKELETON}
+                control={form.control}
+                name="identificationDocument"
+                label="Scanned copy of identification document"
           renderSkeleton={({ value, onChange }) => {
             const hasError = !value || value.length === 0;
 
@@ -1174,50 +1174,50 @@ const RegisterForm = ({ user }: { user: User }) => {
                       form.trigger("identificationDocument"); // Force validation update
                     }}
                   />
-                </FormControl>
+                    </FormControl>
               </div>
             );
           }}
-        />
+            />
 
-        <section className="space-y-6">
+       <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header text-blue-700">Consent and Privacy</h2>
           </div>
-        </section>
+      </section>
 
-        <div className="text-black space-y-9">
-          <CustomFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="treatmentConsent"
-            label="I consent to treatment"
-            backgroundColor="none"
+      <div className="text-black space-y-9">
+      <CustomFormField
+        fieldType={FormFieldType.CHECKBOX}
+        control={form.control}
+        name="treatmentConsent"
+        label="I consent to treatment"
+        backgroundColor="none"
             required={true}
-          />
-
-
-          <CustomFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="disclosureConsent"
-            label="I consent to disclosure of information"
-            backgroundColor="none"
+      />
+      
+      
+        <CustomFormField
+        fieldType={FormFieldType.CHECKBOX}
+        control={form.control}
+        name="disclosureConsent"
+        label="I consent to disclosure of information"
+        backgroundColor="none"
             required={true}
-          />
-          <CustomFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="privacyConsent"
-            label="I consent to privacy policy"
-            backgroundColor="none"
+      />
+        <CustomFormField
+        fieldType={FormFieldType.CHECKBOX}
+        control={form.control}
+        name="privacyConsent"
+        label="I consent to privacy policy"
+        backgroundColor="none"
             required={true}
-          />
-        </div>
-        <SubmitButton isLoading={isLoading}> Submit</SubmitButton>
-
-      </form>
-    </Form>
+      />
+      </div>
+      <SubmitButton isLoading={isLoading}> Submit</SubmitButton>
+      
+    </form>
+  </Form>
   )
 }
 

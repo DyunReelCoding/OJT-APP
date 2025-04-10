@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ReactSelect from "react-select";
 import MedicalServicesAnnualReport from "@/components/MedicalServicesAnnualReport";
 import MedicalServicesMonthlyReport from "@/components/MedicalServicesMonthlyReport";
+import MedicalServicesQuarterlyReport from "@/components/MedicalServicesQuarterlyReport";
 
 interface Appointment {
   $id: string;
@@ -71,6 +72,7 @@ const AppointmentsPage = () => {
   const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
   const [showReport, setShowReport] = useState(false);
   const [showReport2, setShowReport2] = useState(false);
+  const [showReport3, setShowReport3] = useState(false);
 
   const [offices, setOffices] = useState<string[]>([]);
   const [colleges, setColleges] = useState<string[]>([]);
@@ -78,7 +80,7 @@ const AppointmentsPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-
+  
   const databases = new Databases(client);
 
   useEffect(() => {
@@ -171,7 +173,7 @@ const AppointmentsPage = () => {
               chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
                 .includes(chiefComplaintFilter.toLowerCase());
             }
-          } catch (error) {
+    } catch (error) {
             console.error("Error parsing diagnosis:", error);
             chiefComplaintMatch = false;
           }
@@ -317,7 +319,7 @@ const AppointmentsPage = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
-
+      
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
@@ -431,13 +433,13 @@ const AppointmentsPage = () => {
 
                       {showReport && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
-                            <button
-                              onClick={() => setShowReport(false)}
-                              className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
-                            >
-                              ✕
-                            </button>
+                          <div className=" bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+                          <button
+                            onClick={() => setShowReport(false)}
+                            className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
+                          >
+                            ✕
+                          </button>
                             <MedicalServicesAnnualReport />
                           </div>
                         </div>
@@ -455,11 +457,32 @@ const AppointmentsPage = () => {
                           <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
                             <button
                               onClick={() => setShowReport2(false)}
-                              className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+                              className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
                             >
                               ✕
                             </button>
                             <MedicalServicesMonthlyReport />
+                          </div>
+                        </div>
+                      )}
+                      {/* Quarterly Report */}
+                      <button
+                        onClick={() => setShowReport3(true)}
+                        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                      >
+                        View Quarterly Report
+                      </button>
+
+                      {showReport3 && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+                            <button
+                              onClick={() => setShowReport3(false)}
+                              className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
+                            >
+                              ✕
+                            </button>
+                            <MedicalServicesQuarterlyReport />
                           </div>
                         </div>
                       )}
@@ -710,4 +733,4 @@ const AppointmentsPage = () => {
   );
 };
 
-export default AppointmentsPage;
+export default AppointmentsPage; 

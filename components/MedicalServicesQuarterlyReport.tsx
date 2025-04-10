@@ -23,6 +23,8 @@ const MedicalServicesAnnualReport = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const complaintsPerPage = 9;
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [selectedQuarter, setSelectedQuarter] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -36,20 +38,24 @@ const MedicalServicesAnnualReport = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedMonth) {
-      const [year, month] = selectedMonth.split('-');
-      const filtered = appointments.filter(appointment => {
-        const appointmentDate = new Date(appointment.date);
-        return (
-          appointmentDate.getFullYear() === parseInt(year) && 
-          (appointmentDate.getMonth() + 1) === parseInt(month)
-        );
+    if (selectedQuarter && selectedYear) {
+      const year = parseInt(selectedYear);
+      const quarterStartMonth = { Q1: 0, Q2: 3, Q3: 6, Q4: 9 }[selectedQuarter];
+  
+      const start = new Date(year, quarterStartMonth, 1);
+      const end = new Date(year, quarterStartMonth + 3, 0); // end of the quarter
+  
+      const filtered = appointments.filter((appointment) => {
+        const date = new Date(appointment.date);
+        return date >= start && date <= end;
       });
+  
       setFilteredAppointments(filtered);
     } else {
       setFilteredAppointments(appointments);
     }
-  }, [selectedMonth, appointments]);
+  }, [selectedQuarter, selectedYear, appointments]);
+  
 
   const fetchColleges = async () => {
     try {
@@ -269,13 +275,9 @@ const MedicalServicesAnnualReport = () => {
           pdf.setFontSize(11);
           
           // Update report title based on filter
-          if (selectedMonth) {
-            const [year, month] = selectedMonth.split('-');
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July",
-                              "August", "September", "October", "November", "December"];
-            const monthName = monthNames[parseInt(month) - 1];
-            pdf.text(`Medical Services Monthly Report`, 140, 45);
-            pdf.text(`${monthName} ${year}`, 161, 50);
+          if (selectedQuarter && selectedYear) {
+            pdf.text("Medical Services Quarterly Report", 140, 45);
+            pdf.text(`${selectedQuarter} ${selectedYear}`, 161, 50);
           } else {
             pdf.text("Medical Services Annual Report", 140, 45);
             pdf.text(`January - December ${new Date().getFullYear()}`, 146, 50);
@@ -325,13 +327,37 @@ const MedicalServicesAnnualReport = () => {
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
-            <input
-              type="month"
-              value={selectedMonth || ''}
-              onChange={handleMonthChange}
-              className="border rounded px-3 py-2 mr-2 bg-white"
-              max={new Date().toISOString().slice(0, 7)}
-            />
+          
+            <div className='space-x-4'>
+            <select
+              value={selectedQuarter}
+              onChange={(e) => setSelectedQuarter(e.target.value)}
+              className="border rounded px-3 py-2 bg-white text-blue-700"
+            >
+              <option value="">Select Quarter</option>
+              <option value="Q1">Q1 (Jan - Mar)</option>
+              <option value="Q2">Q2 (Apr - Jun)</option>
+              <option value="Q3">Q3 (Jul - Sep)</option>
+              <option value="Q4">Q4 (Oct - Dec)</option>
+            </select>
+
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="border rounded px-3 py-2 bg-white text-blue-700 "
+            >
+              <option value="">Select Year</option>
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                );
+              })}
+            </select>
+            </div>
+
             {selectedMonth && (
               <button
                 onClick={clearFilter}
