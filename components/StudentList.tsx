@@ -265,75 +265,80 @@ const StudentList = () => {
       </div>
 
       {/* Table */}
-      {filteredStudents.length === 0 ? (
-        <p className="text-gray-400 text-center">No {view}s found.</p>
-      ) : (
-        <div className="w-full overflow-x-auto rounded-lg border-2 border-blue-700">
-          <table className="w-full text-white shadow-lg">
-            <thead>
-              <tr className="bg-blue-700 text-left text-sm uppercase">
-                <th className="py-3 px-6">Name</th>
-                <th className="py-3 px-6">ID Number</th>
-                {view === "student" ? (
-                  <>
-                    <th className="py-3 px-6">Program</th>
-                    <th className="py-3 px-6">Year Level</th>
-                    <th className="py-3 px-6"></th>
-                  </>
-                ) : (
-                  <><th className="py-3 px-6">Office</th><th className="py-3 px-6"></th></>
-                  
-                )}
-                {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
-                {(filterType === "allergies" || filterType === "bmiCategory") && (
-                  <th className="py-3 px-6">Actions</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedStudents.map((student) => (
-                <tr key={student.$id} className="bg-white text-black hover:bg-blue-400 hover:text-white transition">
-                  <td className="py-3 px-6">
-                    <button onClick={() => handleStudentClick(student.$id)} className="text-blue-700 hover:text-white">
-                      {student.name}
-                      {loadingId === student.$id && <span className="ml-2 animate-spin">🔄</span>}
-                    </button>
-                  </td>
-                  <td className="py-3 px-6">{student.idNumber}</td>
-                  {view === "student" ? (
-  <>
-    <td className="py-3 px-6">{student.program}</td>
-    <td className="py-3 px-6">{student.yearLevel}</td>
-  </>
+{filteredStudents.length === 0 ? (
+  <p className="text-gray-400 text-center">No {view}s found.</p>
 ) : (
-  <td className="py-3 px-6">{student.office}</td>
-)}
-<td className="py-3 px-6 text-right ">
-  <button onClick={() => confirmDelete(student.$id)} className="text-red-600 hover:text-red-800"
-    title="Delete Student"
-  >
-    <FaTrash />
-  </button>
-</td>
+  <div className="w-full overflow-x-auto rounded-lg border-2 border-blue-700">
+    <table className="w-full text-white shadow-lg">
+      <thead className="w-full">
+        <tr className="bg-blue-700 text-left text-sm uppercase">
+          <th className="py-3 px-6">Name</th>
+          <th className="py-3 px-6">ID Number</th>
+          {view === "student" ? (
+            <>
+              <th className="py-3 px-6">Program</th>
+              <th className="py-3 px-6">Year Level</th>
+            </>
+          ) : (
+            <th className="py-3 px-6">Office</th>
+          )}
+          {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
+          {/* {(filterType === "allergies" || filterType === "bmiCategory") && (
+            <th className="py-3 px-6">Actions</th>
+          )} */}
+        </tr>
+      </thead>
+      <tbody>
+        {paginatedStudents.map((student) => (
+          <tr key={student.$id} className="bg-white text-black hover:bg-blue-400 hover:text-white transition">
+            <td className="py-3 px-6">
+              <button onClick={() => handleStudentClick(student.$id)} className="text-blue-700 hover:text-white">
+                {student.name}
+                {loadingId === student.$id && <span className="ml-2 animate-spin">🔄</span>}
+              </button>
+            </td>
+            <td className="py-3 px-6">{student.idNumber}</td>
+            {view === "student" ? (
+              <>
+                <td className="py-3 px-6">{student.program}</td>
+                <td className="py-3 px-6">{student.yearLevel}</td>
+              </>
+            ) : (
+              <td className="py-3 px-6">{student.office}</td>
+            )}
+            
+            {/* Conditionally rendered filter column */}
+            {filterType && <td className="py-3 px-6">{student[filterType] ?? "N/A"}</td>}
 
-                  {filterType && <td className="py-3 px-6">{student[filterType] ?? "N/A"}</td>}
-                  {(filterType === "allergies" || filterType === "bmiCategory") && (
-                    <td className="py-3 px-6">
-                      <button
-                        onClick={() => {
-                          setSelectedStudentId(student.$id);
-                          setIsRecommendationModalOpen(true);
-                        }}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                      >
-                        Send Recommendation
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            {/* Conditionally rendered Send Recommendation button
+            {(filterType === "allergies" || filterType === "bmiCategory") && (
+              <td className="py-3 px-6">
+                <button
+                  onClick={() => {
+                    setSelectedStudentId(student.$id);
+                    setIsRecommendationModalOpen(true);
+                  }}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                >
+                  Send Recommendation
+                </button>
+              </td>
+            )} */}
+
+            {/* Always render delete button last */}
+            <td className="py-3 px-6 text-right">
+              <button
+                onClick={() => confirmDelete(student.$id)}
+                className="text-red-600 hover:text-red-800"
+                title="Delete Student"
+              >
+                <FaTrash />
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
         </div>
       )}
      {showConfirmModal && (
