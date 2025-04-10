@@ -264,7 +264,7 @@ const StudentList = () => {
         />
       </div>
 
-      {/* Table */}
+     {/* Table */}
 {filteredStudents.length === 0 ? (
   <p className="text-gray-400 text-center">No {view}s found.</p>
 ) : (
@@ -283,9 +283,8 @@ const StudentList = () => {
             <th className="py-3 px-6">Office</th>
           )}
           {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
-          {/* {(filterType === "allergies" || filterType === "bmiCategory") && (
-            <th className="py-3 px-6">Actions</th>
-          )} */}
+          {/* Add the Delete header with the same blue background */}
+          <th className="py-3 px-6"></th>
         </tr>
       </thead>
       <tbody>
@@ -306,24 +305,9 @@ const StudentList = () => {
             ) : (
               <td className="py-3 px-6">{student.office}</td>
             )}
-            
+
             {/* Conditionally rendered filter column */}
             {filterType && <td className="py-3 px-6">{student[filterType] ?? "N/A"}</td>}
-
-            {/* Conditionally rendered Send Recommendation button
-            {(filterType === "allergies" || filterType === "bmiCategory") && (
-              <td className="py-3 px-6">
-                <button
-                  onClick={() => {
-                    setSelectedStudentId(student.$id);
-                    setIsRecommendationModalOpen(true);
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                >
-                  Send Recommendation
-                </button>
-              </td>
-            )} */}
 
             {/* Always render delete button last */}
             <td className="py-3 px-6 text-right">
