@@ -67,12 +67,12 @@ const CalendarPage = () => {
   const [chiefComplaint, setChiefComplaint] = useState("");
   const [notes, setNotes] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
-  
+
   // New state for medicine prescriptions
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
   const [medicineSearchTerm, setMedicineSearchTerm] = useState("");
-  const [selectedMedicines, setSelectedMedicines] = useState<{id: string, name: string, quantity: number}[]>([]);
+  const [selectedMedicines, setSelectedMedicines] = useState<{ id: string, name: string, quantity: number }[]>([]);
   const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
   const [prescriptionAppointmentId, setPrescriptionAppointmentId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -80,7 +80,7 @@ const CalendarPage = () => {
 
   // Add these state variables with your other useState declarations
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [appointmentToDelete, setAppointmentToDelete] = useState<{id: string, patientName: string} | null>(null);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<{ id: string, patientName: string } | null>(null);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [unavailableDate, setUnavailableDate] = useState<Date | null>(null);
   const [unavailableTimeRange, setUnavailableTimeRange] = useState("");
@@ -88,13 +88,13 @@ const CalendarPage = () => {
   const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
 
 
-    // New state for multi-select time slots
-    const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+  // New state for multi-select time slots
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
+
   const databases = new Databases(client);
   const router = useRouter();
 
@@ -170,20 +170,20 @@ const CalendarPage = () => {
     }
   };
 
-// Function to generate time slots from 8:00 AM to 5:00 PM with 30-minute intervals
-const generateTimeSlots = () => {
-  const slots = [];
-  let currentTime = new Date();
-  currentTime.setHours(8, 0, 0); // Start at 8:00 AM
+  // Function to generate time slots from 8:00 AM to 5:00 PM with 30-minute intervals
+  const generateTimeSlots = () => {
+    const slots = [];
+    let currentTime = new Date();
+    currentTime.setHours(8, 0, 0); // Start at 8:00 AM
 
-  while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
-    const formattedTime = format(currentTime, 'h:mm a');
-    slots.push(formattedTime);
-    currentTime.setMinutes(currentTime.getMinutes() + 30); // Fixed 30-minute interval
-  }
+    while (currentTime.getHours() < 17 || (currentTime.getHours() === 17 && currentTime.getMinutes() === 0)) {
+      const formattedTime = format(currentTime, 'h:mm a');
+      slots.push(formattedTime);
+      currentTime.setMinutes(currentTime.getMinutes() + 30); // Fixed 30-minute interval
+    }
 
-  return slots;
-};
+    return slots;
+  };
 
   const handleSlotSelection = (time: string) => {
     if (selectedSlots.includes(time)) {
@@ -193,39 +193,39 @@ const generateTimeSlots = () => {
     }
   };
 
-// Function to handle marking time slots as unavailable
-const handleMarkUnavailable = async () => {
-  if (!selectedDate || selectedSlots.length === 0) return;
+  // Function to handle marking time slots as unavailable
+  const handleMarkUnavailable = async () => {
+    if (!selectedDate || selectedSlots.length === 0) return;
 
-  try {
-    const startTime = selectedSlots[0];
-    const endTime = selectedSlots[selectedSlots.length - 1];
-    const timeRange = `${startTime} - ${endTime}`;
+    try {
+      const startTime = selectedSlots[0];
+      const endTime = selectedSlots[selectedSlots.length - 1];
+      const timeRange = `${startTime} - ${endTime}`;
 
-    await databases.createDocument(
-      process.env.NEXT_PUBLIC_DATABASE_ID!,
-      UNAVAILABLESLOTS_COLLECTION_ID,
-      ID.unique(),
-      {
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        timeRange: timeRange,
-        reason: unavailableReason,
-      }
-    );
+      await databases.createDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        UNAVAILABLESLOTS_COLLECTION_ID,
+        ID.unique(),
+        {
+          date: format(selectedDate, 'yyyy-MM-dd'),
+          timeRange: timeRange,
+          reason: unavailableReason,
+        }
+      );
 
-    fetchUnavailableSlots();
-    setShowUnavailableModal(false);
-    setSelectedSlots([]); // Reset selected slots
-    setMessage("Time slots marked as unavailable successfully!");
-    setMessageType("success");
-    setTimeout(() => setMessage(null), 3000);
-  } catch (error) {
-    console.error("Error marking time slots as unavailable:", error);
-    setMessage("Failed to mark time slots as unavailable. Please try again.");
-    setMessageType("error");
-    setTimeout(() => setMessage(null), 3000);
-  }
-};
+      fetchUnavailableSlots();
+      setShowUnavailableModal(false);
+      setSelectedSlots([]); // Reset selected slots
+      setMessage("Time slots marked as unavailable successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error marking time slots as unavailable:", error);
+      setMessage("Failed to mark time slots as unavailable. Please try again.");
+      setMessageType("error");
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
 
   const handleResetUnavailableSlots = async (date: Date) => {
     try {
@@ -264,7 +264,7 @@ const handleMarkUnavailable = async () => {
         UNAVAILABLESLOTS_COLLECTION_ID,
         slotId
       );
-  
+
       // Refresh the unavailable slots
       fetchUnavailableSlots();
       setMessage("Unavailable slot deleted successfully!");
@@ -278,159 +278,159 @@ const handleMarkUnavailable = async () => {
     }
   };
 
-// Function to render the unavailable modal
-const renderUnavailableModal = () => {
-  if (!showUnavailableModal || !selectedDate) return null;
+  // Function to render the unavailable modal
+  const renderUnavailableModal = () => {
+    if (!showUnavailableModal || !selectedDate) return null;
 
-  const timeSlots = generateTimeSlots();
+    const timeSlots = generateTimeSlots();
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-blue-700">
-            Mark Time Slots as Unavailable for {format(selectedDate, 'MMMM d, yyyy')}
-          </h2>
-          <button
-            onClick={() => {
-              setShowUnavailableModal(false);
-              setSelectedSlots([]); // Reset selected slots when closing the modal
-            }}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-4">
-          <div className="space-y-2">
-            <Label className="text-blue-700">Select Time Slots</Label>
-            <div className="grid grid-cols-2 gap-2 text-black">
-              {timeSlots.map((time, index) => (
-                <div key={index} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id={`slot-${index}`}
-                    value={time}
-                    checked={selectedSlots.includes(time)}
-                    onChange={() => handleSlotSelection(time)}
-                    className="mr-2 "
-                  />
-                  <label htmlFor={`slot-${index}`} className="text-sm">
-                    {time}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-blue-700" htmlFor="reason">Reason (Optional)</Label>
-            <Textarea
-              id="reason"
-              name="reason"
-              value={unavailableReason}
-              onChange={(e) => setUnavailableReason(e.target.value)}
-              placeholder="Enter a reason for unavailability"
-              className="bg-gray-100 border-blue-700 text-black"
-            />
-          </div>
-          <div className="flex justify-end pt-4">
-            <Button
-              type="button"
-              variant="outline"
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+          <div className="flex justify-between items-center p-6 border-b">
+            <h2 className="text-xl font-semibold text-blue-700">
+              Mark Time Slots as Unavailable for {format(selectedDate, 'MMMM d, yyyy')}
+            </h2>
+            <button
               onClick={() => {
                 setShowUnavailableModal(false);
                 setSelectedSlots([]); // Reset selected slots when closing the modal
               }}
-              className="mr-2 hover:text-blue-700 text-white hover:bg-white border-blue-700 bg-blue-700"
+              className="text-gray-500 hover:text-gray-700"
             >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              className="bg-red-700 hover:bg-white text-white hover:text-red-700 border border-red-700"
-              onClick={handleMarkUnavailable}
-            >
-              Mark as Unavailable
-            </Button>
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-blue-700">Select Time Slots</Label>
+              <div className="grid grid-cols-2 gap-2 text-black">
+                {timeSlots.map((time, index) => (
+                  <div key={index} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`slot-${index}`}
+                      value={time}
+                      checked={selectedSlots.includes(time)}
+                      onChange={() => handleSlotSelection(time)}
+                      className="mr-2 "
+                    />
+                    <label htmlFor={`slot-${index}`} className="text-sm">
+                      {time}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-blue-700" htmlFor="reason">Reason (Optional)</Label>
+              <Textarea
+                id="reason"
+                name="reason"
+                value={unavailableReason}
+                onChange={(e) => setUnavailableReason(e.target.value)}
+                placeholder="Enter a reason for unavailability"
+                className="bg-gray-100 border-blue-700 text-black"
+              />
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowUnavailableModal(false);
+                  setSelectedSlots([]); // Reset selected slots when closing the modal
+                }}
+                className="mr-2 hover:text-blue-700 text-white hover:bg-white border-blue-700 bg-blue-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="bg-red-700 hover:bg-white text-white hover:text-red-700 border border-red-700"
+                onClick={handleMarkUnavailable}
+              >
+                Mark as Unavailable
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-const [newChiefComplaint, setNewChiefComplaint] = useState("");
-const [chiefComplaintsList, setChiefComplaintsList] = useState([
-  { value: "Cough", label: "Cough" },
-  { value: "Fever", label: "Fever" },
-  { value: "Headache", label: "Headache" },
-  { value: "Stomachache", label: "Stomachache" },
-  { value: "Low Bowel Movement", label: "Low Bowel Movement" },
-  { value: "Sore Throat", label: "Sore Throat" },
-  { value: "Fatigue", label: "Fatigue" },
-  { value: "Dizziness", label: "Dizziness" },
-]);
-
-const handleAddChiefComplaint = () => {
-  if (newChiefComplaint.trim() === "") return;
-
-  const newComplaint = {
-    value: newChiefComplaint,
-    label: newChiefComplaint,
+    );
   };
 
-  setChiefComplaintsList([...chiefComplaintsList, newComplaint]);
-  setNewChiefComplaint("");
-};
+  const [newChiefComplaint, setNewChiefComplaint] = useState("");
+  const [chiefComplaintsList, setChiefComplaintsList] = useState([
+    { value: "Cough", label: "Cough" },
+    { value: "Fever", label: "Fever" },
+    { value: "Headache", label: "Headache" },
+    { value: "Stomachache", label: "Stomachache" },
+    { value: "Low Bowel Movement", label: "Low Bowel Movement" },
+    { value: "Sore Throat", label: "Sore Throat" },
+    { value: "Fatigue", label: "Fatigue" },
+    { value: "Dizziness", label: "Dizziness" },
+  ]);
 
-const handleDeleteChiefComplaint = (value: string) => {
-  const updatedList = chiefComplaintsList.filter((complaint) => complaint.value !== value);
-  setChiefComplaintsList(updatedList);
-};
+  const handleAddChiefComplaint = () => {
+    if (newChiefComplaint.trim() === "") return;
+
+    const newComplaint = {
+      value: newChiefComplaint,
+      label: newChiefComplaint,
+    };
+
+    setChiefComplaintsList([...chiefComplaintsList, newComplaint]);
+    setNewChiefComplaint("");
+  };
+
+  const handleDeleteChiefComplaint = (value: string) => {
+    const updatedList = chiefComplaintsList.filter((complaint) => complaint.value !== value);
+    setChiefComplaintsList(updatedList);
+  };
 
 
-// Custom option component with delete button
-const CustomOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
-  const { data, innerRef, innerProps } = props;
-  return (
-    <div ref={innerRef} {...innerProps} className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer">
-      <span>{data.label}</span>
-      <button
-        onClick={(e) => {
-          e.stopPropagation(); // Prevents selecting the option when clicking delete
-          handleDeleteChiefComplaint(data.value);
-        }}
-        className="text-red-600 hover:text-red-800"
-      >
-        <X size={16} />
-      </button>
-    </div>
-  );
-};
+  // Custom option component with delete button
+  const CustomOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div ref={innerRef} {...innerProps} className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer">
+        <span>{data.label}</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevents selecting the option when clicking delete
+            handleDeleteChiefComplaint(data.value);
+          }}
+          className="text-red-600 hover:text-red-800"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    );
+  };
 
-// State for selected chief complaints
-const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
-  { value: string; label: string }[]
->([]);
+  // State for selected chief complaints
+  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
+    { value: string; label: string }[]
+  >([]);
 
-// Handle multi-select change
-const handleChiefComplaintChange = (selectedOptions: any) => {
-  setSelectedChiefComplaints(selectedOptions);
-};
+  // Handle multi-select change
+  const handleChiefComplaintChange = (selectedOptions: any) => {
+    setSelectedChiefComplaints(selectedOptions);
+  };
 
-// Save to local storage
-useEffect(() => {
-  localStorage.setItem("chiefComplaints", JSON.stringify(chiefComplaintsList));
-}, [chiefComplaintsList]);
+  // Save to local storage
+  useEffect(() => {
+    localStorage.setItem("chiefComplaints", JSON.stringify(chiefComplaintsList));
+  }, [chiefComplaintsList]);
 
-// Load from local storage on component mount
-useEffect(() => {
-  const savedComplaints = localStorage.getItem("chiefComplaints");
-  if (savedComplaints) {
-    setChiefComplaintsList(JSON.parse(savedComplaints));
-  }
-}, []);
+  // Load from local storage on component mount
+  useEffect(() => {
+    const savedComplaints = localStorage.getItem("chiefComplaints");
+    if (savedComplaints) {
+      setChiefComplaintsList(JSON.parse(savedComplaints));
+    }
+  }, []);
 
   const handleStatusChange = async (appointmentId: string, newStatus: string) => {
     if (newStatus === "Cancelled" || newStatus === "Completed") {
@@ -455,7 +455,7 @@ useEffect(() => {
 
   const handleModalSubmit = async () => {
     if (!selectedAppointmentId || !selectedStatus) return;
-  
+
     try {
       const updateData: any = { status: selectedStatus };
       if (selectedStatus === "Cancelled") {
@@ -463,32 +463,32 @@ useEffect(() => {
       } else if (selectedStatus === "Completed") {
         // Truncate the notes field to ensure the JSON string does not exceed 255 characters
         const truncatedNotes = notes.length > 500 ? notes.substring(0, 500) + "..." : notes;
-  
+
         // Extract the values from the selectedChiefComplaints array
         const chiefComplaintsArray = selectedChiefComplaints.map((complaint) => complaint.value);
-  
+
         // Create the diagnosis data object
         const diagnosisData = JSON.stringify({
           bloodPressure,
           chiefComplaint: chiefComplaintsArray, // Store as an array
           notes: truncatedNotes,
         });
-  
+
         // Ensure the JSON string does not exceed 255 characters
         if (diagnosisData.length > 1000) {
           throw new Error("Diagnosis data exceeds the maximum length of 255 characters.");
         }
-  
+
         updateData.diagnosis = diagnosisData;
       }
-  
+
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         "67b96b0800349392bb1c", // Use the correct collection ID
         selectedAppointmentId,
         updateData
       );
-  
+
       fetchAppointments();
     } catch (error) {
       console.error("Error updating appointment:", error);
@@ -541,8 +541,8 @@ useEffect(() => {
       setFilteredMedicines(medicines);
       return;
     }
-    
-    const filtered = medicines.filter(medicine => 
+
+    const filtered = medicines.filter(medicine =>
       medicine.name.toLowerCase().includes(term.toLowerCase()) ||
       medicine.brand.toLowerCase().includes(term.toLowerCase()) ||
       medicine.category.toLowerCase().includes(term.toLowerCase())
@@ -556,7 +556,7 @@ useEffect(() => {
     if (selectedMedicines.some(med => med.id === medicineId)) {
       return;
     }
-    
+
     setSelectedMedicines([...selectedMedicines, { id: medicineId, name: medicineName, quantity: 1 }]);
   };
 
@@ -568,8 +568,8 @@ useEffect(() => {
   // New function to update medicine quantity
   const updateMedicineQuantity = (medicineId: string, quantity: number) => {
     if (quantity < 1) return;
-    
-    setSelectedMedicines(selectedMedicines.map(med => 
+
+    setSelectedMedicines(selectedMedicines.map(med =>
       med.id === medicineId ? { ...med, quantity } : med
     ));
   };
@@ -584,19 +584,19 @@ useEffect(() => {
   // New function to handle prescription submission
   const handlePrescriptionSubmit = async () => {
     if (!prescriptionAppointmentId || selectedMedicines.length === 0) return;
-    
+
     try {
       // Get the current appointment to check if it already has diagnosis
       const appointment = appointments.find(app => app.$id === prescriptionAppointmentId);
-      
+
       // Create prescription data
       const prescriptionData = {
         medicines: selectedMedicines
       };
-      
+
       // If there's existing diagnosis data, merge it with the prescription data
       let diagnosisData: any = prescriptionData;
-      
+
       if (appointment?.diagnosis) {
         try {
           const existingDiagnosis = JSON.parse(appointment.diagnosis);
@@ -608,7 +608,7 @@ useEffect(() => {
           console.error("Error parsing existing diagnosis:", e);
         }
       }
-      
+
       // Update the appointment with prescription data in the diagnosis field
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
@@ -616,7 +616,7 @@ useEffect(() => {
         prescriptionAppointmentId,
         { diagnosis: JSON.stringify(diagnosisData) }
       );
-      
+
       // Update medicine stock
       for (const medicine of selectedMedicines) {
         const medicineDoc = medicines.find(med => med.$id === medicine.id);
@@ -624,7 +624,7 @@ useEffect(() => {
           // Convert stock to number, subtract quantity, and convert back to string
           const currentStock = parseInt(medicineDoc.stock);
           const newStock = Math.max(0, currentStock - medicine.quantity).toString();
-          
+
           await databases.updateDocument(
             process.env.NEXT_PUBLIC_DATABASE_ID!,
             MEDICINES_COLLECTION_ID,
@@ -633,16 +633,16 @@ useEffect(() => {
           );
         }
       }
-      
+
       // Show success message
       setMessage("✅ Medicines prescribed successfully and inventory updated!");
       setMessageType("success");
       setTimeout(() => setMessage(null), 3000);
-      
+
       // Refresh data
       fetchAppointments();
       fetchMedicines();
-      
+
       // Close modal
       setIsPrescriptionModalOpen(false);
       setPrescriptionAppointmentId(null);
@@ -662,10 +662,10 @@ useEffect(() => {
       return appointmentDate.toDateString() === selectedDate.toDateString();
     });
 
-  // Get unavailable slots for the selected day
-  const unavailableSlotsForDay = unavailableSlots.filter(
-    slot => slot.date === format(selectedDate, 'yyyy-MM-dd')
-  );
+    // Get unavailable slots for the selected day
+    const unavailableSlotsForDay = unavailableSlots.filter(
+      slot => slot.date === format(selectedDate, 'yyyy-MM-dd')
+    );
 
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -685,8 +685,8 @@ useEffect(() => {
               className={`p-4 rounded-lg ${getStatusColor(appointment.status)} flex justify-between items-center`}
             >
               <div>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="font-semibold text-blue-700 hover:text-blue-900 p-0 h-auto"
                   onClick={() => router.push(`/patients/${appointment.userid}/studentDetailAdmin`)}
                 >
@@ -702,7 +702,7 @@ useEffect(() => {
                     <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
                     <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
                     <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
-                    
+
                     {JSON.parse(appointment.diagnosis).medicines && (
                       <div className="mt-2 border-t pt-2">
                         <p className="text-sm font-semibold">Prescribed Medicines:</p>
@@ -718,7 +718,7 @@ useEffect(() => {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex flex-col gap-2">
                 <select
                   className="border border-blue-700 rounded p-1 mr-2 bg-white focus:outline-none"
@@ -730,62 +730,62 @@ useEffect(() => {
                   <option value="Cancelled">Cancelled</option>
                 </select>
                 {appointment.status === "Completed" && (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    size="sm"
+                    variant="outline"
                     className="text-white border-blue-700 bg-blue-700 hover:bg-white hover:text-blue-700"
                     onClick={() => openPrescriptionModal(appointment.$id)}
                   >
                     {appointment.diagnosis && JSON.parse(appointment.diagnosis).medicines ? "Update Prescription" : "Add Prescription"}
                   </Button>
                 )}
-               <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="text-red-700"
-                    onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
-                    >
-                    Delete
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-700"
+                  onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
+                >
+                  Delete
                 </Button>
 
               </div>
             </div>
           ))}
-                  {/* Display Unavailable Slots */}
-        {unavailableSlotsForDay.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold text-gray-700 mb-4">Unavailable Time Slots</h3>
-            <div className="space-y-2">
-              {unavailableSlotsForDay.map(slot => (
-                <div
-                  key={slot.$id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-gray-100"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-black">{slot.timeRange}</p>
-                    {slot.reason && (
-                      <p className="text-sm text-black">Reason: {slot.reason}</p>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-red-500 hover:bg-red-100"
-                    onClick={() => handleDeleteUnavailableSlot(slot.$id)}
+          {/* Display Unavailable Slots */}
+          {unavailableSlotsForDay.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold text-gray-700 mb-4">Unavailable Time Slots</h3>
+              <div className="space-y-2">
+                {unavailableSlotsForDay.map(slot => (
+                  <div
+                    key={slot.$id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-gray-100"
                   >
+                    <div>
+                      <p className="text-sm font-medium text-black">{slot.timeRange}</p>
+                      {slot.reason && (
+                        <p className="text-sm text-black">Reason: {slot.reason}</p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-500 hover:bg-red-100"
+                      onClick={() => handleDeleteUnavailableSlot(slot.$id)}
+                    >
                       Delete
-                  </Button>
-                </div>
-              ))}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-  const filteredAppointments = appointments.filter(appointment => 
+  const filteredAppointments = appointments.filter(appointment =>
     statusFilter === "all" ? true : appointment.status === statusFilter
   );
 
@@ -818,9 +818,8 @@ useEffect(() => {
 
           {/* Success/Error Message */}
           {message && (
-            <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
-              messageType === "success" ? " bg-green-100 text-green-800" : " bg-red-100 text-red-800"
-            }`}>
+            <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success" ? " bg-green-100 text-green-800" : " bg-red-100 text-red-800"
+              }`}>
               {message}
             </div>
           )}
@@ -958,7 +957,7 @@ useEffect(() => {
               {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedStatus === "Cancelled" ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -986,37 +985,37 @@ useEffect(() => {
               </div>
 
               <div className="space-y-2">
-  <label className="text-sm font-medium">Chief Complaint</label>
+                <label className="text-sm font-medium">Chief Complaint</label>
 
-  {/* Input field and button for adding a new chief complaint */}
-  <div className="flex gap-2">
-    <Input
-      value={newChiefComplaint}
-      onChange={(e) => setNewChiefComplaint(e.target.value)}
-      placeholder="Add new chief complaint"
-      className="bg-white border border-blue-700 text-black"
-    />
-    <Button
-      type="button"
-      className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
-      onClick={handleAddChiefComplaint}
-    >
-      Add
-    </Button>
-  </div>
+                {/* Input field and button for adding a new chief complaint */}
+                <div className="flex gap-2">
+                  <Input
+                    value={newChiefComplaint}
+                    onChange={(e) => setNewChiefComplaint(e.target.value)}
+                    placeholder="Add new chief complaint"
+                    className="bg-white border border-blue-700 text-black"
+                  />
+                  <Button
+                    type="button"
+                    className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
+                    onClick={handleAddChiefComplaint}
+                  >
+                    Add
+                  </Button>
+                </div>
 
-  {/* Multi-select dropdown for chief complaints */}
-  <ReactSelect
-    isMulti
-    options={chiefComplaintsList}
-    value={selectedChiefComplaints}
-    onChange={handleChiefComplaintChange}
-    className="react-select-container"
-    classNamePrefix="react-select"
-    components={{ Option: CustomOption }} // Custom dropdown option with delete
-  />
+                {/* Multi-select dropdown for chief complaints */}
+                <ReactSelect
+                  isMulti
+                  options={chiefComplaintsList}
+                  value={selectedChiefComplaints}
+                  onChange={handleChiefComplaintChange}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  components={{ Option: CustomOption }} // Custom dropdown option with delete
+                />
 
-</div>
+              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Notes</label>
@@ -1030,7 +1029,7 @@ useEffect(() => {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border-red-700" type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
@@ -1048,7 +1047,7 @@ useEffect(() => {
           <DialogHeader>
             <DialogTitle className="text-blue-700">Prescribe Medicines</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             {/* Medicine Search */}
             <div className="relative">
@@ -1060,7 +1059,7 @@ useEffect(() => {
                 className="pl-10 bg-white border-2 border-blue-700"
               />
             </div>
-            
+
             {/* Medicine List */}
             <div className="border rounded-md h-48 overflow-y-auto">
               {filteredMedicines.length === 0 ? (
@@ -1098,7 +1097,7 @@ useEffect(() => {
                 </table>
               )}
             </div>
-            
+
             {/* Selected Medicines */}
             <div>
               <h3 className="text-sm font-medium mb-2 text-blue-700">Selected Medicines</h3>
@@ -1144,7 +1143,7 @@ useEffect(() => {
               )}
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border border-red-700" type="button" variant="outline" onClick={() => setIsPrescriptionModalOpen(false)}>
               Cancel
