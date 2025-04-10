@@ -6,6 +6,7 @@ import ComboBox from "@/components/ComboBox";
 import StudentListPrintButton from "./StudentListButton";
 import { FaEnvelope } from "react-icons/fa";
 import EmailForm from "@/components/EmailForm";
+import { FaTrash } from "react-icons/fa";
 
 const StudentList = () => {
   const [students, setStudents] = useState<any[]>([]);
@@ -23,6 +24,32 @@ const StudentList = () => {
   const [dietRecommendation, setDietRecommendation] = useState("");
   const studentsPerPage = 5;
   const router = useRouter();
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const deleteLabel = view === "student" ? "Student Deleted" : "Employee Deleted";
+
+  
+  const confirmMessage = view === "student"
+  ? "Are you sure you want to delete this student?"
+  : "Are you sure you want to delete this employee?";
+
+  const confirmDelete = (id: string) => {
+    setStudentToDelete(id);
+    setShowConfirmModal(true);
+  };
+  
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 3000); // Disappear after 3 seconds
+  
+      return () => clearTimeout(timer); // Cleanup if message changes or component unmounts
+    }
+  }, [message]);
+  
+
 
   // Fetch students when the component mounts
   useEffect(() => {
@@ -145,6 +172,37 @@ const StudentList = () => {
       alert("Failed to send bulk recommendation");
     }
   };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch("/api/students", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData?.type === "document_not_found") {
+          setMessage({ type: "error", text: "Student not found. It may have already been deleted." });
+        } else {
+          setMessage({ type: "error", text: "Failed to delete student." });
+        }
+        return;
+      }
+  
+      // Remove the student from the list locally
+      setStudents((prev) => prev.filter((student) => student.$id !== id));
+      setMessage({ type: "success", text: "Patient deleted successfully." });
+  
+    } catch (error) {
+      console.error("Error deleting student:", error);
+      setMessage({ type: "error", text: "An unexpected error occurred while deleting." });
+    }
+  };
+  
+  
+  
   
 
   return (
@@ -168,6 +226,15 @@ const StudentList = () => {
           Employee View
         </button>
       </div>
+      {message && (
+        <div
+          className={`fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${
+            message.type === "success" ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col items-center mb-4">
@@ -211,9 +278,11 @@ const StudentList = () => {
                   <>
                     <th className="py-3 px-6">Program</th>
                     <th className="py-3 px-6">Year Level</th>
+                    <th className="py-3 px-6"></th>
                   </>
                 ) : (
-                  <th className="py-3 px-6">Office</th>
+                  <><th className="py-3 px-6">Office</th><th className="py-3 px-6"></th></>
+                  
                 )}
                 {filterType && <th className="py-3 px-6">{filterType.replace(/([A-Z])/g, " $1")}</th>}
                 {(filterType === "allergies" || filterType === "bmiCategory") && (
@@ -232,13 +301,21 @@ const StudentList = () => {
                   </td>
                   <td className="py-3 px-6">{student.idNumber}</td>
                   {view === "student" ? (
-                    <>
-                      <td className="py-3 px-6">{student.program}</td>
-                      <td className="py-3 px-6">{student.yearLevel}</td>
-                    </>
-                  ) : (
-                    <td className="py-3 px-6">{student.office}</td>
-                  )}
+  <>
+    <td className="py-3 px-6">{student.program}</td>
+    <td className="py-3 px-6">{student.yearLevel}</td>
+  </>
+) : (
+  <td className="py-3 px-6">{student.office}</td>
+)}
+<td className="py-3 px-6 text-right ">
+  <button onClick={() => confirmDelete(student.$id)} className="text-red-600 hover:text-red-800"
+    title="Delete Student"
+  >
+    <FaTrash />
+  </button>
+</td>
+
                   {filterType && <td className="py-3 px-6">{student[filterType] ?? "N/A"}</td>}
                   {(filterType === "allergies" || filterType === "bmiCategory") && (
                     <td className="py-3 px-6">
@@ -259,6 +336,35 @@ const StudentList = () => {
           </table>
         </div>
       )}
+     {showConfirmModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-xl shadow-md text-black w-80">
+      <h3 className="text-xl font-semibold mb-4 text-center text-red-600">{deleteLabel}</h3>
+      <p className="mb-6 text-center">{confirmMessage}</p>
+      <div className="flex justify-center gap-4">
+        <button
+          className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400"
+          onClick={() => setShowConfirmModal(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          onClick={() => {
+            if (studentToDelete) handleDelete(studentToDelete);
+            setShowConfirmModal(false);
+          }}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
 
       {/* Recommendation Modal */}
       {isRecommendationModalOpen && (
