@@ -150,6 +150,7 @@ const EmployeePage = () => {
                       <p className="text-gray-800"><strong>Time:</strong> {appointment.time}</p>
                       <p className="text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
                       <p className="text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                      <p className="text-gray-800"><strong>Dental:</strong> {JSON.parse(appointment.diagnosis).dental}</p>
                       <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
                     </div>
                   ))}
