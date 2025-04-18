@@ -20,6 +20,7 @@ import ReactSelect from "react-select";
 import MedicalServicesAnnualReport from "@/components/MedicalServicesAnnualReport";
 import MedicalServicesMonthlyReport from "@/components/MedicalServicesMonthlyReport";
 import MedicalServicesQuarterlyReport from "@/components/MedicalServicesQuarterlyReport";
+import DentalServicesAnnualReport from "@/components/DentalAnnualReport";
 
 interface Appointment {
   $id: string;
@@ -73,6 +74,7 @@ const AppointmentsPage = () => {
   const [showReport, setShowReport] = useState(false);
   const [showReport2, setShowReport2] = useState(false);
   const [showReport3, setShowReport3] = useState(false);
+  const [showReport4, setShowReport4] = useState(false);
 
   const [offices, setOffices] = useState<string[]>([]);
   const [colleges, setColleges] = useState<string[]>([]);
@@ -483,6 +485,27 @@ const AppointmentsPage = () => {
                               ✕
                             </button>
                             <MedicalServicesQuarterlyReport />
+                          </div>
+                        </div>
+                      )}
+                      {/* Quarterly Report */}
+                      <button
+                        onClick={() => setShowReport4(true)}
+                        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                      >
+                        View Dental Report
+                      </button>
+
+                      {showReport4 && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+                            <button
+                              onClick={() => setShowReport4(false)}
+                              className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
+                            >
+                              ✕
+                            </button>
+                            <DentalServicesAnnualReport />
                           </div>
                         </div>
                       )}
