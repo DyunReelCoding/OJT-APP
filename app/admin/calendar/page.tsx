@@ -476,26 +476,29 @@ const appointmentCollectionId = process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_I
   };
 
   
-// Custom Option component to render delete button alongside the label
-const CustomDentalOption = (props: any) => {
+// Updated Custom Dental Option component similar to CustomOption
+const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
   const { data, innerRef, innerProps } = props;
   return (
-    <div ref={innerRef} {...innerProps} style={{ display: 'flex', justifyContent: 'space-between' }}>
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer"
+    >
       <span>{data.label}</span>
-      <span
-        onClick={() => handleDeleteDentalType(data.value)}
-        style={{
-          cursor: 'pointer',
-          color: 'black',
-          fontSize: '16px',
-    
+      <button
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents selecting the option when clicking delete
+          handleDeleteDentalType(data.value);
         }}
+        className="text-red-600 hover:text-red-800"
       >
-       <X size={16} />
-      </span>
+        <X size={16} />
+      </button>
     </div>
   );
 };
+
   // State for selected chief complaints
   const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
     { value: string; label: string }[]
