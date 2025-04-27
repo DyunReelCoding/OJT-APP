@@ -61,34 +61,28 @@ const DentalServicesAnnualReport = () => {
 
   const getDentalComplaintCounts = (college: string | null, occupation: string | null) => {
     const complaintCounts: Record<string, number> = {};
-
-    const filteredAppointments = appointments.filter((appointment) => {
-      const collegeMatches = college === null
-        ? true
-        : ((appointment.college || '').trim().toLowerCase() === college.trim().toLowerCase());
-
-      const occupationMatches = occupation === null ? true : appointment.occupation === occupation;
-      return collegeMatches && occupationMatches;
-    });
-
-    filteredAppointments.forEach((appointment) => {
-      let dentalComplaints: string[] = [];
-      try {
-        const parsed = JSON.parse(appointment.diagnosis);
-        dentalComplaints = Array.isArray(parsed?.dental) ? parsed.dental : [];
-      } catch {
-        dentalComplaints = [];
+  
+    appointments.forEach((appointment) => {
+      const diagnosis = JSON.parse(appointment.diagnosis) || {};
+      const dental = Array.isArray(diagnosis.dental)
+        ? diagnosis.dental
+        : diagnosis.dental ? [diagnosis.dental] : []; // Treat as array if it's a single string, else an empty array
+  
+      if (
+        (college === null || appointment.college === college) &&
+        (occupation === null || appointment.occupation === occupation)
+      ) {
+        dental
+          .filter((diagnosis: string) => diagnosis && diagnosis.trim() !== "") // Ensure diagnosis is a valid string before calling trim()
+          .forEach((diagnosis: string) => {
+            complaintCounts[diagnosis] = (complaintCounts[diagnosis] || 0) + 1;
+          });
       }
-
-      dentalComplaints
-        .filter((complaint) => complaint.trim() !== "")
-        .forEach((complaint) => {
-          complaintCounts[complaint] = (complaintCounts[complaint] || 0) + 1;
-        });
     });
-
+  
     return complaintCounts;
   };
+  
 
   const allDentalComplaints = Array.from(
     new Set(
