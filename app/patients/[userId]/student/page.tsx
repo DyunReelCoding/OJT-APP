@@ -158,6 +158,7 @@ const StudentPage = () => {
                     let diagnosis = {
                       bloodPressure: "N/A",
                       chiefComplaint: "N/A",
+                      dental: "N/A",
                       notes: "N/A",
                     };
 
@@ -190,6 +191,13 @@ const StudentPage = () => {
                             ? diagnosis.chiefComplaint.join(", ") // Display as comma-separated list
                             : diagnosis.chiefComplaint}
                         </p>
+                       <p className="text-gray-800">
+  <strong>Dental:</strong>{" "}
+  {Array.isArray(diagnosis.dental)
+    ? diagnosis.dental.join(", ") // Display as comma-separated list
+    : diagnosis.dental}
+</p>
+
                         <p className="text-gray-800">
                           <strong>Notes:</strong> {diagnosis.notes}
                         </p>

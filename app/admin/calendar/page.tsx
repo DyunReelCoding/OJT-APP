@@ -87,6 +87,16 @@ const CalendarPage = () => {
   const [unavailableReason, setUnavailableReason] = useState("");
   const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
 
+  const [newDentalType, setNewDentalType] = useState('');
+  const [dentalTypesList, setDentalTypesList] = useState<{ label: string; value: string }[]>([]);
+
+  const [selectedDentalTypes, setSelectedDentalTypes] = useState<{ label: string; value: string }[]>([]);
+
+
+const dentalTypeCollectionId = process.env.NEXT_PUBLIC_DENTALTYPE_COLLECTION_ID;
+const appointmentCollectionId = process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID;
+
+
 
   // New state for multi-select time slots
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
@@ -115,7 +125,63 @@ const CalendarPage = () => {
       console.error("Error fetching appointments:", error);
     }
   };
+  useEffect(() => {
+    const fetchDentalTypes = async () => {
+      try {
+        const res = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          dentalTypeCollectionId!
+        );
+        const options = res.documents.map((doc) => ({
+          label: doc.name,
+          value: doc.$id
+        }));
+        setDentalTypesList(options);
+      } catch (error) {
+        console.error("Failed to fetch dental types:", error);
+      }
+    };
+  
+    fetchDentalTypes();
+  }, []);
+  
 
+  const handleAddDentalType = async () => {
+    if (!newDentalType.trim()) return;
+  
+    try {
+      const newDoc = await databases.createDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        dentalTypeCollectionId!,
+        ID.unique(),
+        { name: newDentalType }
+      );
+  
+      setDentalTypesList(prev => [...prev, { label: newDoc.name, value: newDoc.$id }]);
+      setNewDentalType('');
+    } catch (error) {
+      console.error("Failed to add dental type:", error);
+    }
+  };
+  const handleDeleteDentalType = async (id: string) => {
+    try {
+      // Delete the document from the database
+      await databases.deleteDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        dentalTypeCollectionId!,
+        id
+      );
+
+      // Remove from the selected options
+      setSelectedDentalTypes(prev => prev.filter(item => item.value !== id));
+
+      // Remove from the list of dental types
+      setDentalTypesList(prev => prev.filter(item => item.value !== id));
+    } catch (error) {
+      console.error('Failed to delete dental type:', error);
+    }
+  };
+  
   const fetchMedicines = async () => {
     try {
       const response = await databases.listDocuments(
@@ -409,6 +475,30 @@ const CalendarPage = () => {
     );
   };
 
+  
+// Updated Custom Dental Option component similar to CustomOption
+const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
+  const { data, innerRef, innerProps } = props;
+  return (
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer"
+    >
+      <span>{data.label}</span>
+      <button
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents selecting the option when clicking delete
+          handleDeleteDentalType(data.value);
+        }}
+        className="text-red-600 hover:text-red-800"
+      >
+        <X size={16} />
+      </button>
+    </div>
+  );
+};
+
   // State for selected chief complaints
   const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<
     { value: string; label: string }[]
@@ -470,9 +560,11 @@ const CalendarPage = () => {
         // Create the diagnosis data object
         const diagnosisData = JSON.stringify({
           bloodPressure,
-          chiefComplaint: chiefComplaintsArray, // Store as an array
+          chiefComplaint: chiefComplaintsArray, // still stored as array
           notes: truncatedNotes,
+          dental: selectedDentalTypes.map((item) => item.label).join(", "),
         });
+        
 
         // Ensure the JSON string does not exceed 255 characters
         if (diagnosisData.length > 1000) {
@@ -699,9 +791,13 @@ const CalendarPage = () => {
                 )}
                 {appointment.status === "Completed" && appointment.diagnosis && (
                   <div className="mt-2">
-                    <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
-                    <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
-                    <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
+                     <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
+  <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
+  <p className="text-sm">
+  <strong>Dental Type:</strong> {JSON.parse(appointment.diagnosis).dental || 'N/A'}
+</p>
+
+  <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
 
                     {JSON.parse(appointment.diagnosis).medicines && (
                       <div className="mt-2 border-t pt-2">
@@ -1016,6 +1112,49 @@ const CalendarPage = () => {
                 />
 
               </div>
+              <div className="space-y-2">
+  <label className="text-sm font-medium">Dental Type</label>
+
+  <div className="flex gap-2">
+    <Input
+      value={newDentalType}
+      onChange={(e) => setNewDentalType(e.target.value)}
+      placeholder="Add new dental type"
+      className="bg-white border border-blue-700 text-black"
+    />
+    <Button
+      type="button"
+      className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
+      onClick={handleAddDentalType}
+    >
+      Add
+    </Button>
+  </div>
+
+  <ReactSelect
+  isMulti
+  options={dentalTypesList}
+  value={selectedDentalTypes}
+  onChange={(option) => setSelectedDentalTypes(option as { label: string; value: string }[])}
+  className="react-select-container"
+  classNamePrefix="react-select"
+  placeholder="Select dental types"
+  components={{ Option: CustomDentalOption }} // Use custom Option component
+  styles={{
+    menu: (provided) => ({
+      ...provided,
+      cursor: 'pointer', // Apply cursor pointer to the entire menu
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      cursor: 'pointer', // Apply cursor pointer to each option
+      backgroundColor: state.isFocused ? '#e0e0e0' : '', // Optionally add a hover effect
+    }),
+  }}
+/>
+
+
+</div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Notes</label>
