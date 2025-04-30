@@ -121,7 +121,7 @@ const PatientForms = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
           <section className="mb-12 space-y-4">
             <h1 className="header text-green-400">Hi There! 👋</h1>
-            <p className="text-dark-700">Schedule your First Appointment</p>
+            <p className="text-dark-700">Register And Have Your First Appointment</p>
           </section>
 
         

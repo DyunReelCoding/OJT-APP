@@ -116,7 +116,7 @@ const AppointmentsPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c"
+         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       setAppointments(response.documents as Appointment[]);
       setFilteredAppointments(response.documents as Appointment[]);
@@ -237,7 +237,7 @@ const AppointmentsPage = () => {
       try {
         await databases.updateDocument(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          "67b96b0800349392bb1c",
+          process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
           appointmentId,
           { status: newStatus }
         );
@@ -271,7 +271,7 @@ const AppointmentsPage = () => {
 
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         selectedAppointmentId,
         updateData
       );
@@ -302,7 +302,7 @@ const AppointmentsPage = () => {
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         appointmentToDelete.id
       );
       fetchAppointments();
