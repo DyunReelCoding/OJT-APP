@@ -1014,14 +1014,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
-                          {unavailableSlotsForDay.map(slot => (
-                            <div
-                              key={slot.$id}
-                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-600"
-                            >
-                              {slot.timeRange} - Unavailable
-                            </div>
-                          ))}
+
                           <div
                             className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
                             onClick={(e) => {
