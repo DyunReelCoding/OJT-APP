@@ -25,7 +25,7 @@ export default async function Home({ searchParams}: SearchParamProps) {
       <PatientForms />
       <div className="text-14-regular mt-20 flex justify-between">
       <p className="justify-items-end text-dark-600 xl:text-left">
-      © 2025 OJT PROJECT
+      © 2025 CLINIC PROFILING
       </p>
       <Link href="/?admin=true" className="text-green-500">
         Admin

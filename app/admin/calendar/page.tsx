@@ -118,7 +118,7 @@ const appointmentCollectionId = process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_I
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c"
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       setAppointments(response.documents as unknown as Appointment[]);
     } catch (error) {
@@ -531,7 +531,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
       try {
         await databases.updateDocument(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          "67b96b0800349392bb1c",
+          process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
           appointmentId,
           { status: newStatus }
         );
@@ -576,7 +576,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
 
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c", // Use the correct collection ID
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!, // Use the correct collection ID
         selectedAppointmentId,
         updateData
       );
@@ -608,7 +608,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         appointmentToDelete.id
       );
       fetchAppointments();
@@ -704,7 +704,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
       // Update the appointment with prescription data in the diagnosis field
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         prescriptionAppointmentId,
         { diagnosis: JSON.stringify(diagnosisData) }
       );
@@ -1014,14 +1014,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
-                          {unavailableSlotsForDay.map(slot => (
-                            <div
-                              key={slot.$id}
-                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-600"
-                            >
-                              {slot.timeRange} - Unavailable
-                            </div>
-                          ))}
+
                           <div
                             className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
                             onClick={(e) => {

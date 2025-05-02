@@ -23,18 +23,18 @@ interface Appointment {
   cancellationReason?: string;
   diagnosis?: string;
   prescriptions?: string;
-  college: string; // New field
-  office: string; // New field
-  occupation: string; // New field
+  college: string;
+  office: string;
+  occupation: string;
 }
 
 interface Student {
   $id: string;
   name: string;
   email: string;
-  occupation: string; // New field
-  college: string; // New field
-  office: string; // New field
+  occupation: string;
+  college: string;
+  office: string;
 }
 
 interface UnavailableSlot {
@@ -62,9 +62,9 @@ const StudentCalendarPage = () => {
     time: "",
     reason: "",
     status: "Scheduled" as const,
-    college: "", // New field
-    office: "", // New field
-    occupation: "", // New field
+    college: "",
+    office: "",
+    occupation: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -86,7 +86,7 @@ const StudentCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67cd8eaa000fac61575d" // Unavailable slots collection ID
+        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!
       );
       setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
     } catch (error) {
@@ -111,9 +111,8 @@ const StudentCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Appointment collection ID
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
-      // Filter appointments for the current user
       const userAppointments = response.documents.filter(
         (doc: any) => doc.userid === userId
       ) as unknown as Appointment[];
@@ -207,9 +206,9 @@ const StudentCalendarPage = () => {
       time: "",
       reason: "",
       status: "Scheduled",
-      college: student?.college || "", // Pre-fill college
-      office: student?.office || "", // Pre-fill office
-      occupation: student?.occupation || "", // Pre-fill occupation
+      college: student?.college || "",
+      office: student?.office || "",
+      occupation: student?.occupation || "",
     });
     setSubmitSuccess(false);
     setSubmitError("");
@@ -223,6 +222,7 @@ const StudentCalendarPage = () => {
       [name]: value
     }));
   };
+
   const handleSubmitAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
   
@@ -244,7 +244,7 @@ const StudentCalendarPage = () => {
       // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c", // Appointment collection ID
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         ID.unique(),
         {
           patientName: newAppointment.patientName,
@@ -369,6 +369,7 @@ const StudentCalendarPage = () => {
                     <div className="mt-2">
                       <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
                       <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
+                      <p className="text-sm"><strong>Dental Type:</strong> {JSON.parse(appointment.diagnosis).dental || 'N/A'}</p>
                       <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
                       
                       {JSON.parse(appointment.diagnosis).medicines && (
@@ -573,7 +574,6 @@ const StudentCalendarPage = () => {
     );
   };
 
-
   return (
     <div className="flex h-screen bg-gray-100">
       <StudentSideBar userId={userId} />
@@ -691,15 +691,6 @@ const StudentCalendarPage = () => {
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
-                          {/* Display unavailable slots */}
-                          {unavailableSlotsForDay.map(slot => (
-                            <div
-                              key={slot.$id}
-                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-500"
-                            >
-                              {slot.timeRange} - Unavailable
-                            </div>
-                          ))}
                           <div 
                             className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
                             onClick={() => handleScheduleClick(date)}

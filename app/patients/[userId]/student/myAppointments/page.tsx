@@ -18,6 +18,9 @@ interface Appointment {
   userid: string;
   cancellationReason?: string;
   diagnosis?: string;
+  college: string;
+  office: string;
+  occupation: string;
 }
 
 const StudentAppointmentsPage = () => {
@@ -40,11 +43,11 @@ const StudentAppointmentsPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Replace with your appointment collection ID
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       const userAppointments = response.documents.filter(
         (doc: any) => doc.userid === params.userId
-      );
+      ) as unknown as Appointment[];
       setAppointments(userAppointments);
       setFilteredAppointments(userAppointments);
     } catch (error) {
@@ -70,21 +73,6 @@ const StudentAppointmentsPage = () => {
         return "bg-red-100 text-red-700";
       default:
         return "bg-gray-100 text-gray-700";
-    }
-  };
-
-  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
-    try {
-      await databases.updateDocument(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c", // Replace with your appointment collection ID
-        appointmentId,
-        { status: newStatus }
-      );
-      fetchAppointments(); // Refresh the appointments list
-    } catch (error) {
-      console.error("Error updating appointment status:", error);
-      alert("Failed to update appointment status");
     }
   };
 
@@ -121,6 +109,7 @@ const StudentAppointmentsPage = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -133,14 +122,29 @@ const StudentAppointmentsPage = () => {
                           <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(appointment.status)}`}>
                             {appointment.status}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-800">
                           {appointment.status === "Cancelled" && appointment.cancellationReason && (
-                            <p className="text-sm text-gray-500 mt-1">Reason: {appointment.cancellationReason}</p>
+                            <p className="text-sm text-gray-500">Reason: {appointment.cancellationReason}</p>
                           )}
                           {appointment.status === "Completed" && appointment.diagnosis && (
                             <div className="mt-2">
-                              <p className="text-sm text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
-                              <p className="text-sm text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
-                              <p className="text-sm text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                              <p className="text-sm text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
+                              <p className="text-sm text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
+                              <p className="text-sm text-gray-800"><strong>Dental Type:</strong> {JSON.parse(appointment.diagnosis).dental || 'N/A'}</p>
+                              <p className="text-sm text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
+                              {JSON.parse(appointment.diagnosis).medicines && (
+                                <div className="mt-2">
+                                  <p className="text-sm font-semibold">Prescribed Medicines:</p>
+                                  <ul className="text-sm list-disc pl-5">
+                                    {JSON.parse(appointment.diagnosis).medicines.map((med: any, index: number) => (
+                                      <li key={index}>
+                                        {med.name} - {med.quantity} unit(s)
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
                             </div>
                           )}
                         </td>
