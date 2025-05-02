@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases } from "appwrite";
+import { Client, Databases, ID, Query } from "appwrite";
 import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, RefreshCw, CheckCircle } from "lucide-react";
+import { Search, RefreshCw, CheckCircle, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,7 @@ interface Appointment {
   college: string;
   office: string;
   occupation: string;
+  cancellationReason?: string;
 }
 
 interface Patient {
@@ -51,7 +52,7 @@ const AppointmentsPage = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<{ id: string; patientName: string } | null>(null);
-  const [messageType, setMessageType] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<any>(null);
   const [bpFilter, setBpFilter] = useState("");
@@ -67,14 +68,31 @@ const AppointmentsPage = () => {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [bloodPressure, setBloodPressure] = useState("");
-  const [chiefComplaint, setChiefComplaint] = useState("");
   const [notes, setNotes] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
-  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
   const [showReport, setShowReport] = useState(false);
   const [showReport2, setShowReport2] = useState(false);
   const [showReport3, setShowReport3] = useState(false);
   const [showReport4, setShowReport4] = useState(false);
+
+  // Chief complaints states
+  const [newChiefComplaint, setNewChiefComplaint] = useState("");
+  const [chiefComplaintsList, setChiefComplaintsList] = useState([
+    { value: "Cough", label: "Cough" },
+    { value: "Fever", label: "Fever" },
+    { value: "Headache", label: "Headache" },
+    { value: "Stomachache", label: "Stomachache" },
+    { value: "Low Bowel Movement", label: "Low Bowel Movement" },
+    { value: "Sore Throat", label: "Sore Throat" },
+    { value: "Fatigue", label: "Fatigue" },
+    { value: "Dizziness", label: "Dizziness" },
+  ]);
+  const [selectedChiefComplaints, setSelectedChiefComplaints] = useState<{ value: string; label: string }[]>([]);
+
+  // Dental types states
+  const [newDentalType, setNewDentalType] = useState('');
+  const [dentalTypesList, setDentalTypesList] = useState<{ label: string; value: string }[]>([]);
+  const [selectedDentalTypes, setSelectedDentalTypes] = useState<{ label: string; value: string }[]>([]);
 
   const [offices, setOffices] = useState<string[]>([]);
   const [colleges, setColleges] = useState<string[]>([]);
@@ -88,7 +106,8 @@ const AppointmentsPage = () => {
   useEffect(() => {
     fetchAppointments();
     fetchPatients();
-
+    fetchDentalTypes();
+    
     const fetchData = async () => {
       try {
         // Fetch offices
@@ -112,11 +131,117 @@ const AppointmentsPage = () => {
     fetchData();
   }, []);
 
+  const fetchDentalTypes = async () => {
+    try {
+      const res = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_DENTALTYPE_COLLECTION_ID!
+      );
+      const options = res.documents.map((doc) => ({
+        label: doc.name,
+        value: doc.$id
+      }));
+      setDentalTypesList(options);
+    } catch (error) {
+      console.error("Failed to fetch dental types:", error);
+    }
+  };
+
+  const handleAddDentalType = async () => {
+    if (!newDentalType.trim()) return;
+  
+    try {
+      const newDoc = await databases.createDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_DENTALTYPE_COLLECTION_ID!,
+        ID.unique(),
+        { name: newDentalType }
+      );
+  
+      setDentalTypesList(prev => [...prev, { label: newDoc.name, value: newDoc.$id }]);
+      setNewDentalType('');
+    } catch (error) {
+      console.error("Failed to add dental type:", error);
+    }
+  };
+
+  const handleDeleteDentalType = async (id: string) => {
+    try {
+      await databases.deleteDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_DENTALTYPE_COLLECTION_ID!,
+        id
+      );
+
+      setSelectedDentalTypes(prev => prev.filter(item => item.value !== id));
+      setDentalTypesList(prev => prev.filter(item => item.value !== id));
+    } catch (error) {
+      console.error('Failed to delete dental type:', error);
+    }
+  };
+
+  const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div
+        ref={innerRef}
+        {...innerProps}
+        className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer"
+      >
+        <span>{data.label}</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteDentalType(data.value);
+          }}
+          className="text-red-600 hover:text-red-800"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    );
+  };
+
+  const handleAddChiefComplaint = () => {
+    if (newChiefComplaint.trim() === "") return;
+
+    const newComplaint = {
+      value: newChiefComplaint,
+      label: newChiefComplaint,
+    };
+
+    setChiefComplaintsList([...chiefComplaintsList, newComplaint]);
+    setNewChiefComplaint("");
+  };
+
+  const handleDeleteChiefComplaint = (value: string) => {
+    const updatedList = chiefComplaintsList.filter((complaint) => complaint.value !== value);
+    setChiefComplaintsList(updatedList);
+  };
+
+  const CustomOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div ref={innerRef} {...innerProps} className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer">
+        <span>{data.label}</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteChiefComplaint(data.value);
+          }}
+          className="text-red-600 hover:text-red-800"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    );
+  };
+
   const fetchAppointments = async () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c"
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       setAppointments(response.documents as Appointment[]);
       setFilteredAppointments(response.documents as Appointment[]);
@@ -142,19 +267,16 @@ const AppointmentsPage = () => {
     setIsFiltering(true);
 
     const filtered = appointments.filter((appointment) => {
-      // Basic filters
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
-
-      // Allow "All Colleges" for Students and "All Offices" for Employees
-      const collegeMatch = occupationFilter === "Student"
-        ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter
+      
+      const collegeMatch = occupationFilter === "Student" 
+        ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
         : true;
 
       const officeMatch = occupationFilter === "Employee"
         ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter
         : true;
-
-      // Chief Complaint filtering
+  
       let chiefComplaintMatch = true;
       if (chiefComplaintFilter) {
         if (!appointment.diagnosis) {
@@ -162,9 +284,7 @@ const AppointmentsPage = () => {
         } else {
           try {
             const diagnosisData = JSON.parse(appointment.diagnosis);
-
-            console.log("Diagnosis data:", diagnosisData);
-
+            
             if (!diagnosisData.chiefComplaint) {
               chiefComplaintMatch = false;
             } else if (Array.isArray(diagnosisData.chiefComplaint)) {
@@ -188,7 +308,6 @@ const AppointmentsPage = () => {
     setFilteredAppointments(filtered);
     setIsFiltering(false);
   };
-
 
   const resetFilters = () => {
     setBpFilter("");
@@ -237,7 +356,7 @@ const AppointmentsPage = () => {
       try {
         await databases.updateDocument(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          "67b96b0800349392bb1c",
+          process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
           appointmentId,
           { status: newStatus }
         );
@@ -260,18 +379,27 @@ const AppointmentsPage = () => {
       if (selectedStatus === "Cancelled") {
         updateData.cancellationReason = cancellationReason;
       } else if (selectedStatus === "Completed") {
+        const truncatedNotes = notes.length > 500 ? notes.substring(0, 500) + "..." : notes;
+
+        const chiefComplaintsArray = selectedChiefComplaints.map((complaint) => complaint.value);
+
         const diagnosisData = JSON.stringify({
           bloodPressure,
-          chiefComplaint: selectedChiefComplaints.map(cc => cc.value),
-          notes
+          chiefComplaint: chiefComplaintsArray,
+          notes: truncatedNotes,
+          dental: selectedDentalTypes.map((item) => item.label).join(", "),
         });
+
+        if (diagnosisData.length > 1000) {
+          throw new Error("Diagnosis data exceeds the maximum length of 255 characters.");
+        }
 
         updateData.diagnosis = diagnosisData;
       }
 
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         selectedAppointmentId,
         updateData
       );
@@ -289,10 +417,10 @@ const AppointmentsPage = () => {
       setSelectedAppointmentId(null);
       setSelectedStatus(null);
       setBloodPressure("");
-      setChiefComplaint("");
+      setSelectedChiefComplaints([]);
       setNotes("");
       setCancellationReason("");
-      setSelectedChiefComplaints([]);
+      setSelectedDentalTypes([]);
     }
   };
 
@@ -302,7 +430,7 @@ const AppointmentsPage = () => {
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         appointmentToDelete.id
       );
       fetchAppointments();
@@ -391,7 +519,6 @@ const AppointmentsPage = () => {
                   </Select>
                 )}
 
-
                 {/* Employee → Office Filter */}
                 {occupationFilter === "Employee" && (
                   <Select onValueChange={setOfficeFilter} value={officeFilter}>
@@ -434,7 +561,7 @@ const AppointmentsPage = () => {
 
                 {showReport && (
                   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className=" bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+                    <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
                       <button
                         onClick={() => setShowReport(false)}
                         className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
@@ -508,7 +635,6 @@ const AppointmentsPage = () => {
                     </div>
                   </div>
                 )}
-
               </div>
 
               <div className="overflow-x-auto">
@@ -582,7 +708,7 @@ const AppointmentsPage = () => {
                             onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
                             variant="destructive"
                             size="sm"
-                            className=" hover:bg-red-700 hover:text-white px-5"
+                            className="hover:bg-red-700 hover:text-white px-5"
                           >
                             Delete
                           </Button>
@@ -601,7 +727,7 @@ const AppointmentsPage = () => {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle className=" text-red-700">
+            <DialogTitle className="text-red-700">
               Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}</strong>?
             </DialogTitle>
             <DialogDescription className="text-gray-500">
@@ -639,6 +765,7 @@ const AppointmentsPage = () => {
                 <div>
                   <p className="text-sm"><strong>Blood Pressure:</strong> {selectedDiagnosis.bloodPressure || 'N/A'}</p>
                   <p className="text-sm"><strong>Chief Complaint:</strong> {selectedDiagnosis.chiefComplaint || 'N/A'}</p>
+                  <p className="text-sm"><strong>Dental Type:</strong> {selectedDiagnosis.dental || 'N/A'}</p>
                   <p className="text-sm"><strong>Notes:</strong> {selectedDiagnosis.notes || 'N/A'}</p>
                 </div>
                 {selectedDiagnosis.medicines && (
@@ -705,19 +832,75 @@ const AppointmentsPage = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Chief Complaint</label>
+
+                {/* Input field and button for adding a new chief complaint */}
+                <div className="flex gap-2">
+                  <Input
+                    value={newChiefComplaint}
+                    onChange={(e) => setNewChiefComplaint(e.target.value)}
+                    placeholder="Add new chief complaint"
+                    className="bg-white border border-blue-700 text-black"
+                  />
+                  <Button
+                    type="button"
+                    className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
+                    onClick={handleAddChiefComplaint}
+                  >
+                    Add
+                  </Button>
+                </div>
+
+                {/* Multi-select dropdown for chief complaints */}
                 <ReactSelect
                   isMulti
-                  options={[
-                    { value: "Cough", label: "Cough" },
-                    { value: "Fever", label: "Fever" },
-                    { value: "Headache", label: "Headache" },
-                    { value: "Stomachache", label: "Stomachache" },
-                    { value: "Low Bowel Movement", label: "Low Bowel Movement" }
-                  ]}
+                  options={chiefComplaintsList}
                   value={selectedChiefComplaints}
                   onChange={(selectedOptions: any) => setSelectedChiefComplaints(selectedOptions)}
                   className="react-select-container"
                   classNamePrefix="react-select"
+                  components={{ Option: CustomOption }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Dental Type</label>
+
+                <div className="flex gap-2">
+                  <Input
+                    value={newDentalType}
+                    onChange={(e) => setNewDentalType(e.target.value)}
+                    placeholder="Add new dental type"
+                    className="bg-white border border-blue-700 text-black"
+                  />
+                  <Button
+                    type="button"
+                    className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
+                    onClick={handleAddDentalType}
+                  >
+                    Add
+                  </Button>
+                </div>
+
+                <ReactSelect
+                  isMulti
+                  options={dentalTypesList}
+                  value={selectedDentalTypes}
+                  onChange={(option) => setSelectedDentalTypes(option as { label: string; value: string }[])}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  placeholder="Select dental types"
+                  components={{ Option: CustomDentalOption }}
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+                      cursor: 'pointer',
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      cursor: 'pointer',
+                      backgroundColor: state.isFocused ? '#e0e0e0' : '',
+                    }),
+                  }}
                 />
               </div>
 
@@ -755,4 +938,4 @@ const AppointmentsPage = () => {
   );
 };
 
-export default AppointmentsPage; 
+export default AppointmentsPage;

@@ -46,7 +46,7 @@ const StudentPage = () => {
       try {
         const response = await databases.listDocuments(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          "67b96b0800349392bb1c" // Replace with your appointment collection ID
+          process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID! // Replace with your appointment collection ID
         );
         const userAppointments = response.documents.filter(
           (doc: any) => doc.userid === userId

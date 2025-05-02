@@ -28,7 +28,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
       try {
         const response = await databases.getDocument(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
-          "67b486f5000ff28439c6",
+          process.env.NEXT_PUBLIC_MEDICINES_COLLECTION_ID!,
           userId
         );
         setPatientName(response.name);
@@ -60,7 +60,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
     try {
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         ID.unique(),
         appointmentData
       );

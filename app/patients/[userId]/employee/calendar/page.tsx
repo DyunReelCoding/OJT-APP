@@ -80,7 +80,7 @@ const EmployeeCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67cd8eaa000fac61575d" // Unavailable slots collection ID
+        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID! // Unavailable slots collection ID
       );
       setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
     } catch (error) {
@@ -105,7 +105,7 @@ const EmployeeCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Appointment collection ID
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID! // Appointment collection ID
       );
       const userAppointments = response.documents.filter(
         (doc: any) => doc.userid === userId
@@ -229,7 +229,7 @@ const EmployeeCalendarPage = () => {
 
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c",
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         ID.unique(),
         {
           patientName: newAppointment.patientName,
