@@ -61,7 +61,7 @@ const AppointmentsPage = () => {
   const [officeFilter, setOfficeFilter] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isFiltering, setIsFiltering] = useState(false);
-  
+
   // Status change dialog states
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
@@ -82,7 +82,7 @@ const AppointmentsPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-  
+
   const databases = new Databases(client);
 
   useEffect(() => {
@@ -140,20 +140,20 @@ const AppointmentsPage = () => {
 
   const handleFilter = () => {
     setIsFiltering(true);
-  
+
     const filtered = appointments.filter((appointment) => {
       // Basic filters
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
-      
+
       // Allow "All Colleges" for Students and "All Offices" for Employees
-      const collegeMatch = occupationFilter === "Student" 
-        ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
+      const collegeMatch = occupationFilter === "Student"
+        ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter
         : true;
-  
-      const officeMatch = occupationFilter === "Employee" 
-        ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter 
+
+      const officeMatch = occupationFilter === "Employee"
+        ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter
         : true;
-  
+
       // Chief Complaint filtering
       let chiefComplaintMatch = true;
       if (chiefComplaintFilter) {
@@ -162,33 +162,33 @@ const AppointmentsPage = () => {
         } else {
           try {
             const diagnosisData = JSON.parse(appointment.diagnosis);
-            
+
             console.log("Diagnosis data:", diagnosisData);
-            
+
             if (!diagnosisData.chiefComplaint) {
               chiefComplaintMatch = false;
             } else if (Array.isArray(diagnosisData.chiefComplaint)) {
-              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
+              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc =>
                 cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
               );
             } else {
               chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
                 .includes(chiefComplaintFilter.toLowerCase());
             }
-    } catch (error) {
+          } catch (error) {
             console.error("Error parsing diagnosis:", error);
             chiefComplaintMatch = false;
           }
         }
       }
-  
+
       return occupationMatch && collegeMatch && officeMatch && chiefComplaintMatch;
     });
-  
+
     setFilteredAppointments(filtered);
     setIsFiltering(false);
   };
-  
+
 
   const resetFilters = () => {
     setBpFilter("");
@@ -321,7 +321,7 @@ const AppointmentsPage = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
-      
+
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
@@ -337,11 +337,10 @@ const AppointmentsPage = () => {
 
           {message && (
             <div
-              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
-                messageType === "success"
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success"
                   ? " bg-green-100 border-green-400 text-green-700"
                   : " bg-red-100 border-red-400 text-red-700"
-              }`}
+                }`}
             >
               {message}
             </div>
@@ -395,20 +394,20 @@ const AppointmentsPage = () => {
 
                 {/* Employee → Office Filter */}
                 {occupationFilter === "Employee" && (
-                        <Select onValueChange={setOfficeFilter} value={officeFilter}>
-                          <SelectTrigger className="w-48 text-black">
-                            <SelectValue placeholder="Filter by Office" />
-                          </SelectTrigger>
-                          <SelectContent className="text-black bg-white">
-                            <SelectItem value="All">All Offices</SelectItem>
-                            {offices.map((office) => (
-                              <SelectItem key={office} value={office}>
-                                {office}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+                  <Select onValueChange={setOfficeFilter} value={officeFilter}>
+                    <SelectTrigger className="w-48 text-black">
+                      <SelectValue placeholder="Filter by Office" />
+                    </SelectTrigger>
+                    <SelectContent className="text-black bg-white">
+                      <SelectItem value="All">All Offices</SelectItem>
+                      {offices.map((office) => (
+                        <SelectItem key={office} value={office}>
+                          {office}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
 
                 {/* Chief Complaint Filter */}
                 <Select onValueChange={setChiefComplaintFilter} value={chiefComplaintFilter}>
@@ -426,89 +425,89 @@ const AppointmentsPage = () => {
 
                 <Button onClick={handleFilter}>Apply Filter</Button>
                 <Button onClick={resetFilters} variant="outline">Reset Filter</Button>
-                      <button
-                        onClick={() => setShowReport(true)}
-                        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
-                      >
-                        View Annual Report
-                      </button>
+                <button
+                  onClick={() => setShowReport(true)}
+                  className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                >
+                  View Annual Report
+                </button>
 
-                      {showReport && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                          <div className=" bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
-                          <button
-                            onClick={() => setShowReport(false)}
-                            className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
-                          >
-                            ✕
-                          </button>
-                            <MedicalServicesAnnualReport />
-                          </div>
-                        </div>
-                      )}
-                      {/* Monthly Report */}
+                {showReport && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className=" bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
                       <button
-                        onClick={() => setShowReport2(true)}
-                        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                        onClick={() => setShowReport(false)}
+                        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
                       >
-                        View Monthly Report
+                        ✕
                       </button>
+                      <MedicalServicesAnnualReport />
+                    </div>
+                  </div>
+                )}
+                {/* Monthly Report */}
+                <button
+                  onClick={() => setShowReport2(true)}
+                  className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                >
+                  View Monthly Report
+                </button>
 
-                      {showReport2 && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
-                            <button
-                              onClick={() => setShowReport2(false)}
-                              className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
-                            >
-                              ✕
-                            </button>
-                            <MedicalServicesMonthlyReport />
-                          </div>
-                        </div>
-                      )}
-                      {/* Quarterly Report */}
+                {showReport2 && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
                       <button
-                        onClick={() => setShowReport3(true)}
-                        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                        onClick={() => setShowReport2(false)}
+                        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
                       >
-                        View Quarterly Report
+                        ✕
                       </button>
+                      <MedicalServicesMonthlyReport />
+                    </div>
+                  </div>
+                )}
+                {/* Quarterly Report */}
+                <button
+                  onClick={() => setShowReport3(true)}
+                  className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                >
+                  View Quarterly Report
+                </button>
 
-                      {showReport3 && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
-                            <button
-                              onClick={() => setShowReport3(false)}
-                              className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
-                            >
-                              ✕
-                            </button>
-                            <MedicalServicesQuarterlyReport />
-                          </div>
-                        </div>
-                      )}
-                      {/* Quarterly Report */}
+                {showReport3 && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
                       <button
-                        onClick={() => setShowReport4(true)}
-                        className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                        onClick={() => setShowReport3(false)}
+                        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
                       >
-                        View Dental Report
+                        ✕
                       </button>
+                      <MedicalServicesQuarterlyReport />
+                    </div>
+                  </div>
+                )}
+                {/* Quarterly Report */}
+                <button
+                  onClick={() => setShowReport4(true)}
+                  className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
+                >
+                  View Dental Report
+                </button>
 
-                      {showReport4 && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                          <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
-                            <button
-                              onClick={() => setShowReport4(false)}
-                              className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
-                            >
-                              ✕
-                            </button>
-                            <DentalServicesAnnualReport />
-                          </div>
-                        </div>
-                      )}
+                {showReport4 && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
+                      <button
+                        onClick={() => setShowReport4(false)}
+                        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
+                      >
+                        ✕
+                      </button>
+                      <DentalServicesAnnualReport />
+                    </div>
+                  </div>
+                )}
 
               </div>
 
@@ -677,7 +676,7 @@ const AppointmentsPage = () => {
               {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedStatus === "Cancelled" ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -734,16 +733,16 @@ const AppointmentsPage = () => {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsStatusDialogOpen(false)}
               className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleStatusDialogSubmit}
               className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
             >
