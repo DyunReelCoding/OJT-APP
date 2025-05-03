@@ -11,15 +11,18 @@
     college: string;
     occupation: string;
     diagnosis: string;
+    gender?: string;
   }
 
   const MedicalServicesAnnualReport = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
     const reportRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<HTMLDivElement>(null);
     const [colleges, setColleges] = useState<string[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const complaintsPerPage = 9;
+    const [selectedGender, setSelectedGender] = useState<string>("");
 
     const client = new Client()
       .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -31,6 +34,18 @@
       fetchAppointments();
       fetchColleges();
     }, []);
+
+    useEffect(() => {
+      if (selectedGender) {
+        const filtered = appointments.filter(appointment => 
+          appointment.gender?.toLowerCase() === selectedGender.toLowerCase()
+        );
+        setFilteredAppointments(filtered);
+      } else {
+        setFilteredAppointments(appointments);
+      }
+    }, [selectedGender, appointments]);
+
     const fetchColleges = async () => {
       try {
         const response = await databases.listDocuments(
@@ -49,6 +64,7 @@
           "67b96b0800349392bb1c"
         );
         setAppointments(response.documents as Appointment[]);
+        setFilteredAppointments(response.documents as Appointment[]);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -57,14 +73,14 @@
     const getChiefComplaintCounts = (college: string | null, occupation: string | null) => {
       const complaintsCount: Record<string, number> = {};
 
-      appointments.forEach((appointment) => {
+      filteredAppointments.forEach((appointment) => {
         const complaints = JSON.parse(appointment.diagnosis)?.chiefComplaint || [];
         if (
           (college === null || appointment.college === college) &&
           (occupation === null || appointment.occupation === occupation)
         ) {
           complaints
-            .filter((complaint: string) => complaint.trim() !== "") // Skip empty complaints
+            .filter((complaint: string) => complaint.trim() !== "")
             .forEach((complaint: string) => {
               complaintsCount[complaint] = (complaintsCount[complaint] || 0) + 1;
             });
@@ -145,63 +161,52 @@
     // Combine all page subtotals into the grand total on the last page
     const calculateGrandTotal = () => {
       const grandTotal: Record<string, number> = {};
-    
-      // Iterate through all pages
-      for (let page = 0; page < totalPages; page++) {
-        const start = page * complaintsPerPage;
-        const end = Math.min(start + complaintsPerPage, allComplaints.length);
-        const pageComplaints = allComplaints.slice(start, end);
-    
-        // Calculate subtotal for the current page
-        const subtotal = calculateSubtotal(); // Correctly get subtotal for the current page
-    
-        // Aggregate the subtotals across pages
-        pageComplaints.forEach((complaint) => {
-          grandTotal[complaint] = (grandTotal[complaint] || 0) + (subtotal[complaint] || 0);
-        });
-      }
-    
-      return grandTotal;
-    };
-    
-    
-    const grandTotal = calculateGrandTotal();
-
-    const renderGrandTotalRow = () => {
-      const pageTotal: Record<string, number> = {};
-
-      // Calculate subtotal for the current page
-      paginatedComplaints.forEach((complaint) => {
-        pageTotal[complaint] = 0;
-
-        // Add counts for each college
+  
+      // Calculate totals for all complaints across all pages
+      allComplaints.forEach((complaint) => {
+        grandTotal[complaint] = 0;
+        
+        // Add counts from each college
         colleges.forEach((college) => {
           const counts = getChiefComplaintCounts(college, "Student");
-          pageTotal[complaint] += counts[complaint] || 0;
+          grandTotal[complaint] += counts[complaint] || 0;
         });
-
-        // Add faculty/staff counts
+        
+        // Add faculty counts
         const facultyCounts = getChiefComplaintCounts(null, "Employee");
-        pageTotal[complaint] += facultyCounts[complaint] || 0;
+        grandTotal[complaint] += facultyCounts[complaint] || 0;
       });
+  
+      return grandTotal;
+    };
 
-      const total = paginatedComplaints.reduce(
-        (sum, complaint) => sum + (pageTotal[complaint] || 0),
+    const renderGrandTotalRow = () => {
+      if (currentPage !== totalPages - 1) {
+        return null;
+      }
+  
+      const grandTotal = calculateGrandTotal();
+      const lastPageComplaints = paginatedComplaints;
+      
+      // Calculate the sum of all grand totals for the current page's complaints
+      const total = lastPageComplaints.reduce(
+        (sum, complaint) => sum + (grandTotal[complaint] || 0),
         0
       );
-
+  
       return (
-        <tr className="bg-gray-100 font-semibold">
-          <td className="border px-4 py-2 text-left">TOTAL</td>
-          {paginatedComplaints.map((complaint) => (
+        <tr className="bg-gray-200 font-bold">
+          <td className="border px-4 py-2 text-left">Grand Total</td>
+          {lastPageComplaints.map((complaint) => (
             <td key={complaint} className="border px-4 py-2 text-center">
-              {pageTotal[complaint] || 0}
+              {grandTotal[complaint] || 0}
             </td>
           ))}
           <td className="border px-4 py-2 text-center">{total}</td>
         </tr>
       );
     };
+    
   
     
     
@@ -275,16 +280,85 @@
       }
     };
 
+    const calculatePageSubtotal = (page: number) => {
+      const start = page * complaintsPerPage;
+      const end = Math.min(start + complaintsPerPage, allComplaints.length);
+      const pageComplaints = allComplaints.slice(start, end);
+
+      const subtotal: Record<string, number> = {};
+      pageComplaints.forEach((complaint) => {
+        subtotal[complaint] = 0;
+        colleges.forEach((college) => {
+          const counts = getChiefComplaintCounts(college, "Student");
+          subtotal[complaint] += counts[complaint] || 0;
+        });
+        const faculty = getChiefComplaintCounts(null, "Employee");
+        subtotal[complaint] += faculty[complaint] || 0;
+      });
+      return subtotal;
+    };
+
+    const renderSubtotalRow = () => {
+      const subtotal = calculatePageSubtotal(currentPage);
+      const total = paginatedComplaints.reduce(
+        (sum, complaint) => sum + (subtotal[complaint] || 0),
+        0
+      );
+      return (
+        <tr className="bg-gray-50 font-semibold">
+          <td className="border px-4 py-2 text-left">Sub-Total</td>
+          {paginatedComplaints.map((complaint) => (
+            <td key={complaint} className="border px-4 py-2 text-center">
+              {subtotal[complaint] || 0}
+            </td>
+          ))}
+          <td className="border px-4 py-2 text-center">{total}</td>
+        </tr>
+      );
+    };
+
+    const handleGenderFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedGender(e.target.value);
+      setCurrentPage(0); // Reset to first page when filter changes
+    };
+
+    const clearGenderFilter = () => {
+      setSelectedGender("");
+      setCurrentPage(0);
+    };
+
     return (
       <div className="p-6 bg-white rounded-lg shadow-lg">
           <div className='flex justify-between items-center'>
           <h1 className="text-2xl font-bold">Medical Services Annual Report</h1>
-          <button
-            onClick={generatePDF}
-            className="flex justify-end items-end mt-4 bg-blue-700 hover:bg-white hover:text-blue-700 border-2 border-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Download Report as PDF
-          </button>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <select
+                value={selectedGender}
+                onChange={handleGenderFilter}
+                className="border rounded px-3 py-2 bg-white text-blue-700"
+              >
+                <option value="">All Genders</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              {selectedGender && (
+                <button
+                  onClick={clearGenderFilter}
+                  className="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
+                >
+                  Clear Filter
+                </button>
+              )}
+            </div>
+            <button
+              onClick={generatePDF}
+              className="flex justify-end items-end mt-4 bg-blue-700 hover:bg-white hover:text-blue-700 border-2 border-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Download Report as PDF
+            </button>
+          </div>
           </div>
           
         <div className="flex justify-between items-center mt-3 mb-2 text-white">
@@ -331,6 +405,7 @@
                 renderTableRows(college, "Student", `${college} Students`)
               )}
               {renderTableRows(null, "Employee", "Faculty and Staff")}
+              {renderSubtotalRow()}
               {renderGrandTotalRow()}
             </tbody>
           </table>

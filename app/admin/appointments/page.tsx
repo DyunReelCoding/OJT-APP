@@ -100,7 +100,7 @@ const AppointmentsPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-
+  
   const databases = new Databases(client);
 
   useEffect(() => {
@@ -295,7 +295,7 @@ const AppointmentsPage = () => {
               chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
                 .includes(chiefComplaintFilter.toLowerCase());
             }
-          } catch (error) {
+    } catch (error) {
             console.error("Error parsing diagnosis:", error);
             chiefComplaintMatch = false;
           }
@@ -449,7 +449,7 @@ const AppointmentsPage = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <SideBar />
-
+      
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
@@ -938,4 +938,4 @@ const AppointmentsPage = () => {
   );
 };
 
-export default AppointmentsPage;
+export default AppointmentsPage; 

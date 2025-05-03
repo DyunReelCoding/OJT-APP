@@ -67,7 +67,7 @@ const CalendarPage = () => {
   const [chiefComplaint, setChiefComplaint] = useState("");
   const [notes, setNotes] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
-
+  
   // New state for medicine prescriptions
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
@@ -104,7 +104,7 @@ const appointmentCollectionId = process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_I
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-
+  
   const databases = new Databases(client);
   const router = useRouter();
 
@@ -181,7 +181,7 @@ const appointmentCollectionId = process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_I
       console.error('Failed to delete dental type:', error);
     }
   };
-  
+
   const fetchMedicines = async () => {
     try {
       const response = await databases.listDocuments(
@@ -545,7 +545,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
 
   const handleModalSubmit = async () => {
     if (!selectedAppointmentId || !selectedStatus) return;
-
+  
     try {
       const updateData: any = { status: selectedStatus };
       if (selectedStatus === "Cancelled") {
@@ -565,15 +565,15 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
           dental: selectedDentalTypes.map((item) => item.label).join(", "),
         });
         
-
+  
         // Ensure the JSON string does not exceed 255 characters
         if (diagnosisData.length > 1000) {
           throw new Error("Diagnosis data exceeds the maximum length of 255 characters.");
         }
-
+  
         updateData.diagnosis = diagnosisData;
       }
-
+  
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!, // Use the correct collection ID
@@ -605,18 +605,18 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
 
-    try {
-      await databases.deleteDocument(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
+      try {
+        await databases.deleteDocument(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
         appointmentToDelete.id
-      );
-      fetchAppointments();
+        );
+        fetchAppointments();
       setMessage("✅ Appointment deleted successfully!");
       setMessageType("success");
       setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error("Error deleting appointment:", error);
+      } catch (error) {
+        console.error("Error deleting appointment:", error);
       setMessage("Failed to delete appointment. Please try again.");
       setMessageType("error");
       setTimeout(() => setMessage(null), 3000);
@@ -633,8 +633,8 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
       setFilteredMedicines(medicines);
       return;
     }
-
-    const filtered = medicines.filter(medicine =>
+    
+    const filtered = medicines.filter(medicine => 
       medicine.name.toLowerCase().includes(term.toLowerCase()) ||
       medicine.brand.toLowerCase().includes(term.toLowerCase()) ||
       medicine.category.toLowerCase().includes(term.toLowerCase())
@@ -648,7 +648,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
     if (selectedMedicines.some(med => med.id === medicineId)) {
       return;
     }
-
+    
     setSelectedMedicines([...selectedMedicines, { id: medicineId, name: medicineName, quantity: 1 }]);
   };
 
@@ -660,8 +660,8 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
   // New function to update medicine quantity
   const updateMedicineQuantity = (medicineId: string, quantity: number) => {
     if (quantity < 1) return;
-
-    setSelectedMedicines(selectedMedicines.map(med =>
+    
+    setSelectedMedicines(selectedMedicines.map(med => 
       med.id === medicineId ? { ...med, quantity } : med
     ));
   };
@@ -676,19 +676,19 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
   // New function to handle prescription submission
   const handlePrescriptionSubmit = async () => {
     if (!prescriptionAppointmentId || selectedMedicines.length === 0) return;
-
+    
     try {
       // Get the current appointment to check if it already has diagnosis
       const appointment = appointments.find(app => app.$id === prescriptionAppointmentId);
-
+      
       // Create prescription data
       const prescriptionData = {
         medicines: selectedMedicines
       };
-
+      
       // If there's existing diagnosis data, merge it with the prescription data
       let diagnosisData: any = prescriptionData;
-
+      
       if (appointment?.diagnosis) {
         try {
           const existingDiagnosis = JSON.parse(appointment.diagnosis);
@@ -700,7 +700,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
           console.error("Error parsing existing diagnosis:", e);
         }
       }
-
+      
       // Update the appointment with prescription data in the diagnosis field
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
@@ -708,7 +708,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
         prescriptionAppointmentId,
         { diagnosis: JSON.stringify(diagnosisData) }
       );
-
+      
       // Update medicine stock
       for (const medicine of selectedMedicines) {
         const medicineDoc = medicines.find(med => med.$id === medicine.id);
@@ -716,7 +716,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
           // Convert stock to number, subtract quantity, and convert back to string
           const currentStock = parseInt(medicineDoc.stock);
           const newStock = Math.max(0, currentStock - medicine.quantity).toString();
-
+          
           await databases.updateDocument(
             process.env.NEXT_PUBLIC_DATABASE_ID!,
             MEDICINES_COLLECTION_ID,
@@ -725,16 +725,16 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
           );
         }
       }
-
+      
       // Show success message
       setMessage("✅ Medicines prescribed successfully and inventory updated!");
       setMessageType("success");
       setTimeout(() => setMessage(null), 3000);
-
+      
       // Refresh data
       fetchAppointments();
       fetchMedicines();
-
+      
       // Close modal
       setIsPrescriptionModalOpen(false);
       setPrescriptionAppointmentId(null);
@@ -791,14 +791,14 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                 )}
                 {appointment.status === "Completed" && appointment.diagnosis && (
                   <div className="mt-2">
-                     <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
-  <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
+                    <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
+                    <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
   <p className="text-sm">
   <strong>Dental Type:</strong> {JSON.parse(appointment.diagnosis).dental || 'N/A'}
 </p>
 
-  <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
-
+                    <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
+                    
                     {JSON.parse(appointment.diagnosis).medicines && (
                       <div className="mt-2 border-t pt-2">
                         <p className="text-sm font-semibold">Prescribed Medicines:</p>
@@ -814,7 +814,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                   </div>
                 )}
               </div>
-
+              
               <div className="flex flex-col gap-2">
                 <select
                   className="border border-blue-700 rounded p-1 mr-2 bg-white focus:outline-none"
@@ -826,18 +826,18 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                   <option value="Cancelled">Cancelled</option>
                 </select>
                 {appointment.status === "Completed" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
                     className="text-white border-blue-700 bg-blue-700 hover:bg-white hover:text-blue-700"
                     onClick={() => openPrescriptionModal(appointment.$id)}
                   >
                     {appointment.diagnosis && JSON.parse(appointment.diagnosis).medicines ? "Update Prescription" : "Add Prescription"}
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  variant="ghost"
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
                   className="text-red-700"
                   onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
                 >
@@ -881,7 +881,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
     );
   };
 
-  const filteredAppointments = appointments.filter(appointment =>
+  const filteredAppointments = appointments.filter(appointment => 
     statusFilter === "all" ? true : appointment.status === statusFilter
   );
 
@@ -915,7 +915,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
           {/* Success/Error Message */}
           {message && (
             <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success" ? " bg-green-100 text-green-800" : " bg-red-100 text-red-800"
-              }`}>
+            }`}>
               {message}
             </div>
           )}
@@ -930,25 +930,25 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={previousMonth}
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={previousMonth} 
                       className="text-black bg-white"
                     >
                       <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentDate(new Date())}
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setCurrentDate(new Date())} 
                       className="text-black bg-white"
                     >
                       Today
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={nextMonth}
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={nextMonth} 
                       className="text-black bg-white"
                     >
                       <ChevronRight className="h-5 w-5" />
@@ -970,11 +970,11 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                       {day}
                     </div>
                   ))}
-
+                  
                   {Array.from({ length: getFirstDayOfMonth(currentDate) }).map((_, i) => (
                     <div key={`empty-${i}`} className="bg-white p-3 h-32" />
                   ))}
-
+                  
                   {Array.from({ length: getDaysInMonth(currentDate) }).map((_, i) => {
                     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1);
                     const dayAppointments = filteredAppointments.filter(appointment => {
@@ -1046,7 +1046,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
               {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
             </DialogTitle>
           </DialogHeader>
-
+          
           {selectedStatus === "Cancelled" ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -1078,12 +1078,12 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
 
                 {/* Input field and button for adding a new chief complaint */}
                 <div className="flex gap-2">
-                  <Input
+                <Input
                     value={newChiefComplaint}
                     onChange={(e) => setNewChiefComplaint(e.target.value)}
                     placeholder="Add new chief complaint"
-                    className="bg-white border border-blue-700 text-black"
-                  />
+                  className="bg-white border border-blue-700 text-black"
+                />
                   <Button
                     type="button"
                     className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
@@ -1161,7 +1161,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
               </div>
             </div>
           )}
-
+          
           <DialogFooter>
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border-red-700" type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
@@ -1179,7 +1179,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
           <DialogHeader>
             <DialogTitle className="text-blue-700">Prescribe Medicines</DialogTitle>
           </DialogHeader>
-
+          
           <div className="space-y-4 py-4">
             {/* Medicine Search */}
             <div className="relative">
@@ -1191,7 +1191,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                 className="pl-10 bg-white border-2 border-blue-700"
               />
             </div>
-
+            
             {/* Medicine List */}
             <div className="border rounded-md h-48 overflow-y-auto">
               {filteredMedicines.length === 0 ? (
@@ -1213,8 +1213,8 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                         <td className="px-4 py-2 text-sm">{medicine.brand}</td>
                         <td className="px-4 py-2 text-sm">{medicine.stock}</td>
                         <td className="px-4 py-2 text-sm">
-                          <Button
-                            size="sm"
+                          <Button 
+                            size="sm" 
                             className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border-blue-700"
                             variant="outline"
                             onClick={() => addMedicineToPrescription(medicine.$id, medicine.name)}
@@ -1229,7 +1229,7 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                 </table>
               )}
             </div>
-
+            
             {/* Selected Medicines */}
             <div>
               <h3 className="text-sm font-medium mb-2 text-blue-700">Selected Medicines</h3>
@@ -1241,9 +1241,9 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                     <div key={medicine.id} className="flex items-center justify-between border border-blue-700 rounded-md p-2">
                       <span className="text-sm">{medicine.name}</span>
                       <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity - 1)}
                           disabled={medicine.quantity <= 1}
@@ -1251,18 +1251,18 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
                           -
                         </Button>
                         <span className="text-sm w-6 text-center">{medicine.quantity}</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity + 1)}
                           disabled={medicine.quantity >= parseInt(medicines.find(med => med.$id === medicine.id)?.stock || "0")}
                         >
                           +
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
                           className="text-red-500 h-7 w-7 p-0 ml-2"
                           onClick={() => removeMedicineFromPrescription(medicine.id)}
                         >
@@ -1275,13 +1275,13 @@ const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; 
               )}
             </div>
           </div>
-
+          
           <DialogFooter>
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border border-red-700" type="button" variant="outline" onClick={() => setIsPrescriptionModalOpen(false)}>
               Cancel
             </Button>
-            <Button
-              type="button"
+            <Button 
+              type="button" 
               className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
               onClick={handlePrescriptionSubmit}
               disabled={selectedMedicines.length === 0}
