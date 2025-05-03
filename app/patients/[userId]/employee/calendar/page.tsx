@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases, ID } from "appwrite";
+import { Client, Databases, ID, Query } from "appwrite";
 import { useParams } from "next/navigation";
 import EmployeeSideBar from "@/components/EmployeeSideBar";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -23,6 +23,8 @@ interface Appointment {
   cancellationReason?: string;
   diagnosis?: string;
   prescriptions?: string;
+  office: string;
+  occupation: string;
 }
 
 interface Employee {
@@ -38,6 +40,8 @@ interface UnavailableSlot {
   date: string;
   timeRange: string;
   reason?: string;
+  capacity?: number;
+  booked?: number;
 }
 
 const EmployeeCalendarPage = () => {
@@ -50,6 +54,7 @@ const EmployeeCalendarPage = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [unavailableSlots, setUnavailableSlots] = useState<UnavailableSlot[]>([]);
 
+  // Appointment scheduling states
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [schedulingDate, setSchedulingDate] = useState<Date | null>(null);
   const [newAppointment, setNewAppointment] = useState({
@@ -80,7 +85,7 @@ const EmployeeCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID! // Unavailable slots collection ID
+        process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!
       );
       setUnavailableSlots(response.documents as unknown as UnavailableSlot[]);
     } catch (error) {
@@ -105,7 +110,7 @@ const EmployeeCalendarPage = () => {
     try {
       const response = await databases.listDocuments(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID! // Appointment collection ID
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       const userAppointments = response.documents.filter(
         (doc: any) => doc.userid === userId
@@ -148,6 +153,7 @@ const EmployeeCalendarPage = () => {
   const isSlotUnavailable = (date: Date, time: string) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
     
+    // Convert time to minutes since midnight for easier comparison
     const timeToMinutes = (timeStr: string) => {
       const [timePart, period] = timeStr.split(' ');
       const [hours, minutes] = timePart.split(':').map(Number);
@@ -156,17 +162,22 @@ const EmployeeCalendarPage = () => {
       if (period === 'AM' && hours === 12) total -= 12 * 60;
       return total;
     };
-
+  
     const selectedTime = timeToMinutes(time);
     
     return unavailableSlots.some((slot) => {
       if (slot.date !== formattedDate) return false;
       
-      const [startTimeStr, endTimeStr] = slot.timeRange.split(' - ');
+      const [startTimeStr] = slot.timeRange.split(' - ');
       const startTime = timeToMinutes(startTimeStr);
-      const endTime = timeToMinutes(endTimeStr);
       
-      return selectedTime >= startTime && selectedTime < endTime;
+      // If slot has no capacity (completely unavailable)
+      if (typeof slot.capacity === 'undefined') {
+        return selectedTime === startTime;
+      }
+      
+      // If slot has capacity but is full
+      return selectedTime === startTime && (slot.booked || 0) >= slot.capacity;
     });
   };
 
@@ -175,7 +186,7 @@ const EmployeeCalendarPage = () => {
     const startHour = 8; // 8 AM
     const endHour = 17; // 5 PM
     const interval = 30; // 30 minutes
-
+  
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += interval) {
         const period = hour >= 12 ? 'PM' : 'AM';
@@ -184,7 +195,7 @@ const EmployeeCalendarPage = () => {
         slots.push(timeString);
       }
     }
-
+  
     return slots;
   };
 
@@ -213,20 +224,23 @@ const EmployeeCalendarPage = () => {
 
   const handleSubmitAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!schedulingDate) return;
-
+  
+    // Check if the selected time slot is unavailable
     if (isSlotUnavailable(schedulingDate, newAppointment.time)) {
-      setSubmitError("This time slot is unavailable. Please choose another time.");
+      setSubmitError("This time slot is unavailable or at full capacity. Please choose another time.");
       return;
     }
-
+  
     setIsSubmitting(true);
     setSubmitError("");
-
+  
     try {
+      // Format the date as YYYY-MM-DD
       const formattedDate = format(schedulingDate, 'yyyy-MM-dd');
-
+  
+      // Create the appointment in the database
       await databases.createDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
@@ -242,56 +256,34 @@ const EmployeeCalendarPage = () => {
           occupation: newAppointment.occupation,
         }
       );
-
-      // Calculate end time (30 minutes after start time)
-      const timeParts = newAppointment.time.split(':');
-      const hours = parseInt(timeParts[0]);
-      const minutes = parseInt(timeParts[1].split(' ')[0]);
-      let period = newAppointment.time.includes('PM') && hours < 12 ? 'PM' : 'AM';
-      
-      let endHours = hours;
-      let endMinutes = minutes + 30;
-      
-      if (endMinutes >= 60) {
-        endHours += 1;
-        endMinutes -= 60;
-      }
-      
-      if (endHours >= 12 && period === 'AM') {
-        period = 'PM';
-      }
-      
-      const endTime = `${endHours}:${endMinutes.toString().padStart(2, '0')} ${period}`;
-      const timeRange = `${newAppointment.time} - ${endTime}`;
-
-      // Mark time slot as unavailable
-      const response = await fetch('/api/appointments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'createUnavailableSlot',
-          data: {
-            date: formattedDate,
-            timeRange: timeRange,
-            reason: `Appointment scheduled for ${newAppointment.patientName}`,
-          },
-        }),
+  
+      // Find the matching slot to update booked count
+      const matchingSlot = unavailableSlots.find(slot => {
+        if (slot.date !== formattedDate) return false;
+        const [startTimeStr] = slot.timeRange.split(' - ');
+        return newAppointment.time === startTimeStr;
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to mark time slot as unavailable');
+  
+      // If slot exists with capacity, increment booked count
+      if (matchingSlot && matchingSlot.capacity) {
+        await databases.updateDocument(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_UNAVAILABLESLOTS_COLLECTION_ID!,
+          matchingSlot.$id,
+          {
+            booked: (matchingSlot.booked || 0) + 1
+          }
+        );
       }
-
+      
       setSubmitSuccess(true);
       fetchAppointments();
       fetchUnavailableSlots();
-
+  
       setTimeout(() => {
         setShowScheduleModal(false);
       }, 2000);
-
+      
     } catch (error) {
       console.error("Error creating appointment:", error);
       setSubmitError("Failed to create appointment. Please try again.");
@@ -307,6 +299,10 @@ const EmployeeCalendarPage = () => {
       const appointmentDate = new Date(appointment.date);
       return appointmentDate.toDateString() === selectedDate.toDateString();
     });
+
+    const unavailableSlotsForDay = unavailableSlots.filter(
+      slot => slot.date === format(selectedDate, 'yyyy-MM-dd')
+    );
 
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -352,6 +348,7 @@ const EmployeeCalendarPage = () => {
                     <div className="mt-2">
                       <p className="text-sm"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure || 'N/A'}</p>
                       <p className="text-sm"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint || 'N/A'}</p>
+                      <p className="text-sm"><strong>Dental Type:</strong> {JSON.parse(appointment.diagnosis).dental || 'N/A'}</p>
                       <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
                       
                       {JSON.parse(appointment.diagnosis).medicines && (
@@ -373,23 +370,50 @@ const EmployeeCalendarPage = () => {
             ))}
           </div>
         )}
+
+        {unavailableSlotsForDay.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold text-gray-700 mb-4">Time Slot Availability</h3>
+            <div className="space-y-2">
+              {unavailableSlotsForDay.map(slot => (
+                <div
+                  key={slot.$id}
+                  className="p-4 rounded-lg bg-gray-100"
+                >
+                  <p className="text-sm font-medium text-black">{slot.timeRange}</p>
+                  {slot.capacity ? (
+                    <p className="text-sm text-black">
+                      Available slots: {slot.capacity - (slot.booked || 0)}/{slot.capacity}
+                      {slot.reason && ` - ${slot.reason}`}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-black">
+                      Unavailable - {slot.reason || "No reason provided"}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
   const renderScheduleModal = () => {
     if (!showScheduleModal || !schedulingDate) return null;
-
+  
     const unavailableSlotsForDay = unavailableSlots.filter(
       slot => slot.date === format(schedulingDate, 'yyyy-MM-dd')
     );
-
+  
     const timeSlots = generateTimeSlots();
-
+  
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-          <div className="flex justify-between items-center p-6 border-b">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
+          {/* Modal Header */}
+          <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
             <h2 className="text-xl font-semibold text-gray-800">
               Schedule Appointment for {format(schedulingDate, 'MMMM d, yyyy')}
             </h2>
@@ -400,120 +424,146 @@ const EmployeeCalendarPage = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-
-          <form onSubmit={handleSubmitAppointment} className="p-6 space-y-4">
-            <div className="space-y-2 text-black">
-              <Label className="text-blue-700" htmlFor="patientName">Patient Name</Label>
-              <Input
-                id="patientName"
-                name="patientName"
-                value={newAppointment.patientName}
-                onChange={handleInputChange}
-                placeholder="Enter patient name"
-                required
-                readOnly
-                className="bg-gray-50 border-blue-700"
-              />
-              <p className="text-xs text-gray-500">Name is automatically filled based on your account</p>
-            </div>
-
-            <div className="space-y-2 text-black">
-              <Label className="text-blue-700" htmlFor="occupation">Occupation</Label>
-              <Input
-                id="occupation"
-                name="occupation"
-                value={newAppointment.occupation}
-                onChange={handleInputChange}
-                placeholder="Enter occupation"
-                required
-                readOnly
-                className="bg-gray-50 border-blue-700"
-              />
-              <p className="text-xs text-gray-500">Occupation is automatically filled based on your account</p>
-            </div>
-
-            {newAppointment.occupation === "Employee" && (
+  
+          {/* Scrollable Content */}
+          <div className="overflow-y-auto p-6 flex-1">
+            <form onSubmit={handleSubmitAppointment} className="space-y-4">
               <div className="space-y-2 text-black">
-                <Label className="text-blue-700" htmlFor="office">Office</Label>
+                <Label className="text-blue-700" htmlFor="patientName">Patient Name</Label>
                 <Input
-                  id="office"
-                  name="office"
-                  value={newAppointment.office}
+                  id="patientName"
+                  name="patientName"
+                  value={newAppointment.patientName}
                   onChange={handleInputChange}
-                  placeholder="Enter office"
+                  placeholder="Enter patient name"
                   required
                   readOnly
                   className="bg-gray-50 border-blue-700"
                 />
-                <p className="text-xs text-gray-500">Office is automatically filled based on your account</p>
+                <p className="text-xs text-gray-500">Name is automatically filled based on your account</p>
               </div>
-            )}
-
-            {unavailableSlotsForDay.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-blue-700">Unavailable Time Slots</Label>
-                <div className="bg-gray-100 p-3 rounded-md">
-                  {unavailableSlotsForDay.map(slot => (
-                    <div key={slot.$id} className="text-sm text-gray-600">
-                      {slot.timeRange} - {slot.reason || "No reason provided"}
-                    </div>
-                  ))}
+  
+              <div className="space-y-2 text-black">
+                <Label className="text-blue-700" htmlFor="occupation">Occupation</Label>
+                <Input
+                  id="occupation"
+                  name="occupation"
+                  value={newAppointment.occupation}
+                  onChange={handleInputChange}
+                  placeholder="Enter occupation"
+                  required
+                  readOnly
+                  className="bg-gray-50 border-blue-700"
+                />
+                <p className="text-xs text-gray-500">Occupation is automatically filled based on your account</p>
+              </div>
+  
+              {newAppointment.occupation === "Employee" && (
+                <div className="space-y-2 text-black">
+                  <Label className="text-blue-700" htmlFor="office">Office</Label>
+                  <Input
+                    id="office"
+                    name="office"
+                    value={newAppointment.office}
+                    onChange={handleInputChange}
+                    placeholder="Enter office"
+                    required
+                    readOnly
+                    className="bg-gray-50 border-blue-700"
+                  />
+                  <p className="text-xs text-gray-500">Office is automatically filled based on your account</p>
                 </div>
+              )}
+  
+              {unavailableSlotsForDay.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-blue-700">Time Slot Availability</Label>
+                  <div className="bg-gray-100 p-3 rounded-md max-h-40 overflow-y-auto">
+                    {unavailableSlotsForDay.map(slot => (
+                      <div key={slot.$id} className="text-sm text-gray-600 mb-2 last:mb-0">
+                        {slot.timeRange} - {slot.capacity ? 
+                          `${slot.capacity - (slot.booked || 0)} slots available` : 
+                          "Unavailable"} - {slot.reason || "No reason provided"}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+  
+              <div className="space-y-2">
+                <Label className="text-blue-700" htmlFor="time">Time</Label>
+                <Select
+                  name="time"
+                  value={newAppointment.time}
+                  onValueChange={(value) => setNewAppointment(prev => ({ ...prev, time: value }))}
+                  required
+                >
+                  <SelectTrigger className="bg-gray-50 text-black border-blue-700">
+                    <SelectValue placeholder="Select a time slot" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-blue-700 text-black max-h-60 overflow-y-auto">
+                    {timeSlots.map((time, index) => {
+                      const isUnavailable = isSlotUnavailable(schedulingDate, time);
+                      const matchingSlot = unavailableSlotsForDay.find(slot => {
+                        const [startTimeStr] = slot.timeRange.split(' - ');
+                        return time === startTimeStr;
+                      });
+                      
+                      let availabilityText = "";
+                      if (matchingSlot) {
+                        if (matchingSlot.capacity) {
+                          availabilityText = ` (${matchingSlot.capacity - (matchingSlot.booked || 0)} available)`;
+                        } else {
+                          availabilityText = " (Unavailable)";
+                        }
+                      }
+  
+                      return (
+                        <SelectItem
+                          key={index}
+                          value={time}
+                          disabled={isUnavailable}
+                          className="hover:bg-gray-100"
+                        >
+                          {time}{availabilityText}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-
-            <div className="space-y-2">
-              <Label className="text-blue-700" htmlFor="time">Time</Label>
-              <Select
-                name="time"
-                value={newAppointment.time}
-                onValueChange={(value) => setNewAppointment(prev => ({ ...prev, time: value }))}
-                required
-              >
-                <SelectTrigger className="bg-gray-50 text-black border-blue-700">
-                  <SelectValue placeholder="Select a time slot" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-blue-700 text-black">
-                  {timeSlots.map((time, index) => (
-                    <SelectItem
-                      key={index}
-                      value={time}
-                      disabled={isSlotUnavailable(schedulingDate, time)}
-                    >
-                      {time}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-blue-700" htmlFor="reason">Reason for Appointment</Label>
-              <Textarea
-                id="reason"
-                name="reason"
-                value={newAppointment.reason}
-                onChange={handleInputChange}
-                placeholder="Describe the reason for this appointment"
-                required
-                rows={3}
-                className="bg-gray-50 text-black border-blue-700"
-              />
-            </div>
-
-            {submitError && (
-              <div className="p-3 bg-red-100 text-red-700 rounded-md">
-                {submitError}
+  
+              <div className="space-y-2">
+                <Label className="text-blue-700" htmlFor="reason">Reason for Appointment</Label>
+                <Textarea
+                  id="reason"
+                  name="reason"
+                  value={newAppointment.reason}
+                  onChange={handleInputChange}
+                  placeholder="Describe the reason for this appointment"
+                  required
+                  rows={4}
+                  className="bg-gray-50 text-black border-blue-700 min-h-[100px]"
+                />
               </div>
-            )}
-
-            {submitSuccess && (
-              <div className="p-3 bg-green-100 text-green-700 rounded-md">
-                Appointment scheduled successfully!
-              </div>
-            )}
-
-            <div className="flex justify-end pt-4">
+  
+              {submitError && (
+                <div className="p-3 bg-red-100 text-red-700 rounded-md">
+                  {submitError}
+                </div>
+              )}
+  
+              {submitSuccess && (
+                <div className="p-3 bg-green-100 text-green-700 rounded-md">
+                  Appointment scheduled successfully!
+                </div>
+              )}
+            </form>
+          </div>
+  
+          {/* Sticky Footer */}
+          <div className="p-6 border-t sticky bottom-0 bg-white">
+            <div className="flex justify-end gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -527,11 +577,12 @@ const EmployeeCalendarPage = () => {
                 type="submit"
                 className="bg-green-500 hover:bg-green-700 text-white"
                 disabled={isSubmitting}
+                onClick={handleSubmitAppointment}
               >
                 {isSubmitting ? "Scheduling..." : "Schedule Appointment"}
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     );
@@ -542,15 +593,18 @@ const EmployeeCalendarPage = () => {
       <EmployeeSideBar userId={userId} />
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-blue-700">My Calendar</h1>
             <p className="text-gray-600 mt-2">View and schedule your appointments</p>
             {employee && <p className="text-gray-600">Welcome, {employee.name}</p>}
           </div>
 
+          {/* Calendar Container */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {view === 'month' ? (
               <div className="p-6">
+                {/* Month Navigation */}
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-semibold text-gray-800">
                     {format(currentDate, 'MMMM yyyy')}
@@ -584,6 +638,7 @@ const EmployeeCalendarPage = () => {
                   </div>
                 </div>
 
+                {/* Calendar Grid */}
                 <div className="grid grid-cols-7 gap-1">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <div key={day} className="bg-gray-50 p-3 text-center text-sm font-semibold text-gray-600">
@@ -649,14 +704,6 @@ const EmployeeCalendarPage = () => {
                               +{dayAppointments.length - 2} more
                             </div>
                           )}
-                          {unavailableSlotsForDay.map(slot => (
-                            <div
-                              key={slot.$id}
-                              className="text-xs p-1.5 rounded-md bg-red-200 text-gray-500"
-                            >
-                              {slot.timeRange} - Unavailable
-                            </div>
-                          ))}
                           <div 
                             className="mt-1 text-xs text-blue-600 hover:underline cursor-pointer"
                             onClick={() => handleScheduleClick(date)}
