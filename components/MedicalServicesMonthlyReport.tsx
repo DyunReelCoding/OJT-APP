@@ -321,7 +321,7 @@ const MedicalServicesAnnualReport = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Medical Services Report</h1>
+        <h1 className="text-2xl font-bold">Medical Services Monthly Report</h1>
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
@@ -346,7 +346,7 @@ const MedicalServicesAnnualReport = () => {
             onClick={generatePDF}
             className="bg-blue-700 hover:bg-white hover:text-blue-700 border-2 border-blue-700 text-white font-bold py-2 px-4 rounded"
           >
-            Download Report
+            Download Report as PDF
           </button>
         </div>
       </div>

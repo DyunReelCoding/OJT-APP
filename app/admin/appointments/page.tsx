@@ -62,7 +62,7 @@ const AppointmentsPage = () => {
   const [officeFilter, setOfficeFilter] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isFiltering, setIsFiltering] = useState(false);
-  
+
   // Status change dialog states
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
@@ -265,16 +265,16 @@ const AppointmentsPage = () => {
 
   const handleFilter = () => {
     setIsFiltering(true);
-  
+
     const filtered = appointments.filter((appointment) => {
       const occupationMatch = !occupationFilter || appointment.occupation === occupationFilter;
       
       const collegeMatch = occupationFilter === "Student" 
         ? !collegeFilter || collegeFilter === "All" || appointment.college === collegeFilter 
         : true;
-  
-      const officeMatch = occupationFilter === "Employee" 
-        ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter 
+
+      const officeMatch = occupationFilter === "Employee"
+        ? !officeFilter || officeFilter === "All" || appointment.office === officeFilter
         : true;
   
       let chiefComplaintMatch = true;
@@ -288,23 +288,23 @@ const AppointmentsPage = () => {
             if (!diagnosisData.chiefComplaint) {
               chiefComplaintMatch = false;
             } else if (Array.isArray(diagnosisData.chiefComplaint)) {
-              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc => 
+              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc =>
                 cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
               );
             } else {
               chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
                 .includes(chiefComplaintFilter.toLowerCase());
             }
-          } catch (error) {
+    } catch (error) {
             console.error("Error parsing diagnosis:", error);
             chiefComplaintMatch = false;
           }
         }
       }
-  
+
       return occupationMatch && collegeMatch && officeMatch && chiefComplaintMatch;
     });
-  
+
     setFilteredAppointments(filtered);
     setIsFiltering(false);
   };
@@ -465,11 +465,10 @@ const AppointmentsPage = () => {
 
           {message && (
             <div
-              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${
-                messageType === "success"
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success"
                   ? " bg-green-100 border-green-400 text-green-700"
                   : " bg-red-100 border-red-400 text-red-700"
-              }`}
+                }`}
             >
               {message}
             </div>
@@ -804,7 +803,7 @@ const AppointmentsPage = () => {
               {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedStatus === "Cancelled" ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -917,16 +916,16 @@ const AppointmentsPage = () => {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsStatusDialogOpen(false)}
               className="border-blue-700 hover:bg-white hover:text-blue-700 bg-blue-700 text-white"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleStatusDialogSubmit}
               className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
             >
@@ -939,4 +938,4 @@ const AppointmentsPage = () => {
   );
 };
 
-export default AppointmentsPage;
+export default AppointmentsPage; 

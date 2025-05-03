@@ -70,7 +70,6 @@ const CalendarPage = () => {
   const [notes, setNotes] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
 
-  // Medicine states
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
   const [medicineSearchTerm, setMedicineSearchTerm] = useState("");
@@ -124,7 +123,7 @@ const CalendarPage = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
-
+  
   const databases = new Databases(client);
   const router = useRouter();
 
@@ -482,7 +481,7 @@ const CalendarPage = () => {
 
   const handleModalSubmit = async () => {
     if (!selectedAppointmentId || !selectedStatus) return;
-
+  
     try {
       const updateData: any = { status: selectedStatus };
       if (selectedStatus === "Cancelled") {
@@ -502,10 +501,10 @@ const CalendarPage = () => {
         if (diagnosisData.length > 1000) {
           throw new Error("Diagnosis data exceeds the maximum length of 255 characters.");
         }
-
+  
         updateData.diagnosis = diagnosisData;
       }
-
+  
       await databases.updateDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         appointmentCollectionId!,
@@ -536,18 +535,19 @@ const CalendarPage = () => {
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
 
+
     try {
       await databases.deleteDocument(
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         appointmentCollectionId!,
         appointmentToDelete.id
-      );
-      fetchAppointments();
+        );
+        fetchAppointments();
       setMessage("✅ Appointment deleted successfully!");
       setMessageType("success");
       setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error("Error deleting appointment:", error);
+      } catch (error) {
+        console.error("Error deleting appointment:", error);
       setMessage("Failed to delete appointment. Please try again.");
       setMessageType("error");
       setTimeout(() => setMessage(null), 3000);
@@ -563,8 +563,8 @@ const CalendarPage = () => {
       setFilteredMedicines(medicines);
       return;
     }
-
-    const filtered = medicines.filter(medicine =>
+    
+    const filtered = medicines.filter(medicine => 
       medicine.name.toLowerCase().includes(term.toLowerCase()) ||
       medicine.brand.toLowerCase().includes(term.toLowerCase()) ||
       medicine.category.toLowerCase().includes(term.toLowerCase())
@@ -576,7 +576,7 @@ const CalendarPage = () => {
     if (selectedMedicines.some(med => med.id === medicineId)) {
       return;
     }
-
+    
     setSelectedMedicines([...selectedMedicines, { id: medicineId, name: medicineName, quantity: 1 }]);
   };
 
@@ -586,8 +586,8 @@ const CalendarPage = () => {
 
   const updateMedicineQuantity = (medicineId: string, quantity: number) => {
     if (quantity < 1) return;
-
-    setSelectedMedicines(selectedMedicines.map(med =>
+    
+    setSelectedMedicines(selectedMedicines.map(med => 
       med.id === medicineId ? { ...med, quantity } : med
     ));
   };
@@ -600,7 +600,7 @@ const CalendarPage = () => {
 
   const handlePrescriptionSubmit = async () => {
     if (!prescriptionAppointmentId || selectedMedicines.length === 0) return;
-
+    
     try {
       const appointment = appointments.find(app => app.$id === prescriptionAppointmentId);
 
@@ -609,7 +609,7 @@ const CalendarPage = () => {
       };
 
       let diagnosisData: any = prescriptionData;
-
+      
       if (appointment?.diagnosis) {
         try {
           const existingDiagnosis = JSON.parse(appointment.diagnosis);
@@ -634,7 +634,7 @@ const CalendarPage = () => {
         if (medicineDoc) {
           const currentStock = parseInt(medicineDoc.stock);
           const newStock = Math.max(0, currentStock - medicine.quantity).toString();
-
+          
           await databases.updateDocument(
             process.env.NEXT_PUBLIC_DATABASE_ID!,
             MEDICINES_COLLECTION_ID,
@@ -650,7 +650,6 @@ const CalendarPage = () => {
 
       fetchAppointments();
       fetchMedicines();
-
       setIsPrescriptionModalOpen(false);
       setPrescriptionAppointmentId(null);
     } catch (error) {
@@ -729,6 +728,7 @@ const CalendarPage = () => {
                     <p className="text-sm"><strong>Dental Type:</strong> {JSON.parse(appointment.diagnosis).dental || 'N/A'}</p>
                     <p className="text-sm"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes || 'N/A'}</p>
 
+
                     {JSON.parse(appointment.diagnosis).medicines && (
                       <div className="mt-2 border-t pt-2">
                         <p className="text-sm font-semibold">Prescribed Medicines:</p>
@@ -744,7 +744,7 @@ const CalendarPage = () => {
                   </div>
                 )}
               </div>
-
+              
               <div className="flex flex-col gap-2">
                 <select
                   className="border border-blue-700 rounded p-1 mr-2 bg-white focus:outline-none"
@@ -756,18 +756,18 @@ const CalendarPage = () => {
                   <option value="Cancelled">Cancelled</option>
                 </select>
                 {appointment.status === "Completed" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
                     className="text-white border-blue-700 bg-blue-700 hover:bg-white hover:text-blue-700"
                     onClick={() => openPrescriptionModal(appointment.$id)}
                   >
                     {appointment.diagnosis && JSON.parse(appointment.diagnosis).medicines ? "Update Prescription" : "Add Prescription"}
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  variant="ghost"
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
                   className="text-red-700"
                   onClick={() => openDeleteDialog(appointment.$id, appointment.patientName)}
                 >
@@ -1020,7 +1020,7 @@ const CalendarPage = () => {
           {/* Success/Error Message */}
           {message && (
             <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-auto px-4 py-3 rounded border shadow-lg text-center z-50 font-bold text-lg${messageType === "success" ? " bg-green-100 text-green-800" : " bg-red-100 text-red-800"
-              }`}>
+            }`}>
               {message}
             </div>
           )}
@@ -1035,25 +1035,25 @@ const CalendarPage = () => {
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={previousMonth}
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={previousMonth} 
                       className="text-black bg-white"
                     >
                       <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentDate(new Date())}
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setCurrentDate(new Date())} 
                       className="text-black bg-white"
                     >
                       Today
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={nextMonth}
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={nextMonth} 
                       className="text-black bg-white"
                     >
                       <ChevronRight className="h-5 w-5" />
@@ -1088,11 +1088,11 @@ const CalendarPage = () => {
                       {day}
                     </div>
                   ))}
-
+                  
                   {Array.from({ length: getFirstDayOfMonth(currentDate) }).map((_, i) => (
                     <div key={`empty-${i}`} className="bg-white p-3 h-32" />
                   ))}
-
+                  
                   {Array.from({ length: getDaysInMonth(currentDate) }).map((_, i) => {
                     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1);
                     const dayAppointments = filteredAppointments.filter(appointment => {
@@ -1172,7 +1172,7 @@ const CalendarPage = () => {
               {selectedStatus === "Cancelled" ? "Cancel Appointment" : "Complete Appointment"}
             </DialogTitle>
           </DialogHeader>
-
+          
           {selectedStatus === "Cancelled" ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -1202,12 +1202,12 @@ const CalendarPage = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Chief Complaint</label>
                 <div className="flex gap-2">
-                  <Input
+                <Input
                     value={newChiefComplaint}
                     onChange={(e) => setNewChiefComplaint(e.target.value)}
                     placeholder="Add new chief complaint"
-                    className="bg-white border border-blue-700 text-black"
-                  />
+                  className="bg-white border border-blue-700 text-black"
+                />
                   <Button
                     type="button"
                     className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
@@ -1281,7 +1281,7 @@ const CalendarPage = () => {
               </div>
             </div>
           )}
-
+          
           <DialogFooter>
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border-red-700" type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
@@ -1299,7 +1299,7 @@ const CalendarPage = () => {
           <DialogHeader>
             <DialogTitle className="text-blue-700">Prescribe Medicines</DialogTitle>
           </DialogHeader>
-
+          
           <div className="space-y-4 py-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-700" />
@@ -1310,7 +1310,6 @@ const CalendarPage = () => {
                 className="pl-10 bg-white border-2 border-blue-700"
               />
             </div>
-
             <div className="border rounded-md h-48 overflow-y-auto">
               {filteredMedicines.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">No medicines found</div>
@@ -1331,8 +1330,8 @@ const CalendarPage = () => {
                         <td className="px-4 py-2 text-sm">{medicine.brand}</td>
                         <td className="px-4 py-2 text-sm">{medicine.stock}</td>
                         <td className="px-4 py-2 text-sm">
-                          <Button
-                            size="sm"
+                          <Button 
+                            size="sm" 
                             className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border-blue-700"
                             variant="outline"
                             onClick={() => addMedicineToPrescription(medicine.$id, medicine.name)}
@@ -1358,9 +1357,9 @@ const CalendarPage = () => {
                     <div key={medicine.id} className="flex items-center justify-between border border-blue-700 rounded-md p-2">
                       <span className="text-sm">{medicine.name}</span>
                       <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity - 1)}
                           disabled={medicine.quantity <= 1}
@@ -1368,18 +1367,18 @@ const CalendarPage = () => {
                           -
                         </Button>
                         <span className="text-sm w-6 text-center">{medicine.quantity}</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
                           className="h-7 w-7 p-0"
                           onClick={() => updateMedicineQuantity(medicine.id, medicine.quantity + 1)}
                           disabled={medicine.quantity >= parseInt(medicines.find(med => med.$id === medicine.id)?.stock || "0")}
                         >
                           +
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
                           className="text-red-500 h-7 w-7 p-0 ml-2"
                           onClick={() => removeMedicineFromPrescription(medicine.id)}
                         >
@@ -1392,13 +1391,13 @@ const CalendarPage = () => {
               )}
             </div>
           </div>
-
+          
           <DialogFooter>
             <Button className="bg-red-700 text-white hover:bg-white hover:text-red-700 border border-red-700" type="button" variant="outline" onClick={() => setIsPrescriptionModalOpen(false)}>
               Cancel
             </Button>
-            <Button
-              type="button"
+            <Button 
+              type="button" 
               className="bg-blue-700 text-white hover:bg-white hover:text-blue-700 border border-blue-700"
               onClick={handlePrescriptionSubmit}
               disabled={selectedMedicines.length === 0}
