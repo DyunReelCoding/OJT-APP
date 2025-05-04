@@ -35,17 +35,6 @@
       fetchColleges();
     }, []);
 
-    useEffect(() => {
-      if (selectedGender) {
-        const filtered = appointments.filter(appointment => 
-          appointment.gender?.toLowerCase() === selectedGender.toLowerCase()
-        );
-        setFilteredAppointments(filtered);
-      } else {
-        setFilteredAppointments(appointments);
-      }
-    }, [selectedGender, appointments]);
-
     const fetchColleges = async () => {
       try {
         const response = await databases.listDocuments(
@@ -59,16 +48,48 @@
     };
     const fetchAppointments = async () => {
       try {
-        const response = await databases.listDocuments(
+        // First fetch appointments
+        const appointmentsResponse = await databases.listDocuments(
           process.env.NEXT_PUBLIC_DATABASE_ID!,
           "67b96b0800349392bb1c"
         );
-        setAppointments(response.documents as Appointment[]);
-        setFilteredAppointments(response.documents as Appointment[]);
+        
+        // Then fetch patient data to get genders
+        const patientsResponse = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!
+        );
+    
+        // Create a map of patient names to genders (assuming patientName is the common field)
+        const patientGenderMap: Record<string, string> = {};
+        patientsResponse.documents.forEach((patient: any) => {
+          patientGenderMap[patient.name] = patient.gender; // Using patientName as key
+        });
+    
+        // Combine appointment data with gender
+        const appointmentsWithGender = appointmentsResponse.documents.map((appointment: any) => ({
+          ...appointment,
+          gender: patientGenderMap[appointment.patientName] || 'unknown'
+        }));
+    
+        setAppointments(appointmentsWithGender as Appointment[]);
+        setFilteredAppointments(appointmentsWithGender as Appointment[]);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
     };
+    
+    // Update the filter effect to properly handle gender filtering
+    useEffect(() => {
+      if (selectedGender) {
+        const filtered = appointments.filter(appointment => 
+          appointment.gender?.toLowerCase() === selectedGender.toLowerCase()
+        );
+        setFilteredAppointments(filtered);
+      } else {
+        setFilteredAppointments(appointments);
+      }
+    }, [selectedGender, appointments]);
 
     const getChiefComplaintCounts = (college: string | null, occupation: string | null) => {
       const complaintsCount: Record<string, number> = {};
@@ -103,7 +124,7 @@
     );
 
 
-   // Extract unique complaints only once
+
     const uniqueComplaints = Array.from(
       new Set(
         appointments.flatMap((a) => {
@@ -132,30 +153,6 @@
           <td className="border px-4 py-2 font-bold text-center">{total}</td>
         </tr>
       );
-    };
-
-    const calculateSubtotal = () => {
-      const total: Record<string, number> = {};
-    
-      const start = currentPage * complaintsPerPage;
-      const end = Math.min(start + complaintsPerPage, allComplaints.length);
-      const currentPageComplaints = allComplaints.slice(start, end);
-    
-      currentPageComplaints.forEach((complaint) => {
-        total[complaint] = 0;
-    
-        // Add complaints for each college
-        colleges.forEach((college) => { 
-          const counts = getChiefComplaintCounts(college, "Student");
-          total[complaint] += counts[complaint] || 0;
-        });
-    
-        // Add faculty complaints
-        const faculty = getChiefComplaintCounts(null, "Employee");
-        total[complaint] += faculty[complaint] || 0;
-      });
-    
-      return total;
     };
     
     // Combine all page subtotals into the grand total on the last page

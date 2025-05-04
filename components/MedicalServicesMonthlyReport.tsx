@@ -23,6 +23,7 @@ const MedicalServicesAnnualReport = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const complaintsPerPage = 9;
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<string>("");
 
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -63,18 +64,50 @@ const MedicalServicesAnnualReport = () => {
     }
   };
 
-  const fetchAppointments = async () => {
-    try {
-      const response = await databases.listDocuments(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c"
-      );
-      setAppointments(response.documents as Appointment[]);
-      setFilteredAppointments(response.documents as Appointment[]);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-    }
-  };
+    const fetchAppointments = async () => {
+      try {
+        // First fetch appointments
+        const appointmentsResponse = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          "67b96b0800349392bb1c"
+        );
+        
+        // Then fetch patient data to get genders
+        const patientsResponse = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!
+        );
+    
+        // Create a map of patient names to genders (assuming patientName is the common field)
+        const patientGenderMap: Record<string, string> = {};
+        patientsResponse.documents.forEach((patient: any) => {
+          patientGenderMap[patient.name] = patient.gender; // Using patientName as key
+        });
+    
+        // Combine appointment data with gender
+        const appointmentsWithGender = appointmentsResponse.documents.map((appointment: any) => ({
+          ...appointment,
+          gender: patientGenderMap[appointment.patientName] || 'unknown'
+        }));
+    
+        setAppointments(appointmentsWithGender as Appointment[]);
+        setFilteredAppointments(appointmentsWithGender as Appointment[]);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
+    
+    // Update the filter effect to properly handle gender filtering
+    useEffect(() => {
+      if (selectedGender) {
+        const filtered = appointments.filter(appointment => 
+          appointment.gender?.toLowerCase() === selectedGender.toLowerCase()
+        );
+        setFilteredAppointments(filtered);
+      } else {
+        setFilteredAppointments(appointments);
+      }
+    }, [selectedGender, appointments]);
 
   const getChiefComplaintCounts = (college: string | null, occupation: string | null) => {
     const complaintsCount: Record<string, number> = {};
@@ -318,11 +351,40 @@ const MedicalServicesAnnualReport = () => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
+  const handleGenderFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedGender(e.target.value);
+      setCurrentPage(0); // Reset to first page when filter changes
+  };
+  
+  const clearGenderFilter = () => {
+      setSelectedGender("");
+      setCurrentPage(0);
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Medical Services Monthly Report</h1>
-        
+        <div className="flex items-center">
+              <select
+                value={selectedGender}
+                onChange={handleGenderFilter}
+                className="border rounded px-3 py-2 bg-white text-blue-700"
+              >
+                <option value="">All Genders</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              {selectedGender && (
+                <button
+                  onClick={clearGenderFilter}
+                  className="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
+                >
+                  Clear Filter
+                </button>
+              )}
+            </div>
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <input

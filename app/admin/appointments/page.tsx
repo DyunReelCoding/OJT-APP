@@ -552,26 +552,6 @@ const AppointmentsPage = () => {
 
                 <Button onClick={handleFilter}>Apply Filter</Button>
                 <Button onClick={resetFilters} variant="outline">Reset Filter</Button>
-                <button
-                  onClick={() => setShowReport(true)}
-                  className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
-                >
-                  View Annual Report
-                </button>
-
-                {showReport && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg relative w-4/5 h-4/5 overflow-auto">
-                      <button
-                        onClick={() => setShowReport(false)}
-                        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-md"
-                      >
-                        ✕
-                      </button>
-                      <MedicalServicesAnnualReport />
-                    </div>
-                  </div>
-                )}
                 {/* Monthly Report */}
                 <button
                   onClick={() => setShowReport2(true)}
@@ -598,7 +578,7 @@ const AppointmentsPage = () => {
                   onClick={() => setShowReport3(true)}
                   className="bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-700 hover:bg-white hover:text-blue-700"
                 >
-                  View Quarterly Report
+                  View Annual/Quarterly Report
                 </button>
 
                 {showReport3 && (
