@@ -16,11 +16,13 @@ interface Appointment {
 
 const DentalServicesAnnualReport = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
   const [colleges, setColleges] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
 
   const reportRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+  const [selectedGender, setSelectedGender] = useState<string>("");
 
   const complaintsPerPage = 9;
 
@@ -47,55 +49,87 @@ const DentalServicesAnnualReport = () => {
     }
   };
 
-  const fetchAppointments = async () => {
-    try {
-      const response = await databases.listDocuments(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
-        "67b96b0800349392bb1c" // Your appointments collection ID
-      );
-      setAppointments(response.documents as Appointment[]);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-    }
-  };
+    const fetchAppointments = async () => {
+      try {
+        // First fetch appointments
+        const appointmentsResponse = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          "67b96b0800349392bb1c"
+        );
+        
+        // Then fetch patient data to get genders
+        const patientsResponse = await databases.listDocuments(
+          process.env.NEXT_PUBLIC_DATABASE_ID!,
+          process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!
+        );
+    
+        // Create a map of patient names to genders (assuming patientName is the common field)
+        const patientGenderMap: Record<string, string> = {};
+        patientsResponse.documents.forEach((patient: any) => {
+          patientGenderMap[patient.name] = patient.gender;
+        });
+    
 
-  const getDentalComplaintCounts = (college: string | null, occupation: string | null) => {
-    const complaintCounts: Record<string, number> = {};
-  
-    appointments.forEach((appointment) => {
-      const diagnosis = JSON.parse(appointment.diagnosis) || {};
-      const dental = Array.isArray(diagnosis.dental)
-        ? diagnosis.dental
-        : diagnosis.dental ? [diagnosis.dental] : []; // Treat as array if it's a single string, else an empty array
-  
-      if (
-        (college === null || appointment.college === college) &&
-        (occupation === null || appointment.occupation === occupation)
-      ) {
-        dental
-          .filter((diagnosis: string) => diagnosis && diagnosis.trim() !== "") // Ensure diagnosis is a valid string before calling trim()
-          .forEach((diagnosis: string) => {
-            complaintCounts[diagnosis] = (complaintCounts[diagnosis] || 0) + 1;
-          });
+        const appointmentsWithGender = appointmentsResponse.documents.map((appointment: any) => ({
+          ...appointment,
+          gender: patientGenderMap[appointment.patientName] || 'unknown'
+        }));
+    
+        setAppointments(appointmentsWithGender as Appointment[]);
+        setFilteredAppointments(appointmentsWithGender as Appointment[]);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
       }
-    });
-  
-    return complaintCounts;
-  };
-  
+    };
+    
+    // Update the filter effect to properly handle gender filtering
+    useEffect(() => {
+      if (selectedGender) {
+        const filtered = appointments.filter(appointment => 
+          appointment.gender?.toLowerCase() === selectedGender.toLowerCase()
+        );
+        setFilteredAppointments(filtered);
+      } else {
+        setFilteredAppointments(appointments);
+      }
+    }, [selectedGender, appointments]);
 
-  const allDentalComplaints = Array.from(
-    new Set(
-      appointments.flatMap((appointment) => {
-        try {
-          const parsed = JSON.parse(appointment.diagnosis);
-          return parsed?.dental || [];
-        } catch {
-          return [];
+    const getDentalComplaintCounts = (college: string | null, occupation: string | null) => {
+      const complaintCounts: Record<string, number> = {};
+    
+      filteredAppointments.forEach((appointment) => {
+        const diagnosis = JSON.parse(appointment.diagnosis) || {};
+        const dental = Array.isArray(diagnosis.dental)
+          ? diagnosis.dental
+          : diagnosis.dental ? [diagnosis.dental] : [];
+    
+        if (
+          (college === null || appointment.college === college) &&
+          (occupation === null || appointment.occupation === occupation)
+        ) {
+          dental
+            .filter((diagnosis: string) => diagnosis && diagnosis.trim() !== "")
+            .forEach((diagnosis: string) => {
+              complaintCounts[diagnosis] = (complaintCounts[diagnosis] || 0) + 1;
+            });
         }
-      })
-    )
-  ).filter((complaint) => complaint.trim() !== "").sort();
+      });
+    
+      return complaintCounts;
+    };
+    
+    const allDentalComplaints = Array.from(
+      new Set(
+        filteredAppointments.flatMap((appointment) => {
+          try {
+            const parsed = JSON.parse(appointment.diagnosis);
+            return parsed?.dental || [];
+          } catch {
+            return [];
+          }
+        })
+      )
+    ).filter((complaint) => complaint.trim() !== "").sort();
 
   const totalPages = Math.ceil(allDentalComplaints.length / complaintsPerPage);
 
@@ -221,16 +255,48 @@ const DentalServicesAnnualReport = () => {
     }
   };
 
+      const handleGenderFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedGender(e.target.value);
+        setCurrentPage(0); // Reset to first page when filter changes
+      };
+  
+      const clearGenderFilter = () => {
+        setSelectedGender("");
+        setCurrentPage(0);
+      };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Dental Services Annual Report</h1>
-        <button
-          onClick={generatePDFReport}
-          className="flex justify-end items-end mt-4 bg-blue-700 hover:bg-white hover:text-blue-700 border-2 border-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Download Report as PDF
-        </button>
+        <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <select
+                value={selectedGender}
+                onChange={handleGenderFilter}
+                className="border rounded px-3 py-2 bg-white text-blue-700"
+              >
+                <option value="">All Genders</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              {selectedGender && (
+                <button
+                  onClick={clearGenderFilter}
+                  className="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
+                >
+                  Clear Filter
+                </button>
+              )}
+            </div>
+            <button
+              onClick={generatePDFReport}
+              className="flex justify-end items-end mt-4 bg-blue-700 hover:bg-white hover:text-blue-700 border-2 border-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Download Report as PDF
+            </button>
+          </div>
       </div>
 
       <div className="flex justify-between items-center mt-3 mb-2 text-white">
