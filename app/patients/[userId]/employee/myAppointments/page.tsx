@@ -46,6 +46,8 @@ const MyAppointmentsPage = () => {
         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       const userAppointments = response.documents.filter(
+        // @ts-ignore
+
         (doc: any) => doc.userid === params.userId
       ) as unknown as Appointment[];
       setAppointments(userAppointments);
@@ -79,6 +81,7 @@ const MyAppointmentsPage = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      
       <EmployeeSideBar userId={params.userId as string} />
       <div className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">

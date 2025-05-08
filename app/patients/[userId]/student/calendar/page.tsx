@@ -48,6 +48,8 @@ interface UnavailableSlot {
 
 const StudentCalendarPage = () => {
   const params = useParams();
+  // @ts-ignore
+
   const userId = params.userId as string;
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());

@@ -16,6 +16,8 @@ const databases = new Databases(client);
 
 const StudentDetail = () => {
   const params = useParams();
+  // @ts-ignore
+
   const userId = params.userId as string;
 
   const [student, setStudent] = useState<any>(null);

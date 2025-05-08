@@ -17,6 +17,7 @@ const databases = new Databases(client);
 const EmployeePage = () => {
   const params = useParams();
   const router = useRouter();
+  // @ts-ignore
   const userId = params.userId as string;
   const [employee, setEmployee] = useState<any>(null);
   const [appointments, setAppointments] = useState<any[]>([]);

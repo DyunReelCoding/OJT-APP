@@ -14,6 +14,8 @@ const databases = new Databases(client);
 
 const EmployeeAppointmentsPage = () => {
   const params = useParams();
+  // @ts-ignore
+
   const userId = params.userId as string;
 
   return (

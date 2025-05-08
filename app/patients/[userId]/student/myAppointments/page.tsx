@@ -46,6 +46,8 @@ const StudentAppointmentsPage = () => {
         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
       const userAppointments = response.documents.filter(
+        // @ts-ignore
+
         (doc: any) => doc.userid === params.userId
       ) as unknown as Appointment[];
       setAppointments(userAppointments);

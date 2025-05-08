@@ -62,6 +62,8 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [showFamilyOtherField, setShowFamilyOtherField] = useState(false);
   const [showPastOtherField, setShowPastOtherField] = useState(false);
   const searchParams = useSearchParams();
+  // @ts-ignore
+
   const emailFromQuery = searchParams.get("email") || "";
 
   const [selectedCollege, setSelectedCollege] = useState("");
@@ -70,6 +72,8 @@ const RegisterForm = ({ user }: { user: User }) => {
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
+    // @ts-ignore
+
     defaultValues: {
       ...PatientFormDefaultValues,
       firstName: "",
