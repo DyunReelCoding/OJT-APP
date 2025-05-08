@@ -11,7 +11,8 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
 
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<React.ReactNode>(null);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +26,11 @@ const EmailForm = ({ studentEmail }: { studentEmail: string }) => {
       });
 
       const result = await response.json();
-      setStatus(result.success ? "Email sent successfully!" : "Failed to send email.");
+      setStatus(
+        result.success
+          ? <span className="text-black">Email sent successfully!</span>
+          : <span className="text-black">Failed to send email.</span>
+      );
     } catch (error) {
       console.error("Error:", error);
       setStatus("Error sending email.");
