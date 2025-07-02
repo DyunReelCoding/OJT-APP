@@ -32,7 +32,7 @@ const Register = async ({ params }: { params: { userId: string } }) => {
 
 
       <p className="copyright py-12">
-      © 2025 OJT PROJECT
+      © 2025 CLINIC PROFILING
       </p>
       
     </div>

@@ -17,7 +17,7 @@ const fontSans = Plus_Jakarta_Sans({
 // });
 
 export const metadata: Metadata = {
-  title: "OJT PROJECT",
+  title: "CLINIC PROFILING",
   description: "Project to help students in CSU",
 };
 
