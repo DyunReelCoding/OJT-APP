@@ -37,10 +37,13 @@ const Admin = () => {
 
   return (
     <div className="flex bg-gray-50">
+      
       <SideBar />
 
       <div className="flex-1 p-6">
+        
         <main className="admin-main">
+          
           <section className="w-full space-y-4">
             <h1 className="header text-green-400">Welcome 👋</h1>
             <p className="text-dark-700">Start the day managing patients' well-being</p>

@@ -12,28 +12,34 @@ export default async function Home({ searchParams}: SearchParamProps) {
     {isAdmin && <PasskeyModal/>}
 
 
-   <section className="remove-scrollbar container my-auto bg-white"> 
-    <div className="sub-container max-w-[496px]">
-      {/* <Image
-        src="/assets/icons/logo-full.svg"
-        height={1000}
-        width={1000}
+   <section className="remove-scrollbar container my-auto bg-white">
+  {/* Logo container - separate from sub-container */}
+  <div className="w-full">
+    <div className="ml-12 mt-4">
+      <Image
+        src="/assets/icons/logo-clinic.jpg"
+        height={150}
+        width={150}
         alt="patient"
-        className="mb-12 h-10 w-fit"
-      /> */}
+         style={{ height: '150px', width: '150px', objectFit: 'contain' }}
+        
+      />
+    </div>
+  </div>
 
-      <PatientForms />
-      <div className="text-14-regular mt-20 flex justify-between">
+  {/* Main content */}
+  <div className="sub-container max-w-[496px]">
+    <PatientForms />
+    <div className="text-14-regular mt-20 flex justify-between">
       <p className="justify-items-end text-dark-600 xl:text-left">
-      © 2025 CLINIC PROFILING
+        © 2025 CLINIC PROFILING
       </p>
       <Link href="/?admin=true" className="text-green-500">
         Admin
       </Link>
-      </div>
     </div>
-
-   </section>
+  </div>
+</section>
 
    <Image
     src="/assets/images/onboarding-img.png"
