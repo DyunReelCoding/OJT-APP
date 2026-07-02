@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Client, Databases, ID } from "appwrite";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash, Edit, CheckCircle, Search, RefreshCw, XCircle } from "lucide-react";
+import { Trash, Edit, CheckCircle, Search,} from "lucide-react";
 import SideBar from "@/components/SideBar";
 
 // Define Item Type
