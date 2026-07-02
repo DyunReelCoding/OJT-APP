@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Client, Databases, ID} from "appwrite";
+import { Client, Databases, ID, Query } from "appwrite";
 import SideBar from "@/components/SideBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, RefreshCw, X } from "lucide-react";
+import { Search, RefreshCw, CheckCircle, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +16,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ReactSelect, { OptionProps }from "react-select";
+import ReactSelect from "react-select";
+import MedicalServicesAnnualReport from "@/components/MedicalServicesAnnualReport";
 import MedicalServicesMonthlyReport from "@/components/MedicalServicesMonthlyReport";
 import MedicalServicesQuarterlyReport from "@/components/MedicalServicesQuarterlyReport";
 import DentalServicesAnnualReport from "@/components/DentalAnnualReport";
-import { MultiValue } from "react-select";
 
 interface Appointment {
   $id: string;
@@ -44,44 +44,6 @@ interface Patient {
   college: string;
   office: string;
 }
-
-type DentalOption = {
-  label: string;
-  value: string;
-};
-
-type ChiefComplaintOption = {
-  label: string;
-  value: string;
-};
-
-interface DiagnosisData {
-  bloodPressure?: string;
-  chiefComplaint?: string | string[];
-  notes?: string;
-  dental?: string;
-  medicines?: Medicine[];
-}
-
-interface Medicine {
-  name: string;
-  quantity: number;
-}
-
-interface AppointmentUpdateData {
-  status: string;
-  cancellationReason?: string;
-  diagnosis?: string;
-}
-
-interface DiagnosisData {
-  bloodPressure?: string;
-  chiefComplaint?: string | string[];
-  notes?: string;
-  dental?: string;
-  medicines?: Medicine[];
-}
-
 
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -218,32 +180,27 @@ const AppointmentsPage = () => {
     }
   };
 
-  const CustomDentalOption = (
-  props: OptionProps<DentalOption, true>
-) => {
-  const { data, innerRef, innerProps } = props;
-
-  return (
-    <div
-      ref={innerRef}
-      {...innerProps}
-      className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer"
-    >
-      <span>{data.label}</span>
-
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteDentalType(data.value);
-        }}
-        className="text-red-600 hover:text-red-800"
+  const CustomDentalOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div
+        ref={innerRef}
+        {...innerProps}
+        className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer"
       >
-        <X size={16} />
-      </button>
-    </div>
-  );
-};
+        <span>{data.label}</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteDentalType(data.value);
+          }}
+          className="text-red-600 hover:text-red-800"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    );
+  };
 
   const handleAddChiefComplaint = () => {
     if (newChiefComplaint.trim() === "") return;
@@ -262,32 +219,23 @@ const AppointmentsPage = () => {
     setChiefComplaintsList(updatedList);
   };
 
-const CustomOption = (
-  props: OptionProps<ChiefComplaintOption, true>
-) => {
-  const { data, innerRef, innerProps } = props;
-
-  return (
-    <div
-      ref={innerRef}
-      {...innerProps}
-      className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer"
-    >
-      <span>{data.label}</span>
-
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteChiefComplaint(data.value);
-        }}
-        className="text-red-600 hover:text-red-800"
-      >
-        <X size={16} />
-      </button>
-    </div>
-  );
-};
+  const CustomOption = (props: { data: any; innerRef: any; innerProps: any; }) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div ref={innerRef} {...innerProps} className="flex justify-between items-center p-2 hover:bg-gray-200 cursor-pointer">
+        <span>{data.label}</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteChiefComplaint(data.value);
+          }}
+          className="text-red-600 hover:text-red-800"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    );
+  };
 
   const fetchAppointments = async () => {
     try {
@@ -295,9 +243,9 @@ const CustomOption = (
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!
       );
-     
+      // @ts-ignore
       setAppointments(response.documents as Appointment[]);
-    
+      // @ts-ignore
       setFilteredAppointments(response.documents as Appointment[]);
     } catch (error) {
       console.error("❌ Error fetching appointments:", error);
@@ -311,7 +259,7 @@ const CustomOption = (
         process.env.NEXT_PUBLIC_DATABASE_ID!,
         process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!
       );
-      
+      // @ts-ignore
       setPatients(response.documents as Patient[]);
     } catch (error) {
       console.error("❌ Error fetching patients:", error);
@@ -333,47 +281,37 @@ const CustomOption = (
         : true;
   
       let chiefComplaintMatch = true;
-
-if (chiefComplaintFilter) {
-  if (!appointment.diagnosis) {
-    chiefComplaintMatch = false;
-  } else {
-    try {
-      const diagnosisData: DiagnosisData = JSON.parse(
-        appointment.diagnosis
-      );
-
-      if (!diagnosisData.chiefComplaint) {
-        chiefComplaintMatch = false;
-      } else if (Array.isArray(diagnosisData.chiefComplaint)) {
-        chiefComplaintMatch = diagnosisData.chiefComplaint.some(
-          (cc: string) =>
-            cc
-              .toLowerCase()
-              .includes(chiefComplaintFilter.toLowerCase())
-        );
-      } else {
-        chiefComplaintMatch = diagnosisData.chiefComplaint
-          .toLowerCase()
-          .includes(chiefComplaintFilter.toLowerCase());
-      }
+      if (chiefComplaintFilter) {
+        if (!appointment.diagnosis) {
+          chiefComplaintMatch = false;
+        } else {
+          try {
+            const diagnosisData = JSON.parse(appointment.diagnosis);
+            
+            if (!diagnosisData.chiefComplaint) {
+              chiefComplaintMatch = false;
+            } else if (Array.isArray(diagnosisData.chiefComplaint)) {
+              // @ts-ignore
+              chiefComplaintMatch = diagnosisData.chiefComplaint.some(cc =>
+                cc.toLowerCase().includes(chiefComplaintFilter.toLowerCase())
+              );
+            } else {
+              chiefComplaintMatch = diagnosisData.chiefComplaint.toLowerCase()
+                .includes(chiefComplaintFilter.toLowerCase());
+            }
     } catch (error) {
-      console.error("Error parsing diagnosis:", error);
-      chiefComplaintMatch = false;
-    }
-  }
-}
+            console.error("Error parsing diagnosis:", error);
+            chiefComplaintMatch = false;
+          }
+        }
+      }
 
-return (
-  occupationMatch &&
-  collegeMatch &&
-  officeMatch &&
-  chiefComplaintMatch
-);
-  });
+      return occupationMatch && collegeMatch && officeMatch && chiefComplaintMatch;
+    });
+
     setFilteredAppointments(filtered);
     setIsFiltering(false);
-
+  };
 
   const resetFilters = () => {
     setBpFilter("");
@@ -438,69 +376,57 @@ return (
   };
 
   const handleStatusDialogSubmit = async () => {
-  if (!selectedAppointmentId || !selectedStatus) return;
+    if (!selectedAppointmentId || !selectedStatus) return;
 
-  try {
-    const updateData: AppointmentUpdateData = {
-      status: selectedStatus,
-    };
+    try {
+      const updateData: any = { status: selectedStatus };
+      if (selectedStatus === "Cancelled") {
+        updateData.cancellationReason = cancellationReason;
+      } else if (selectedStatus === "Completed") {
+        const truncatedNotes = notes.length > 500 ? notes.substring(0, 500) + "..." : notes;
 
-    if (selectedStatus === "Cancelled") {
-      updateData.cancellationReason = cancellationReason;
-    } else if (selectedStatus === "Completed") {
-      const truncatedNotes =
-        notes.length > 500
-          ? notes.substring(0, 500) + "..."
-          : notes;
+        const chiefComplaintsArray = selectedChiefComplaints.map((complaint) => complaint.value);
 
-      const chiefComplaintsArray = selectedChiefComplaints.map(
-        (complaint) => complaint.value
-      );
+        const diagnosisData = JSON.stringify({
+          bloodPressure,
+          chiefComplaint: chiefComplaintsArray,
+          notes: truncatedNotes,
+          dental: selectedDentalTypes.map((item) => item.label).join(", "),
+        });
 
-      const diagnosisData = JSON.stringify({
-        bloodPressure,
-        chiefComplaint: chiefComplaintsArray,
-        notes: truncatedNotes,
-        dental: selectedDentalTypes
-          .map((item) => item.label)
-          .join(", "),
-      });
+        if (diagnosisData.length > 1000) {
+          throw new Error("Diagnosis data exceeds the maximum length of 255 characters.");
+        }
 
-      if (diagnosisData.length > 1000) {
-        throw new Error(
-          "Diagnosis data exceeds the maximum length of 1000 characters."
-        );
+        updateData.diagnosis = diagnosisData;
       }
 
-      updateData.diagnosis = diagnosisData;
+      await databases.updateDocument(
+        process.env.NEXT_PUBLIC_DATABASE_ID!,
+        process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
+        selectedAppointmentId,
+        updateData
+      );
+
+      fetchAppointments();
+      setMessage("✅ Appointment status updated successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("❌ Error updating appointment:", error);
+      setMessage("Failed to update appointment status");
+      setMessageType("error");
+    } finally {
+      setIsStatusDialogOpen(false);
+      setSelectedAppointmentId(null);
+      setSelectedStatus(null);
+      setBloodPressure("");
+      setSelectedChiefComplaints([]);
+      setNotes("");
+      setCancellationReason("");
+      setSelectedDentalTypes([]);
     }
-
-    await databases.updateDocument(
-      process.env.NEXT_PUBLIC_DATABASE_ID!,
-      process.env.NEXT_PUBLIC_APPOINTMENT_COLLECTION_ID!,
-      selectedAppointmentId,
-      updateData
-    );
-
-    fetchAppointments();
-    setMessage("✅ Appointment status updated successfully!");
-    setMessageType("success");
-    setTimeout(() => setMessage(null), 3000);
-  } catch (error) {
-    console.error("❌ Error updating appointment:", error);
-    setMessage("Failed to update appointment status");
-    setMessageType("error");
-  } finally {
-    setIsStatusDialogOpen(false);
-    setSelectedAppointmentId(null);
-    setSelectedStatus(null);
-    setBloodPressure("");
-    setSelectedChiefComplaints([]);
-    setNotes("");
-    setCancellationReason("");
-    setSelectedDentalTypes([]);
-  }
-};
+  };
 
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
@@ -786,7 +712,7 @@ return (
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle className="text-red-700">
-              Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}&apos;s</strong>?
+              Delete Appointment for <strong className="text-black">{appointmentToDelete?.patientName}</strong>?
             </DialogTitle>
             <DialogDescription className="text-gray-500">
               Are you sure you want to delete <strong className="text-black">{appointmentToDelete?.patientName}'s</strong> appointment? This action cannot be undone.
@@ -829,13 +755,13 @@ return (
                 {selectedDiagnosis.medicines && (
                   <div>
                     <p className="text-sm font-semibold">Prescribed Medicines:</p>
-                   <ul className="text-sm list-disc pl-5">
-  {selectedDiagnosis.medicines?.map((med: Medicine, index: number) => (
-    <li key={index}>
-      {med.name} - {med.quantity} unit(s)
-    </li>
-  ))}
-</ul>
+                    <ul className="text-sm list-disc pl-5">
+                      {selectedDiagnosis.medicines.map((med: any, index: number) => (
+                        <li key={index}>
+                          {med.name} - {med.quantity} unit(s)
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </>
@@ -913,9 +839,7 @@ return (
                   isMulti
                   options={chiefComplaintsList}
                   value={selectedChiefComplaints}
-                  onChange={(selectedOptions: MultiValue<ChiefComplaintOption>) =>
-    setSelectedChiefComplaints([...selectedOptions])
-}
+                  onChange={(selectedOptions: any) => setSelectedChiefComplaints(selectedOptions)}
                   className="react-select-container"
                   classNamePrefix="react-select"
                   components={{ Option: CustomOption }}
