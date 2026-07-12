@@ -11,9 +11,8 @@ const BackToHomeButton = () => {
 
   const handleClick = () => {
     setLoading(true); // Show loading animation
-    router.push("/"); // Navigate to home
+    router.replace("/"); // Replace current history entry so back doesn't return here
   };
-
   return (
     <button
       onClick={handleClick}

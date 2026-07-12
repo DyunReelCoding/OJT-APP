@@ -50,6 +50,7 @@ const StudentSideBar = ({ userId }: { userId: string }) => {
           <Link
             key={link.href}
             href={link.href}
+            replace={link.href === "/"}
             className={`flex items-center gap-2 p-4 hover:bg-blue-100 transition-colors ${
               pathname === link.href ? "bg-blue-100" : ""
             }`}
