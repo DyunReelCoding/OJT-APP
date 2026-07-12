@@ -3,7 +3,15 @@ import PasskeyModal from "@/components/PasskeyModal";
 import { ThemeProvider } from "@/components/theme-provider";
 import Image from "next/image"
 import Link from "next/link"
+import type { Metadata } from 'next'
 
+export const metadata: Metadata = {
+  title: 'Clinic Profiling',
+  description: 'Patient registration and profiling system',
+  icons: {
+    icon: '/assets/icons/logo-clinic.png',
+  },
+}
 export default async function Home({ searchParams}: SearchParamProps) {
   const params = await searchParams;
   const isAdmin = params.admin === 'true';
