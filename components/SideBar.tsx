@@ -48,7 +48,7 @@ const SideBar = () => {
       {/* Sidebar Container */}
       <div
         ref={sidebarRef} // Attach ref to sidebar
-        className={`fixed left-0 top-0 h-screen transition-all duration-300 ${
+        className={`fixed left-0 top-0 h-screen overflow-hidden transition-all duration-300 ease-in-out ${
           isOpen ? "w-96" : "w-16"
         } bg-white shadow-lg border-r border-gray-700 flex flex-col z-10`}
       >
@@ -61,9 +61,8 @@ const SideBar = () => {
         </button>
 
         {/* Sidebar Links */}
-        {isOpen && (
-          <nav className="p-4">
-            <ul className="space-y-4">
+        <nav className={`p-4 transition-opacity duration-300 ease-in-out ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+          <ul className="space-y-4">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -109,14 +108,11 @@ const SideBar = () => {
               </li>
             </ul>
           </nav>
-        )}
 
         {/* Back to Home Button */}
-        {isOpen && (
-          <div className="p-4 mt-auto">
-            <BackToHomeButton />
-          </div>
-        )}
+        <div className={`p-4 mt-auto transition-opacity duration-300 ease-in-out ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+          <BackToHomeButton />
+        </div>
       </div>
     </div>
   );

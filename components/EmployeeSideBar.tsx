@@ -39,9 +39,9 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
   ];
 
   return (
-    <div className={`${isOpen ? "w-64" : "w-16"} bg-white text-blue-700 min-h-screen transition-all duration-300`}>
+    <div className={`${isOpen ? "w-64" : "w-16"} bg-white text-blue-700 min-h-screen overflow-hidden transition-all duration-300 ease-in-out`}>
       <div className="flex justify-between items-center p-4">
-        {isOpen && <h2 className="text-xl font-bold">Employee Portal</h2>}
+        {isOpen && <h2 className="text-xl font-bold transition-opacity duration-300 ease-in-out">Employee Portal</h2>}
         <button onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X /> : <Menu />}
         </button>
@@ -58,7 +58,11 @@ const EmployeeSideBar = ({ userId }: { userId: string }) => {
             }`}
           >
             {link.icon}
-            {isOpen && <span>{link.label}</span>}
+            <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
+              isOpen ? "max-w-full opacity-100" : "max-w-0 opacity-0"
+            }`}>
+              {link.label}
+            </span>
           </Link>
         ))}
       </nav>
