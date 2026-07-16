@@ -20,6 +20,7 @@ import {
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { setAdminSessionCookie } from '@/lib/auth-client';
 
 const PasskeyModal = () => {
     const router = useRouter();
@@ -31,8 +32,9 @@ const PasskeyModal = () => {
         e.preventDefault();
 
         if (passkey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+            setAdminSessionCookie();
             setOpen(false);
-            router.push('/admin');
+            router.replace('/admin');
             return;
         }
 
@@ -41,7 +43,7 @@ const PasskeyModal = () => {
 
     const closeModal = () => {
         setOpen(false);
-        router.push('/');
+        router.replace('/');
     }
 
     return (

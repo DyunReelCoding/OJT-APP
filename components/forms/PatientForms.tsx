@@ -10,6 +10,7 @@ import SubmitButton from "../SubmitButton";
 import { UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import OTPModal from "@/components/OTPModal";
+import { setPatientSessionCookie } from "@/lib/auth-client";
 
 export enum FormFieldType {
   INPUT = "input",
@@ -98,6 +99,7 @@ const PatientForms = () => {
       if (checkResponse.ok) {
         if (checkData.patient) {
           const { userId, occupation } = checkData.patient;
+          setPatientSessionCookie(userId, email);
   
           if (occupation?.toLowerCase() === "student") {
             router.push(`/patients/${userId}/student`);
@@ -105,6 +107,7 @@ const PatientForms = () => {
             router.push(`/patients/${userId}/employee`);
           }
         } else if (checkData.userId) {
+          setPatientSessionCookie(checkData.userId, email);
           router.push(`/patients/${checkData.userId}/register?email=${encodeURIComponent(email)}`);
         }
       }

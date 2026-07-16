@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { clearAuthCookies } from "@/lib/auth-client";
 
 interface IdleLogoutProps {
   timeoutMinutes?: number;
@@ -19,6 +20,7 @@ const IdleLogout = ({ timeoutMinutes = 3 }: IdleLogoutProps) => {
       if (typeof window !== "undefined") {
         localStorage.removeItem("patientSession");
         localStorage.removeItem("employeeSession");
+        clearAuthCookies();
       }
 
       setMessage("You have been logged out due to inactivity. Redirecting to home...");
