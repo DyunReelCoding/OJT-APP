@@ -57,6 +57,7 @@ const MEDICINES_COLLECTION_ID = "67b486f5000ff28439c6";
 const UNAVAILABLESLOTS_COLLECTION_ID = "67cd8eaa000fac61575d";
 
 const CalendarPage = () => {
+  const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -125,7 +126,6 @@ const CalendarPage = () => {
     .setProject(process.env.NEXT_PUBLIC_PROJECT_ID!);
   
   const databases = new Databases(client);
-  const router = useRouter();
 
   useEffect(() => {
     fetchAppointments();
