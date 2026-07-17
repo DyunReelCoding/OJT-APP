@@ -1,0 +1,138 @@
+[33me37350b[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m fix bypass admin on browser
+[33m97aab8e[m[33m ([m[1;31morigin/main[m[33m)[m added auth
+[33m54261d1[m[33m ([m[1;32mcopilot/worktree-2026-07-16T07-53-41[m[33m)[m added proper auth on patient/admin
+[33m74b5f5e[m fix slide animation of side bar
+[33mc996e96[m grouping add types on admin side bar
+[33m5444da1[m added idle logout
+[33meebdf36[m fix backhome to not go back previous page
+[33m8cfaa6b[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33md72600c[m remove local storage for security
+[33m8dfb529[m added logo
+[33m00a26cf[m Update Next.js to 15.5.20
+[33m1ff8d1d[m add ignore eslint error
+[33ma1311fc[m no change
+[33m5316fa4[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33meac69db[m fix vercel error on Appointments
+[33m1c1740f[m updated email
+[33m4ac578b[m added logo
+[33mc1c814e[m fix tab name
+[33m8b734d1[m fix email
+[33ma17f8af[m fix error
+[33m5268edd[m Merge pull request #31 from DyunReelCoding/ladia-branch
+[33m3d10718[m[33m ([m[1;31morigin/ladia-branch[m[33m)[m Added Filter Gender Button To Annual, Quarterly, Monthly, and Dental Reports
+[33md5866b6[m adding env
+[33m2f9b77a[m Merge pull request #30 from DyunReelCoding/main
+[33mac73d15[m Merge branch 'ladia-branch' into main
+[33m9b9a9c5[m Nothing was changed
+[33m91123b3[m added same functions to the emp side. also set slot capacity
+[33m979dc4d[m Merge branch 'ladia-branch' of https://github.com/DyunReelCoding/OJT-APP into ladia-branch
+[33m6a345bb[m Merge branch 'ladia-branch' of https://github.com/DyunReelCoding/OJT-APP into ladia-branch
+[33m6930a66[m Merge pull request #29 from DyunReelCoding/main
+[33m079aad3[m Merge pull request #28 from DyunReelCoding/ladia-branch
+[33mfde61ad[m Adding changes to merge
+[33m4c691d4[m Merge pull request #27 from DyunReelCoding/main
+[33mc013900[m updated admin calendar and appointment page and student to display the new fields
+[33mfba91c5[m fix the hardcoded api to fetch in env
+[33mbb539fd[m Merge pull request #26 from DyunReelCoding/main
+[33mfd3e6f7[m fix dental type
+[33m8c3a751[m added dental but not fix
+[33md859e78[m added dental but not fixed
+[33ma613a9b[m added dental
+[33m65a8fa7[m Merge pull request #25 from DyunReelCoding/ladia-branch
+[33mf9a4b33[m added quarterly med reports
+[33m00e974d[m fix the delete
+[33m62f9556[m fix the delete button
+[33m771ceb6[m Merge pull request #24 from DyunReelCoding/main
+[33m1641f64[m added timerestriction stud n emp
+[33m062dfe2[m added delete student
+[33mb9e38bc[m Merge pull request #23 from DyunReelCoding/ladia-branch
+[33mfe30282[m Added Monthly Report and changes in Medical Record
+[33md023158[m Merge pull request #22 from DyunReelCoding/main
+[33m04f209f[m added office/college pre fill in medical record
+[33m94b9ec5[m dynamic college and office filter
+[33m943a5a8[m dynamic college
+[33ma0e0fc3[m Merge pull request #21 from DyunReelCoding/ladia-branch
+[33m9b72571[m Done Annual Report
+[33mff045f7[m Done Stylized Medical Annual Report PDF
+[33m81cfd67[m Merge pull request #20 from DyunReelCoding/main
+[33m91e7b3f[m Merge branch 'ladia-branch' into main
+[33m70217fd[m Fix
+[33md40e068[m fix
+[33m1258bc9[m add dayjs for age calculation and update registration form
+[33m311492b[m status in admin appoinment FIX
+[33m2fc1d69[m added dynamic age
+[33m4b2ed34[m Partially Stylized Medical Annual Report
+[33mcd189f2[m Merge pull request #19 from DyunReelCoding/main
+[33m4b09847[m added MSAR
+[33mbef3a5e[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33m63b7a3c[m added fixes in employee calendar and filters
+[33m812fd36[m added pre fill in forms
+[33mf41a278[m fix college validation
+[33m7debd86[m added filters for college and occupation
+[33m031be44[m added medical form to student and employee
+[33md7e68a0[m Format for PDF in Medical Clearance and History are done
+[33m39ead6d[m Merge branch 'ladia-branch' of https://github.com/DyunReelCoding/OJT-APP into ladia-branch
+[33m9ede4a8[m Format polishing for medical clearance pdf is done
+[33me0464e8[m Merge pull request #18 from DyunReelCoding/main
+[33md197c5b[m added college
+[33m9dda4bf[m added college
+[33m5810247[m Merge pull request #17 from DyunReelCoding/main
+[33m1c9c3a1[m tweaked the API declaration
+[33ma541e2f[m[33m ([m[1;32mbackup-before-pull[m[33m)[m fixed
+[33m8af8770[m Merge pull request #16 from DyunReelCoding/ladia-branch
+[33mca3e68f[m[33m ([m[1;32mladia-branch[m[33m)[m Done Formatting Medical Clearance
+[33m717ef4a[m Merge pull request #15 from DyunReelCoding/main
+[33mbdb393f[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33med407ce[m add chief complaint
+[33m43ff49c[m added medical record
+[33m5678db4[m fix the camera bug and added medical clearance form
+[33m9ec8407[m Added the selected names in the delete dialog
+[33m698321b[m Merge pull request #14 from DyunReelCoding/main
+[33m59b6607[m added take a picture in studentdetailadmin
+[33mb9e46bf[m added unavailable funtion for admin, and more. also chief complaint multi select
+[33m3b71976[m added changes
+[33md54c20b[m Merge pull request #13 from DyunReelCoding/ladia-branch
+[33m374c007[m Added delete dialog in appointment calendar
+[33m6cfab12[m Merge pull request #12 from DyunReelCoding/main
+[33md0b42cf[m added medicine prescription
+[33me31c2f0[m added changes
+[33mb08aeab[m added changes
+[33m1424a0a[m Merge pull request #11 from DyunReelCoding/ladia-branch
+[33m6553cfc[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33mdc221f8[m added img preview
+[33m8a1efa2[m Finished updating details in StudentAdminDetails
+[33m8296dd8[m Merge pull request #10 from DyunReelCoding/main
+[33m6f65f6a[m Merge branch 'ladia-branch' into main
+[33m86aba2d[m Changes in admin and student/employee portal
+[33m501181e[m fixes overflow in student/employee and change the delete/alert messgae in student detail admin
+[33mbaa1f0f[m Merge pull request #9 from DyunReelCoding/main
+[33mf929d5c[m also added the functionalities to the employee side
+[33m860dabe[m made the reco history and overview collapsible, and sync with admin and student
+[33mca78f6d[m Admin/Appointment details THEMES UPDATED
+[33m397b99e[m Merge pull request #8 from DyunReelCoding/main
+[33m1516462[m collapsible section sa diagnosis
+[33m64c1e83[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33mc60d3bf[m added notes, diagnosis for stud and emp. also diet reco based on bmi category
+[33mede3d55[m added to delete the code after verification for storage management
+[33m568e5fa[m fix print title for employee and will go to next tab and wont reload the current page
+[33m0a4934b[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33mf07824b[m removed disable verify button since the otp expires anyway
+[33m297b3f0[m added calendar for student and employees and simplified the schedule appointments
+[33ma12bad1[m added asterisk on the field
+[33m04b7f73[m properly working otp expiration
+[33m982cbdd[m added multiple selection in medical history
+[33me0cd295[m Done changing styles in admin student detail
+[33m9ff20a5[m Merge pull request #7 from DyunReelCoding/main
+[33m972ee5c[m added otp expiration, fetch the login email to register form email field, employee selection in identification etc.
+[33m955c01e[m remove redundant push to register page
+[33mc8d464d[m Merge branch 'main' of https://github.com/DyunReelCoding/OJT-APP
+[33m2cf96ee[m fix the date picker in register form and fix the redirection portal of employee
+[33m3f16d11[m Merge pull request #6 from DyunReelCoding/main
+[33m417d600[m Merge pull request #5 from DyunReelCoding/ladia-branch
+[33mbf895fa[m Merge branch 'main' into ladia-branch
+[33m3450ef2[m Semi-Final changes in page/s styles
+[33m074a372[m Semi-Final done in changing themes
+[33m9f2a2bf[m fix the others in past/family storing field in db
+[33md9c45ae[m Changes in Alerts and Confirmation
+[33md9f2f1a[m Changes in themes
+[33m16abd4a

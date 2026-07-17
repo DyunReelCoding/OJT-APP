@@ -23,6 +23,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setAuthorized(true);
   }, [pathname, router]);
 
+  useEffect(() => {
+    // This is deliberately presentation-only: it changes the address bar after
+    // an admin route has rendered, but does not weaken the /admin middleware.
+    // A refresh at / will still load the public landing page.
+    if (authorized && pathname?.startsWith("/admin") && window.location.pathname !== "/") {
+      window.history.replaceState(window.history.state, "", "/");
+    }
+  }, [authorized, pathname]);
+
   if (!authorized) {
     return null;
   }
