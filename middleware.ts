@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminAccess } from "@/lib/auth";
+import { requireAdminAccess, requirePatientOwnership } from "@/lib/auth";
 
 export function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin")) {
+  const pathname = request.nextUrl.pathname;
+
+  // Protect patient routes
+  if (pathname.startsWith("/patients/")) {
+    return requirePatientOwnership(request);
+  }
+
+  // Protect admin routes
+  if (pathname.startsWith("/admin")) {
     return requireAdminAccess(request);
   }
 
@@ -10,5 +18,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    "/patients/:path*",
+    "/admin/:path*",
+  ],
 };
