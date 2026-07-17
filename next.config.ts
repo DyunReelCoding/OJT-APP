@@ -4,9 +4,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb", // Increase the limit as needed
+      bodySizeLimit: "10mb",
     },
   },
+
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -14,9 +15,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-
 };
-
 
 export default withSentryConfig(withSentryConfig(nextConfig, {
 // For all available options, see:
@@ -45,6 +44,8 @@ enabled: true,
 // side errors will fail.
 // tunnelRoute: "/monitoring",
 
+// Hides source maps from generated client bundles
+// hideSourceMaps: true,
 
 // Automatically tree-shake Sentry logger statements to reduce bundle size
 disableLogger: true,
