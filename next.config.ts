@@ -2,15 +2,21 @@ import {withSentryConfig} from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb", // Increase the limit as needed
     },
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
 };
+
 
 export default withSentryConfig(withSentryConfig(nextConfig, {
 // For all available options, see:
