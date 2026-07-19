@@ -7,10 +7,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const SideBar = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [showTypeOptions, setShowTypeOptions] = useState(false);
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLDivElement | null>(null); // Create a reference for the sidebar
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsOpen(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const navLinks = [
     { label: "Dashboard", href: "/admin", icon: <Users className="w-5 h-5" /> },
@@ -48,9 +60,9 @@ const SideBar = () => {
       {/* Sidebar Container */}
       <div
         ref={sidebarRef} // Attach ref to sidebar
-        className={`fixed left-0 top-0 h-screen overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "w-96" : "w-16"
-        } bg-white shadow-lg border-r border-gray-700 flex flex-col z-10`}
+        className={`fixed left-0 top-0 z-20 h-screen overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out ${
+          isOpen ? "w-[min(100vw,18rem)] shadow-2xl" : "w-16"
+        }`}
       >
         {/* Sidebar Toggle Button */}
         <button

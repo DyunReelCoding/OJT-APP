@@ -212,7 +212,7 @@ const StudentList = () => {
       </h2>
 
       {/* View Toggle */}
-      <div className="flex justify-center mb-4">
+      <div className="flex flex-col items-center gap-3 mb-4 sm:flex-row sm:justify-center">
         <button
           onClick={() => setView("student")}
           className={`px-4 py-2 mx-2 rounded-lg ${view === "student" ? "bg-blue-700 text-white" : "bg-gray-200 text-black"}`}
@@ -239,12 +239,12 @@ const StudentList = () => {
       {/* Filters */}
       <div className="flex flex-col items-center mb-4">
         <StudentListPrintButton filteredStudents={filteredStudents} filterType={filterType} view={view} />
-        <div className="w-96 mt-2">
+        <div className="w-full max-w-md mt-2">
           <ComboBox filterType={filterType} setFilterType={setFilterType} />
         </div>
         {filterType === "bmiCategory" && (
           <select
-            className="w-96 p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm mt-2 focus:outline-none"
+            className="w-full max-w-md p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm mt-2 focus:outline-none"
             value={bmiCategory}
             onChange={(e) => setBmiCategory(e.target.value)}
           >
@@ -258,7 +258,7 @@ const StudentList = () => {
         <input
           type="text"
           placeholder="Search..."
-          className="w-96 p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm mt-2 focus:outline-none"
+          className="w-full max-w-md p-3 border-2 border-blue-700 rounded-xl bg-white text-black shadow-sm mt-2 focus:outline-none"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

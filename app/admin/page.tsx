@@ -35,32 +35,55 @@ const Admin = () => {
     fetchStudents();
   }, []);
 
-  return (
-    <div className="flex bg-gray-50">
+ return (
+  <div className="flex min-h-screen w-full bg-white overflow-x-hidden">
+    
+    <SideBar />
+
+    <div className="flex-1 min-w-0 p-4 sm:p-6">
       
-      <SideBar />
-
-      <div className="flex-1 p-6">
+      <main className="admin-main w-full">
         
-        <main className="admin-main">
-          
-          <section className="w-full space-y-4">
-            <h1 className="header text-green-400">Welcome 👋</h1>
-            <p className="text-dark-700">Start the day managing patients' well-being</p>
-          </section>
+        <section className="w-full space-y-2">
+          <h1 className="header text-green-400">
+            Welcome 👋
+          </h1>
+          <p className="text-dark-700">
+            Start the day managing patients' well-being
+          </p>
+        </section>
 
-          <section className="admin-stat grid grid-cols-1 md:grid-cols-3 gap-4">
-            <StatCard type="patients" count={patientsCount} label="Number of Patients" icon="/assets/icons/appointments.svg" />
-            <StatCard type="students" count={studentsCount} label="Number of Students" icon="/assets/icons/appointments.svg" />
-            <StatCard type="employees" count={employeesCount} label="Number of Employees" icon="/assets/icons/appointments.svg" />
-          </section>
+        <section className="admin-stat grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <StatCard
+            type="patients"
+            count={patientsCount}
+            label="Number of Patients"
+            icon="/assets/icons/appointments.svg"
+          />
 
+          <StatCard
+            type="students"
+            count={studentsCount}
+            label="Number of Students"
+            icon="/assets/icons/appointments.svg"
+          />
+
+          <StatCard
+            type="employees"
+            count={employeesCount}
+            label="Number of Employees"
+            icon="/assets/icons/appointments.svg"
+          />
+        </section>
+
+        <div className="mt-4 w-full overflow-x-auto">
           <StudentList />
+        </div>
 
-        </main>
-      </div>
+      </main>
     </div>
-  );
+  </div>
+);
 };
 
 export default Admin;
