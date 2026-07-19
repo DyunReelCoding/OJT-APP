@@ -10,6 +10,11 @@ export function middleware(request: NextRequest) {
   }
 
   // Protect admin routes
+  // Allow the admin unauthorized page to be shown without an admin cookie
+  if (pathname.startsWith("/admin/unauthorized")) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/admin")) {
     return requireAdminAccess(request);
   }

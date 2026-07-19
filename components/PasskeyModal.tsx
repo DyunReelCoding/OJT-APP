@@ -49,45 +49,57 @@ const PasskeyModal = () => {
     return (
     <AlertDialog open={open} onOpenChange={setOpen}>
        
-        <AlertDialogContent className='shad-alert-dialog'>
-            <AlertDialogHeader>
-            <AlertDialogTitle className='flex items-start justify-between'>Admin Access Verification
-                <Image 
-                 src="/assets/icons/close.svg"
-                 alt="close"
-                 width={20}
-                 height={20}
-                 onClick={() => closeModal()}
-                 className='cursor-pointer'
-                />
-                </AlertDialogTitle> 
-            <AlertDialogDescription>    
+        <AlertDialogContent className="shad-alert-dialog w-[min(100%,calc(100vw-2rem))] max-w-[28rem] px-4 py-5 sm:px-6 sm:py-6">
+            <AlertDialogHeader className="items-start">
+              <div className="flex items-start justify-between gap-3">
+                <AlertDialogTitle className="text-xl font-semibold leading-tight sm:text-2xl">
+                  Admin Access Verification
+                </AlertDialogTitle>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-dark-500 bg-dark-300 text-muted-foreground transition hover:bg-dark-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  aria-label="Close admin passkey modal"
+                >
+                  <Image
+                    src="/assets/icons/close.svg"
+                    alt="Close"
+                    width={20}
+                    height={20}
+                    className="h-5 w-5"
+                  />
+                </button>
+              </div>
+              <AlertDialogDescription className="text-sm leading-6 text-muted-foreground">
                 To access the admin page, please enter the passkey.
-            </AlertDialogDescription>
+              </AlertDialogDescription>
             </AlertDialogHeader>
 
-            <div>
-                <InputOTP maxLength={6} value = {passkey} onChange={(value) => setPasskey(value)}>
-                    <InputOTPGroup className='shad-otp'>
-                    <InputOTPSlot className="shad-otp-slot"index={0} />
-                    <InputOTPSlot className="shad-otp-slot"index={1} />
-                    <InputOTPSlot className="shad-otp-slot"index={2} />
-                    <InputOTPSlot className="shad-otp-slot"index={3} />
-                    <InputOTPSlot className="shad-otp-slot"index={4} />
-                    <InputOTPSlot className="shad-otp-slot"index={5} />
-                    </InputOTPGroup>
-                </InputOTP>
+            <div className="flex flex-col gap-4">
+              <InputOTP maxLength={6} value={passkey} onChange={(value) => setPasskey(value)}>
+                <InputOTPGroup className="shad-otp">
+                  <InputOTPSlot className="shad-otp-slot" index={0} />
+                  <InputOTPSlot className="shad-otp-slot" index={1} />
+                  <InputOTPSlot className="shad-otp-slot" index={2} />
+                  <InputOTPSlot className="shad-otp-slot" index={3} />
+                  <InputOTPSlot className="shad-otp-slot" index={4} />
+                  <InputOTPSlot className="shad-otp-slot" index={5} />
+                </InputOTPGroup>
+              </InputOTP>
 
-                {error && <p className='shad-error text-14-regular mt-4 flex justify-center'>
-                    {error}
-                    </p>}
+              {error && (
+                <p className="shad-error text-14-regular mt-2 text-center">
+                  {error}
+                </p>
+              )}
             </div>
             <AlertDialogFooter>
-            <AlertDialogAction onClick={(e) => validatePasskey(e)}
-                className='shad-primary-btn w-full'
-                >
+              <AlertDialogAction
+                onClick={(e) => validatePasskey(e)}
+                className="shad-primary-btn w-full py-3 text-sm sm:text-base"
+              >
                 Enter Admin Passkey
-            </AlertDialogAction>
+              </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
 </AlertDialog>

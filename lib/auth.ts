@@ -63,7 +63,8 @@ export function requireAdminAccess(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    return NextResponse.redirect(new URL("/", request.url));
+    // Redirect to a friendly unauthorized page instead of the public root.
+    return NextResponse.redirect(new URL("/admin/unauthorized", request.url));
   }
 
   return NextResponse.next();
