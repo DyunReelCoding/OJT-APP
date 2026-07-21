@@ -25,6 +25,7 @@ import { useEffect } from "react";
 import SuccessMessage from "../SuccessMessage";
 import { Client, Databases } from "appwrite";
 import { useSearchParams } from "next/navigation";
+import { setPatientSessionCookie } from "@/lib/auth-client";
 
 import dayjs from "dayjs";
 
@@ -271,7 +272,12 @@ const RegisterForm = ({ user }: { user: User }) => {
       if (patient) {
         form.reset();
         setSuccessMessage("Registration successful! You have been registered successfully.");
-        const occupation = values.occupation.toLowerCase();
+        setPatientSessionCookie(patient.$id, values.email);
+
+        const occupation = (patient?.occupation || values.occupation || "")
+          .toString()
+          .trim()
+          .toLowerCase();
 
         if (occupation === "student") {
           router.push(`/patients/${patient.$id}/student`);
@@ -451,9 +457,9 @@ const RegisterForm = ({ user }: { user: User }) => {
         <Select
           onValueChange={(value) => {
             setSelectedOccupation(value);
-            form.setValue("occupation", value); // Set the selected value in the form
+            field.onChange(value);
           }}
-          value={field.value || ""} // Clear the value if field.value is undefined or null
+          value={field.value || ""}
         >
                     <SelectTrigger className="w-full bg-gray-50">
             <SelectValue placeholder="Select Occupation" />
