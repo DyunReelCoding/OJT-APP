@@ -75,22 +75,22 @@ const EmployeePage = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Welcome, {employee.name}!</h1>
 
           {/* Quick Overview Section */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8 min-w-0">
             <h2 className="text-2xl font-semibold text-blue-700 mb-4">Quick Overview</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="min-w-0">
                 <p className="font-medium text-gray-600">Office:</p>
-                <p className="text-gray-800">{employee.office}</p>
+                <p className="text-gray-800 break-words">{employee.office}</p>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-gray-600">Email:</p>
-                <p className="text-gray-800">{employee.email || 'N/A'}</p>
+                <p className="text-gray-800 break-words">{employee.email || 'N/A'}</p>
               </div>
             </div>
           </div>
 
           {/* Diet Recommendation Section (Collapsible) */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8 max-h-[60vh] overflow-auto">
             <div
               className="flex justify-between items-center cursor-pointer"
               onClick={() => setIsDietExpanded(!isDietExpanded)}
@@ -105,16 +105,16 @@ const EmployeePage = () => {
               </div>
             </div>
             {isDietExpanded && (
-              <div className="mt-4">
+              <div className="mt-4 min-w-0">
                 {employee.dietRecommendation ? (
                   <>
-                    <p className="text-gray-800">{employee.dietRecommendation}</p>
+                    <p className="text-gray-800 break-words whitespace-pre-wrap">{employee.dietRecommendation}</p>
                     {employee.dietImageUrl && (
                       <div className="mt-4">
                         <img
                           src={employee.dietImageUrl}
                           alt="Wellness Notes"
-                          className="w-full max-w-md rounded-lg shadow-md"
+                          className="w-full max-w-full rounded-lg shadow-md"
                         />
                       </div>
                     )}
@@ -127,7 +127,7 @@ const EmployeePage = () => {
           </div>
 
           {/* Diagnosis Section (Collapsible) */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-6 max-h-[60vh] overflow-auto">
             <div
               className="flex justify-between items-center cursor-pointer"
               onClick={() => setIsDiagnosisExpanded(!isDiagnosisExpanded)}
@@ -142,17 +142,17 @@ const EmployeePage = () => {
               </div>
             </div>
             {isDiagnosisExpanded && (
-              <div className="mt-4">
+              <div className="mt-4 min-w-0">
                 {appointments
                   .filter((appointment) => appointment.status === "Completed" && appointment.diagnosis)
                   .map((appointment) => (
-                    <div key={appointment.$id} className="mb-4 border rounded-lg p-4">
-                      <p className="text-gray-800"><strong>Date:</strong> {appointment.date}</p>
-                      <p className="text-gray-800"><strong>Time:</strong> {appointment.time}</p>
-                      <p className="text-gray-800"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
-                      <p className="text-gray-800"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
-                      <p className="text-gray-800"><strong>Dental:</strong> {JSON.parse(appointment.diagnosis).dental}</p>
-                      <p className="text-gray-800"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
+                    <div key={appointment.$id} className="mb-4 border rounded-lg p-4 min-w-0">
+                      <p className="text-gray-800 break-words"><strong>Date:</strong> {appointment.date}</p>
+                      <p className="text-gray-800 break-words"><strong>Time:</strong> {appointment.time}</p>
+                      <p className="text-gray-800 break-words"><strong>Blood Pressure:</strong> {JSON.parse(appointment.diagnosis).bloodPressure}</p>
+                      <p className="text-gray-800 break-words"><strong>Chief Complaint:</strong> {JSON.parse(appointment.diagnosis).chiefComplaint}</p>
+                      <p className="text-gray-800 break-words"><strong>Dental:</strong> {JSON.parse(appointment.diagnosis).dental}</p>
+                      <p className="text-gray-800 break-words whitespace-pre-wrap"><strong>Notes:</strong> {JSON.parse(appointment.diagnosis).notes}</p>
                     </div>
                   ))}
               </div>
