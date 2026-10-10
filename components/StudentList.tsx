@@ -108,7 +108,8 @@ const StudentList = () => {
 
   const handleStudentClick = (studentId: string) => {
     setLoadingId(studentId);
-    router.push(`/patients/${studentId}/studentDetailAdmin`);
+    const detailPath = view === "employee" ? "employeeDetail?from=admin" : "studentDetailAdmin";
+    router.push(`/patients/${studentId}/${detailPath}`);
   };
 
   // Function to send diet recommendation to a single student

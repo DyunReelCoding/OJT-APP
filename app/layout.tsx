@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+// @ts-expect-error CSS side-effect imports are handled by Next.js.
 import "./globals.css";
 
 import { cn } from '@/lib/utils'

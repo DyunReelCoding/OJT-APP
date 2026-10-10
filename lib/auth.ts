@@ -42,6 +42,18 @@ export function requirePatientOwnership(request: NextRequest) {
   }
 
   const requestedUserId = segments[1];
+  const requestedPage = segments[2];
+  const hasAdminCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value === "true";
+
+  // Admins can open record detail pages from the admin list without a
+  // patient session for the record owner.
+  if (
+    hasAdminCookie &&
+    (requestedPage === "studentDetailAdmin" || requestedPage === "employeeDetail")
+  ) {
+    return NextResponse.next();
+  }
+
   const session = parsePatientSessionCookie(request.headers.get("cookie") ?? undefined);
 
   if (!session || session.userId !== requestedUserId) {

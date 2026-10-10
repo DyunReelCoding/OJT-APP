@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Databases, Client } from "appwrite";
 import { notFound } from "next/navigation";
 // import BackButton from "@/components/BackButton";
 import PrintButton from "@/components/PrintButton";
 // import BackToStudentButton from "@/components/BackToStudentButton";
 import BackToEmployeeButton from "@/components/BackToEmployeeButton";
+import BackButton from "@/components/BackButton";
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT!)
@@ -17,6 +18,8 @@ const databases = new Databases(client);
 
 const StudentDetail = () => {
   const params = useParams(); 
+  const searchParams = useSearchParams();
+  const openedFromAdmin = searchParams.get("from") === "admin";
   // @ts-ignore
 
   const userId = params.userId as string; 
@@ -48,7 +51,7 @@ const StudentDetail = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-white text-black">
-      <BackToEmployeeButton userId={userId} />
+      {openedFromAdmin ? <BackButton /> : <BackToEmployeeButton userId={userId} />}
       <PrintButton student={student} />
       
       <h1 className="text-3xl font-semibold text-black">{student.name}'s Details</h1>

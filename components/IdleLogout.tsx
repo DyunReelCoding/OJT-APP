@@ -16,6 +16,13 @@ const IdleLogout = ({ timeoutMinutes = 3 }: IdleLogoutProps) => {
     let timeoutId: ReturnType<typeof setTimeout>;
     let redirectTimeoutId: ReturnType<typeof setTimeout>;
 
+    const pathname = window.location.pathname;
+    const openedFromAdmin = new URLSearchParams(window.location.search).get("from") === "admin";
+    const isAdminDetail = pathname.endsWith("/studentDetailAdmin") ||
+      (pathname.endsWith("/employeeDetail") && openedFromAdmin);
+
+    if (isAdminDetail) return;
+
     const logout = () => {
       if (typeof window !== "undefined") {
         localStorage.removeItem("patientSession");
